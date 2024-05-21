@@ -19,6 +19,8 @@ build:
         paths:
             - build/libs/*.jar    # build의 결과물인 jar파일을 artifacts로 지정.
         expire_in: 1 week    # 1주일 동안 보관
+    tags:
+        - STAGE
 
 deploy-to-server:
     stage: deploy
