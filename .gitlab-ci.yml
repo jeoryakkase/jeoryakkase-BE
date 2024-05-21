@@ -13,6 +13,7 @@ build:
     stage: build
     before_script:
         - chmod +x ./gradlew # gradlew 실행권한 부여 (초기 권한 666 [-rw-rw-rw-])
+        - apk add --update --no-cache git
     script:
         - ./gradlew build
     artifacts:
