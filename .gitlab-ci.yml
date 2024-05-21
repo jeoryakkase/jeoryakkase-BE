@@ -8,8 +8,9 @@ cache:
         - .gradle/wrapper
         - .gradle/caches
 
+image: gradle-8.7.0-jdk17 # gradle-8.7, jdk17 도커 이미지 사용 (배포환경에 따라 변경할 것)
+
 build:
-    image: gradle-8.7.0-jdk17 # gradle-8.7, jdk17 도커 이미지 사용 (배포환경에 따라 변경할 것)
     stage: build
     before_script:
         - chmod +x ./gradlew # gradlew 실행권한 부여 (초기 권한 666 [-rw-rw-rw-])
