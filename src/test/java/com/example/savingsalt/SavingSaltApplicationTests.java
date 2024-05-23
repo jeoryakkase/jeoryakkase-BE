@@ -1,4 +1,4 @@
-package com.example.team5;
+package com.example.savingsalt;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
