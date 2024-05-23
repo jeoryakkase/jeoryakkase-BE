@@ -12,11 +12,11 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class Like {
+public class MemberLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "like_id")
+    @JoinColumn(name = "member_like_id")
     private Long id;
 
     @ManyToOne
