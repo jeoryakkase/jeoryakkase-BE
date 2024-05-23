@@ -126,6 +126,9 @@ fabric.properties
 # https://plugins.jetbrains.com/plugin/12206-codestream
 .idea/codestream.xml
 
+# CodeStyle config
+.idea/codeStyles/codeStyleConfig.xml
+
 # Azure Toolkit for IntelliJ plugin
 # https://plugins.jetbrains.com/plugin/8053-azure-toolkit-for-intellij
 .idea/**/azureSettings.xml
@@ -399,5 +402,8 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
+
+### Application Properties ###
+src/main/resources/application.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,intellij,node,java,gradle,visualstudiocode,macos
