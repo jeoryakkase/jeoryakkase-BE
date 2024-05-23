@@ -2,6 +2,7 @@ package com.example.savingsalt.community.board.entity;
 
 import com.example.savingsalt.community.category.entity.Category;
 import com.example.savingsalt.global.BaseTimeEntity;
+import com.example.savingsalt.member.entity.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,9 +21,12 @@ public class Board extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postId;
+    @JoinColumn(name = "post_id")
+    private Long id;
 
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     private String postTitle;
 
