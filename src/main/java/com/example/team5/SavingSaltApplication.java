@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Team5Application {
+public class SavingSaltApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Team5Application.class, args);
+        SpringApplication.run(SavingSaltApplication.class, args);
     }
 }
