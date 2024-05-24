@@ -1,8 +1,8 @@
-package com.example.savingsalt.community.comment.entity;
+package com.example.savingsalt.community.comment.domain;
 
-import com.example.savingsalt.community.board.entity.Board;
+import com.example.savingsalt.community.board.domain.Board;
 import com.example.savingsalt.global.BaseTimeEntity;
-import com.example.savingsalt.member.entity.Member;
+import com.example.savingsalt.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,8 +20,7 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "comment_id")
     private Long id;
 
-    @JoinColumn(name = "comment_content")
-    private String content;
+    private String comment;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
