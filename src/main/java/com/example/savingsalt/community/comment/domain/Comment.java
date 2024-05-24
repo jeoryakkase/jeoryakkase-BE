@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.comment.domain;
 
 import com.example.savingsalt.community.board.domain.Board;
-import com.example.savingsalt.global.BaseTimeEntity;
+import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +13,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class Comment extends BaseTimeEntity {
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
