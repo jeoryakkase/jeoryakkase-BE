@@ -1,4 +1,4 @@
-package com.example.savingsalt.community.category.entity;
+package com.example.savingsalt.community.category.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

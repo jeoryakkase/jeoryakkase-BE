@@ -1,7 +1,7 @@
-package com.example.savingsalt.community.like.entity;
+package com.example.savingsalt.community.bookmark.domain;
 
-import com.example.savingsalt.community.board.entity.Board;
-import com.example.savingsalt.member.entity.Member;
+import com.example.savingsalt.community.board.domain.Board;
+import com.example.savingsalt.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,19 +12,20 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class MemberLike {
+public class Bookmark {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "member_like_id")
+    @JoinColumn(name = "bookmark_id")
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Board board;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
 
 }

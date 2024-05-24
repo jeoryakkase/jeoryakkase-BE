@@ -1,4 +1,4 @@
-package com.example.savingsalt.member.entity;
+package com.example.savingsalt.member.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
