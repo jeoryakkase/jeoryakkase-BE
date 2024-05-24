@@ -28,9 +28,12 @@ public class Badge {
     @Column(name = "name", nullable = false, length = 20)
     private String name;
 
-    @Column(name = "badge_image", nullable = false, length = 100)
+    @Column(name = "badge_image", nullable = false, length = 3000)
     private String badgeImage;
 
     @Column(name = "badge_desc", nullable = false)
     private String badgeDesc;
+
+    @Column(name = "badge_type", nullable = false)
+    private String badgeType;
 }
