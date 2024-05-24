@@ -1,8 +1,8 @@
-package com.example.savingsalt.community.board.entity;
+package com.example.savingsalt.community.board.domain;
 
-import com.example.savingsalt.community.category.entity.Category;
+import com.example.savingsalt.community.category.domain.Category;
 import com.example.savingsalt.global.BaseTimeEntity;
-import com.example.savingsalt.member.entity.Member;
+import com.example.savingsalt.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,9 +28,9 @@ public class Board extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String postTitle;
+    private String title;
 
-    private String postContent;
+    private String contents;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
