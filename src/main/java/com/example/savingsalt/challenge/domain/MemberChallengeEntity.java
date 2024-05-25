@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberChallenge {
+public class MemberChallengeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,6 +58,6 @@ public class MemberChallenge {
     private Integer saveMoney;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallenge")
-    private List<CertificationChallenge> certificationChallenges = new ArrayList<>();
+    private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
 
 }

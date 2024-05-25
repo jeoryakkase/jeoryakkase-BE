@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Badge {
+public class BadgeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

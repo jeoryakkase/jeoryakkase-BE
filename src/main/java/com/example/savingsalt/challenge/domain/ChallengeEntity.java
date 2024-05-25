@@ -1,6 +1,6 @@
 package com.example.savingsalt.challenge.domain;
 
-import com.example.savingsalt.badge.domain.Badge;
+import com.example.savingsalt.badge.domain.BadgeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Challenge extends BaseEntity {
+public class ChallengeEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,5 +60,5 @@ public class Challenge extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "badge_id")
-    private Badge badge;
+    private BadgeEntity badgeEntity;
 }

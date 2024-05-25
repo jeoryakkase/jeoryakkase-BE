@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CertificationChallenge {
+public class CertificationChallengeEntity {
 
     @Id
     @Column(name = "id")
@@ -37,6 +37,6 @@ public class CertificationChallenge {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
-    private MemberChallenge memberChallenge;
+    private MemberChallengeEntity memberChallengeEntity;
 
 }
