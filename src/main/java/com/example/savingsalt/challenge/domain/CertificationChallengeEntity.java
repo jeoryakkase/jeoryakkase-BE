@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class CertificationChallengeEntity {
 
     @Id
-    @Column
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -36,7 +36,7 @@ public class CertificationChallengeEntity {
     private String challengeImg;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_challenge_id")
+    @JoinColumn(name = "member_challenges_id")
     private MemberChallengeEntity memberChallengeEntity;
 
 }
