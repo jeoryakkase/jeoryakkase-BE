@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.board.domain;
 
 import com.example.savingsalt.community.category.domain.CategoryEntity;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.Member;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,13 +10,20 @@ import lombok.Getter;
 @AllArgsConstructor
 public class BoardTypeTipCreateReqDto {
 
-    private String boardtitle;
-    private String boardcontents;
+    private String title;
+    private String contents;
     private List<String> imageUrls;
     private Long categoryId;
 
-    public BoardEntity toEntity(MemberEntity member, CategoryEntity category) {
-        return new BoardEntity(null, member, this.boardtitle, this.boardcontents, category);
+    // 멤버 엔터티 완성 후 수정 예정 (브랜치 병합 후 이름도 변경 예정 : Member -> MemberEntity)
+    public BoardEntity toEntity(Member member, CategoryEntity category) {
+        return BoardEntity.builder()
+            .member(member)
+            .title(this.title)
+            .contents(this.contents)
+            .categoryEntity(category)
+            .imageUrls(this.imageUrls)
+            .build();
     }
 
 }

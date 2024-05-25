@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.bookmark.domain;
 
-import com.example.savingsalt.community.board.domain.Board;
+import com.example.savingsalt.community.board.domain.BoardEntity;
 import com.example.savingsalt.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,11 +21,11 @@ public class Bookmark {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member memberEntity;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
-    private Board board;
+    private BoardEntity boardEntity;
 
 
 }
