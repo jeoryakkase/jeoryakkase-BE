@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.poll.domain;
 
-import com.example.savingsalt.community.board.domain.Board;
-import com.example.savingsalt.global.BaseTimeEntity;
+import com.example.savingsalt.community.board.domain.BoardEntity;
+import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Poll extends BaseTimeEntity {
+public class Poll extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class Poll extends BaseTimeEntity {
 
     @OneToOne
     @JoinColumn(name = "post_id", nullable = false)
-    private Board board;
+    private BoardEntity board;
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
     private List<PollChoice> choices;
