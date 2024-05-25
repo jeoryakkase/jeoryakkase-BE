@@ -1,7 +1,6 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challange.domain;
 
-import com.example.savingsalt.badge.domain.BadgeEntity;
-import com.example.savingsalt.global.BaseEntity;
+import com.example.savingsalt.global.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,30 +8,28 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "challenges")
+@Table(name = "challenge")
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ChallengeEntity extends BaseEntity {
+public class Challenge extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(name = "challenge_id", updatable = false)
     private Long id;
 
-    @Column(name = "challenge_title", nullable = false, unique = true, length = 50)
+    @Column(name = "challenge_title", nullable = false, length = 50)
     private String challengeTitle;
 
     @Column(name = "challenge_desc", nullable = false)
@@ -62,9 +59,5 @@ public class ChallengeEntity extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "badge_id")
-    private BadgeEntity badgeEntity;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "challengeEntity")
-    private List<MemberChallengeEntity> memberChallengeEntities;
-
+    private Badge badge;
 }

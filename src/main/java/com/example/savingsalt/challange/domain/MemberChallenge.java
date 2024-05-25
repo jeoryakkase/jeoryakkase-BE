@@ -1,4 +1,4 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challange.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -6,8 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -19,17 +17,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "member_challenges")
+@Table(name = "member_challenge")
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberChallengeEntity {
+public class MemberChallenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(name = "member_challenge_id", updatable = false)
     private Long id;
 
     @Column(name = "start_date", nullable = false)
@@ -59,11 +57,7 @@ public class MemberChallengeEntity {
     @Column(name = "save_money", nullable = false)
     private Integer saveMoney;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity")
-    private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "challenge_id")
-    private ChallengeEntity challengeEntity;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallenge")
+    private List<CertificationChallenge> certificationChallenges = new ArrayList<>();
 
 }
