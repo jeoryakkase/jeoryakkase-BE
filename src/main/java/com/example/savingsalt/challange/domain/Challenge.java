@@ -1,5 +1,6 @@
 package com.example.savingsalt.challange.domain;
 
+import com.example.savingsalt.badge.domain.Badge;
 import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "challenge")
+@Table(name = "challenges")
 @Entity
 @Getter
 @Builder(toBuilder = true)
@@ -26,7 +27,7 @@ public class Challenge extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "challenge_id", updatable = false)
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "challenge_title", nullable = false, length = 50)

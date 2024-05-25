@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "member_challenge")
+@Table(name = "member_challenges")
 @Entity
 @Getter
 @Builder(toBuilder = true)
@@ -27,7 +27,7 @@ public class MemberChallenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_challenge_id", updatable = false)
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "start_date", nullable = false)

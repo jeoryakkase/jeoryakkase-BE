@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "certification_challenge")
+@Table(name = "certification_challenges")
 @Entity
 @Getter
 @Builder(toBuilder = true)
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class CertificationChallenge {
 
     @Id
-    @Column(name = "certification_challenge_id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
