@@ -1,4 +1,4 @@
-package com.example.savingsalt.challange.domain;
+package com.example.savingsalt.challenge.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
