@@ -6,6 +6,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -59,5 +61,9 @@ public class MemberChallengeEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity")
     private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "challenge_id")
+    private ChallengeEntity challengeEntity;
 
 }
