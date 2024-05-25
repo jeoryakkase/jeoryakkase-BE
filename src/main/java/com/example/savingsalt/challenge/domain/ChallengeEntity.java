@@ -32,7 +32,7 @@ public class ChallengeEntity extends BaseEntity {
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @Column(name = "challenge_title", nullable = false, length = 50)
+    @Column(name = "challenge_title", nullable = false, unique = true, length = 50)
     private String challengeTitle;
 
     @Column(name = "challenge_desc", nullable = false)
