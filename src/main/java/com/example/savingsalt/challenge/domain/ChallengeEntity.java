@@ -9,8 +9,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +29,7 @@ public class ChallengeEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(updatable = false)
     private Long id;
 
     @Column(name = "challenge_title", nullable = false, length = 50)
@@ -61,4 +63,7 @@ public class ChallengeEntity extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "badge_id")
     private BadgeEntity badgeEntity;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "challengeEntity")
+    private List<MemberChallengeEntity> memberChallengeEntities;
 }

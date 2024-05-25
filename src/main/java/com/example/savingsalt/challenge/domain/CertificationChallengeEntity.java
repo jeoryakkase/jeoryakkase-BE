@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class CertificationChallengeEntity {
 
     @Id
-    @Column(name = "id")
+    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
