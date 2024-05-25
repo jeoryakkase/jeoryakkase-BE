@@ -1,6 +1,6 @@
 package com.example.savingsalt.challange.domain;
 
-import com.example.savingsalt.global.BaseTimeEntity;
+import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Challenge extends BaseTimeEntity {
+public class Challenge extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
