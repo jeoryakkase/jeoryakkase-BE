@@ -61,7 +61,7 @@ public class ChallengeEntity extends BaseEntity {
     }
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "badges_id")
+    @JoinColumn(name = "badge_id")
     private BadgeEntity badgeEntity;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "challengeEntity")

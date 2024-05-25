@@ -36,7 +36,7 @@ public class CertificationChallengeEntity {
     private String challengeImg;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_challenges_id")
+    @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;
 
 }
