@@ -1,6 +1,6 @@
 package com.example.savingsalt.challenge.service;
 
-public interface CertificationChallengeServiceImpl {
+public interface CertificationChallengeService {
 
     // 회원 챌린지 일일 인증
     boolean authenticateDailyChallenge(Long memberId, Long memberChallengeId);

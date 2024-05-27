@@ -1,6 +1,11 @@
 package com.example.savingsalt.challenge.domain;
 
-public class ChallengeDto {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class ChallengeCreateReqDto {
 
     private String challengeTitle;
 
@@ -15,4 +20,5 @@ public class ChallengeDto {
     private String challengeTerm;
 
     private ChallengeEntity.ChallengeDifficulty challengeDifficulty;
+
 }

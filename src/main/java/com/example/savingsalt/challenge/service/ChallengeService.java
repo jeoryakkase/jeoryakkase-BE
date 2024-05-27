@@ -1,12 +1,12 @@
 package com.example.savingsalt.challenge.service;
 
-import com.example.savingsalt.challenge.domain.ChallengeCreateDto;
+import com.example.savingsalt.challenge.domain.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.ChallengeDto;
-import com.example.savingsalt.challenge.domain.ChallengeUpdateDto;
+import com.example.savingsalt.challenge.domain.ChallengeUpdateReqDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface ChallengeServiceImpl {
+public interface ChallengeService {
 
     // 챌린지 목록 아이디 조회
     ChallengeDto getChallenge(Long challengeId);
@@ -18,10 +18,10 @@ public interface ChallengeServiceImpl {
     Page<ChallengeDto> searchChallengesByKeyword(String keyword, Pageable pageable);
 
     // 챌린지 생성
-    ChallengeDto createChallenge(ChallengeCreateDto challengeCreateDto);
+    ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto);
 
     // 챌린지 수정(제목으로 챌린지 구분)
-    ChallengeDto updateChallenge(ChallengeUpdateDto updatedChallengeDto);
+    ChallengeDto updateChallenge(ChallengeUpdateReqDto updatedChallengeDto);
 
     // 챌린지 난이도 설정
     void setChallengeDifficulty(Long challengeId);
