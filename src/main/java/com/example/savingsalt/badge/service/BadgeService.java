@@ -5,7 +5,7 @@ import com.example.savingsalt.badge.domain.BadgeDto;
 import com.example.savingsalt.badge.domain.BadgeUpdateDto;
 import java.util.List;
 
-public interface BadgeServiceImpl {
+public interface BadgeService {
 
     // 뱃지 정보 조회
     BadgeDto getAllBadges();
