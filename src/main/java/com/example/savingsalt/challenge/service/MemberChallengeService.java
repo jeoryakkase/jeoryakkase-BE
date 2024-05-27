@@ -4,7 +4,7 @@ import com.example.savingsalt.challenge.domain.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.MemberChallengeDto;
 import java.util.List;
 
-public interface MemberChallengeServiceImpl {
+public interface MemberChallengeService {
 
     // 회원 챌린지 목록 조회
     List<MemberChallengeDto> getMemberChallenges(Long memberId);
