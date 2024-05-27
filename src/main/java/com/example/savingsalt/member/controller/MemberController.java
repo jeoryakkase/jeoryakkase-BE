@@ -1,6 +1,6 @@
 package com.example.savingsalt.member.controller;
 
-import com.example.savingsalt.member.domain.Member;
+import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.service.LoginService;
 import com.example.savingsalt.member.service.MemberService;
@@ -38,15 +38,15 @@ public class MemberController {
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "회원 가입 성공",
             content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Member.class))}),
+                @Content(mediaType = "application/json", schema = @Schema(implementation = MemberEntity.class))}),
         @ApiResponse(responseCode = "400", description = "잘못된 요청"),
         @ApiResponse(responseCode = "409", description = "이미 존재하는 회원"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
         try {
-            Member member = memberService.signUp(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(member);
+            MemberEntity memberEntity = memberService.signUp(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(memberEntity);
         } catch (Exception e) {
             String errorMessage = e.getMessage();
             if ("이미 회원가입 한 이메일입니다.".equals(errorMessage) || "이미 존재하는 닉네임입니다.".equals(

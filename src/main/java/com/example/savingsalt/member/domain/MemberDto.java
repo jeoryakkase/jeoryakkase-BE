@@ -22,8 +22,8 @@ public class MemberDto {
     int income;
     int saving_goal;
 
-    public Member toEntity() {
-        return Member.builder()
+    public MemberEntity toEntity() {
+        return MemberEntity.builder()
             .id(this.id)
             .email(this.email)
             .password(this.password)

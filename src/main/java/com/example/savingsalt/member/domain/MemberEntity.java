@@ -29,9 +29,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "member")
+@Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
-public class Member extends BaseEntity implements UserDetails {
+public class MemberEntity extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

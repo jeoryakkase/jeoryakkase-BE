@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.bookmark.domain;
 
 import com.example.savingsalt.community.board.domain.BoardEntity;
-import com.example.savingsalt.member.domain.Member;
+import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +21,7 @@ public class Bookmark {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member memberEntity;
+    private MemberEntity memberEntity;
 
     @ManyToOne
     @JoinColumn(name = "post_id")

@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.poll.domain;
 
-import com.example.savingsalt.member.domain.Member;
+import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +31,6 @@ public class PollResult {
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private MemberEntity memberEntity;
 
 }

@@ -1,6 +1,6 @@
 package com.example.savingsalt.member.service;
 
-import com.example.savingsalt.member.domain.Member;
+import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,11 +17,11 @@ public class LoginService implements UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
 
     @Override
-    public Member loadUserByUsername(String email) {
-        Member member = memberRepository.findByEmail(email)
+    public MemberEntity loadUserByUsername(String email) {
+        MemberEntity memberEntity = memberRepository.findByEmail(email)
             .orElseThrow(
                 () -> new IllegalArgumentException(("User not found with email: " + email)));
         logger.info("User found with email: {}", email);
-        return member;
+        return memberEntity;
     }
 }
