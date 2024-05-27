@@ -2,7 +2,7 @@ package com.example.savingsalt.community.board.domain;
 
 import com.example.savingsalt.community.category.domain.CategoryEntity;
 import com.example.savingsalt.global.BaseEntity;
-import com.example.savingsalt.member.domain.Member;
+import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -33,7 +33,7 @@ public class BoardEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private MemberEntity memberEntity;
 
     private String title;
 
