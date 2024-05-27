@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.like.domain;
 
 import com.example.savingsalt.community.board.domain.BoardEntity;
-import com.example.savingsalt.member.domain.Member;
+import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,6 +27,6 @@ public class MemberLikeEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private MemberEntity memberEntity;
 
 }
