@@ -1,7 +1,5 @@
-package com.example.savingsalt.community.board.domain;
+package com.example.savingsalt.community.poll.domain;
 
-import com.example.savingsalt.community.category.domain.Category;
-import com.example.savingsalt.global.BaseTimeEntity;
 import com.example.savingsalt.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,24 +15,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Board extends BaseTimeEntity {
+public class PollResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "post_id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    private String title;
-
-    private String contents;
+    @JoinColumn(name = "poll_id", nullable = false)
+    private Poll poll;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @JoinColumn(name = "choice_id", nullable = false)
+    private PollChoice choice;
 
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
 }
