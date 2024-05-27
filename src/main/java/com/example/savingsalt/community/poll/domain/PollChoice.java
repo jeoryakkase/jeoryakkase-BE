@@ -1,10 +1,11 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.community.poll.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,16 +14,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Member {
+public class PollChoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "member_id")
     private Long id;
 
-    private String nickname;
+    @ManyToOne
+    @JoinColumn(name = "poll_id", nullable = false)
+    private Poll poll;
 
+    private String answer;
+    private int count = 0;
 
 }
-
-
