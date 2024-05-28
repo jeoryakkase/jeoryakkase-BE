@@ -1,4 +1,4 @@
-package com.example.savingsalt.badge.domain;
+package com.example.savingsalt.challange.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,17 +12,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "badges")
+@Table(name = "badge")
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class BadgeEntity {
+public class Badge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(name = "badge_id", updatable = false)
     private Long id;
 
     @Column(name = "name", nullable = false, length = 20)

@@ -1,4 +1,4 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challange.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,16 +16,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "certification_challenges")
+@Table(name = "certification_challenge")
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CertificationChallengeEntity {
+public class CertificationChallenge {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "certification_challenge_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -37,6 +37,6 @@ public class CertificationChallengeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
-    private MemberChallengeEntity memberChallengeEntity;
+    private MemberChallenge memberChallenge;
 
 }
