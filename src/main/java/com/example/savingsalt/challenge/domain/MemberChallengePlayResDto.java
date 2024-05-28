@@ -1,11 +1,27 @@
 package com.example.savingsalt.challenge.domain;
 
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class MemberChallengePlayResDto {
-    // 제목, 챌린지 고정 기간, 인증할 때 업로드한 사진, 인증 여부, 시작 날짜, 종료 날짜(시작 날짜 + 챌린지 고정 기간)
 
+    private String challengeTitle;
+
+    private String certificationImage;
+
+    private Boolean challengeProgressStatus;
+
+    private String challengeTerm;
+
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
 }
