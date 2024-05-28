@@ -2,7 +2,7 @@ package com.example.savingsalt.badge.service;
 
 import com.example.savingsalt.badge.domain.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.BadgeDto;
-import com.example.savingsalt.badge.domain.BadgeUpdateDto;
+import com.example.savingsalt.badge.domain.BadgeUpdateReqDto;
 import java.util.List;
 
 public interface BadgeService {
@@ -17,7 +17,7 @@ public interface BadgeService {
     BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto);
 
     // 뱃지 정보 수정
-    BadgeDto updateBadge(BadgeUpdateDto badgeUpdateDto);
+    BadgeDto updateBadge(BadgeUpdateReqDto badgeUpdateReqDto);
 
     // 뱃지 삭제
     void deleteBadge(Long badgeId);
