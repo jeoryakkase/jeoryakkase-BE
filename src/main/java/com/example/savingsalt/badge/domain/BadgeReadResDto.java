@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class BadgeReadResDto {
 
