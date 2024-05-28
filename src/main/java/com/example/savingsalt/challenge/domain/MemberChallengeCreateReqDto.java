@@ -1,6 +1,6 @@
 package com.example.savingsalt.challenge.domain;
 
-public class ChallengeDto {
+public class MemberChallengeCreateReqDto {
 
     private String challengeTitle;
 
