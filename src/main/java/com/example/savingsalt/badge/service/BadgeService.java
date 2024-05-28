@@ -1,6 +1,6 @@
 package com.example.savingsalt.badge.service;
 
-import com.example.savingsalt.badge.domain.BadgeCreateDto;
+import com.example.savingsalt.badge.domain.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.BadgeDto;
 import com.example.savingsalt.badge.domain.BadgeUpdateDto;
 import java.util.List;
@@ -14,7 +14,7 @@ public interface BadgeService {
     List<BadgeDto> getMemberBadges(Long memberId);
 
     // 뱃지 생성
-    BadgeDto createBadge(BadgeCreateDto badgeCreateDto);
+    BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto);
 
     // 뱃지 정보 수정
     BadgeDto updateBadge(BadgeUpdateDto badgeUpdateDto);

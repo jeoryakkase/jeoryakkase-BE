@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class BadgeCreateDto {
+public class BadgeCreateReqDto {
 
     private String name;
 
