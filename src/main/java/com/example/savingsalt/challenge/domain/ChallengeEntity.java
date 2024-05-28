@@ -60,6 +60,9 @@ public class ChallengeEntity extends BaseEntity {
         HARD
     }
 
+    @Column(name = "auth_content", nullable = false, length = 50)
+    private String authContent;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "badge_id")
     private BadgeEntity badgeEntity;
