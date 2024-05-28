@@ -1,18 +1,17 @@
 package com.example.savingsalt.challenge.domain;
 
-import java.time.LocalDateTime;
+import com.example.savingsalt.badge.domain.BadgeDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ChallengeCreateReqDto {
+public class ChallengeDetailsReadResDto {
 
     private String challengeTitle;
 
@@ -28,8 +27,5 @@ public class ChallengeCreateReqDto {
 
     private ChallengeEntity.ChallengeDifficulty challengeDifficulty;
 
-    private LocalDateTime createAt;
-
-    private String authContent;
-
+    private BadgeDto badgeDto;
 }
