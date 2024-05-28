@@ -1,5 +1,12 @@
 package com.example.savingsalt.badge.domain;
 
 public class BadgeDto {
-    // TODO : BadgeDto 작성
+
+    private String name;
+
+    private String badgeImage;
+
+    private String badgeDesc;
+
+    private String badgeType;
 }
