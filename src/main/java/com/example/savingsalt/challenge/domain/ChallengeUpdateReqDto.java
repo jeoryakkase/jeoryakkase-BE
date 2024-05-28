@@ -1,5 +1,13 @@
 package com.example.savingsalt.challenge.domain;
 
+import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class ChallengeUpdateReqDto {
 
     private String challengeTitle;
@@ -15,4 +23,6 @@ public class ChallengeUpdateReqDto {
     private String challengeTerm;
 
     private ChallengeEntity.ChallengeDifficulty challengeDifficulty;
+
+    private LocalDateTime updateAt;
 }
