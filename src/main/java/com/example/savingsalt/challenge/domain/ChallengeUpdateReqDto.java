@@ -25,4 +25,6 @@ public class ChallengeUpdateReqDto {
     private ChallengeEntity.ChallengeDifficulty challengeDifficulty;
 
     private LocalDateTime updateAt;
+
+    private String authContent;
 }

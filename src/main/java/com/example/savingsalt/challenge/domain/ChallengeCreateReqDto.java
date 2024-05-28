@@ -26,4 +26,6 @@ public class ChallengeCreateReqDto {
 
     private LocalDateTime createAt;
 
+    private String authContent;
+
 }
