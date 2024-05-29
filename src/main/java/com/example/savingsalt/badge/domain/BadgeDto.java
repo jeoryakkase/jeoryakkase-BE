@@ -1,6 +1,5 @@
 package com.example.savingsalt.badge.domain;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,4 +18,13 @@ public class BadgeDto {
     private String badgeDesc;
 
     private String badgeType;
+
+    public static BadgeDto fromEntity(BadgeEntity badgeEntity) {
+        return BadgeDto.builder()
+            .name(badgeEntity.getName())
+            .badgeImage(badgeEntity.getBadgeImage())
+            .badgeDesc(badgeEntity.getBadgeDesc())
+            .badgeType(badgeEntity.getBadgeType())
+            .build();
+    }
 }
