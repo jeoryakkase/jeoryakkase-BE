@@ -1,13 +1,20 @@
 package com.example.savingsalt.member.service;
 
+import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
+import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +24,8 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 회원가입
     public MemberEntity signUp(SignupRequestDto dto) throws Exception {
@@ -41,6 +50,19 @@ public class MemberService {
             .build());
 
         return memberEntity;
+    }
+
+    // 로그인
+    public TokenResponseDto login(LoginRequestDto dto) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            dto.getEmail(), dto.getPassword());
+
+        Authentication authentication = authenticationManagerBuilder.getObject()
+            .authenticate(authenticationToken);
+
+        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
+
+        return tokenResponseDto;
     }
 
     // 회원 정보 수정
