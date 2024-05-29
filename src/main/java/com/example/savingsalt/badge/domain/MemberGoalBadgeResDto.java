@@ -16,4 +16,12 @@ public class MemberGoalBadgeResDto {
     private String badgeDesc;
 
     private String badgeImage;
+
+    public static MemberGoalBadgeResDto fromEntity(BadgeEntity badgeEntity) {
+        return MemberGoalBadgeResDto.builder()
+            .name(badgeEntity.getName())
+            .badgeDesc(badgeEntity.getBadgeDesc())
+            .badgeImage(badgeEntity.getBadgeImage())
+            .build();
+    }
 }
