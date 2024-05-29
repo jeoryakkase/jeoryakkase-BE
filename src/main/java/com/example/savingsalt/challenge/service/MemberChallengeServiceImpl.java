@@ -1,10 +1,8 @@
 package com.example.savingsalt.challenge.service;
 
-import com.example.savingsalt.challenge.domain.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.MemberChallengeEntity.ChallengeStatus;
-import com.example.savingsalt.challenge.mapper.ChallengeMainMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
@@ -83,11 +81,6 @@ public class MemberChallengeServiceImpl implements
             .build();
 
         memberChallengeRepository.save(foundMemberchallenge);
-    }
-
-    // 실시간 인기 챌린지 조회
-    public List<ChallengeEntity> getPopularityChallenges() {
-
     }
 
 }
