@@ -18,6 +18,12 @@ public interface ChallengeMainMapper {
     interface ChallengeMapper extends
         EntityMapper<ChallengeEntity, ChallengeDto> {
 
+        ChallengeEntity toEntity(ChallengeCreateReqDto dto);
+
+        ChallengeEntity toEntity(ChallengeUpdateReqDto dto);
+
+        Page<ChallengeReadResDto> toChallengesReadResDto(Page<ChallengeEntity> entities);
+
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
