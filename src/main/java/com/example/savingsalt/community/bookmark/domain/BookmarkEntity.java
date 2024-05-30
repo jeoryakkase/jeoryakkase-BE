@@ -8,11 +8,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
+@Table(name = "bookmarks")
 @Getter
 @Entity
-public class Bookmark {
+public class BookmarkEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
