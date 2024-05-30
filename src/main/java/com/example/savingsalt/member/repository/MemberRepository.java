@@ -18,7 +18,7 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
 
     List<MemberEntity> findByIncomeBetween(int startIncome, int endIncome);
 
-    boolean existsMemberByEmail(String email);
+    boolean existsByEmail(String email);
 
-    boolean existsMemberByNickname(String nickname);
+    boolean existsByNickname(String nickname);
 }
