@@ -1,14 +1,16 @@
 package com.example.savingsalt.member.service;
 
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LoginService implements UserDetailsService {
@@ -18,9 +20,7 @@ public class LoginService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
         MemberEntity memberEntity = memberRepository.findByEmail(email)
-            .orElseThrow(
-                () -> new IllegalArgumentException(("User not found with email: " + email)));
-        log.info("User found with email: {}", email);
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
         return memberEntity;
     }
 

@@ -5,6 +5,8 @@ import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.service.MemberService;
 import com.example.savingsalt.member.service.TokenBlacklistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,18 +49,8 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
-        try {
-            MemberEntity memberEntity = memberService.signUp(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(memberEntity);
-        } catch (Exception e) {
-            String errorMessage = e.getMessage();
-            if ("이미 회원가입 한 이메일입니다.".equals(errorMessage) || "이미 존재하는 닉네임입니다.".equals(
-                errorMessage)) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-            }
-        }
+        MemberEntity memberEntity = memberService.signUp(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberEntity);
     }
 
     @PostMapping("/api/login")
@@ -69,12 +61,8 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
-        try {
-            TokenResponseDto tokenResponseDto = memberService.login(dto);
-            return ResponseEntity.status(HttpStatus.OK).body(tokenResponseDto);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login failed");
-        }
+        TokenResponseDto tokenResponseDto = memberService.login(dto);
+        return ResponseEntity.status(HttpStatus.OK).body(tokenResponseDto);
     }
 
     @PostMapping("/api/logout")
@@ -85,18 +73,14 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        try {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
-            }
-
-            String token = authHeader.substring(7);
-            Long expiration = tokenProvider.getExpiration(token);
-            tokenBlacklistService.blacklistToken(token, expiration);
-            return ResponseEntity.status(HttpStatus.OK).body("Logout success");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Logout failed");
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
         }
+
+        String token = authHeader.substring(7);
+        Long expiration = tokenProvider.getExpiration(token);
+        tokenBlacklistService.blacklistToken(token, expiration);
+        return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 }

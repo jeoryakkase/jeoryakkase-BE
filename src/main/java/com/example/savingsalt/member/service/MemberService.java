@@ -7,8 +7,10 @@ import com.example.savingsalt.member.domain.MemberDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.enums.Role;
+import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.exception.MemberException.InvalidPasswordException;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,34 +29,44 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final LoginService loginService;
+    private final MemberMapper memberMapper;
 
     // 회원가입
-    public MemberEntity signUp(SignupRequestDto dto) throws Exception {
-        if (memberRepository.existsMemberByEmail(dto.getEmail())) {
-            throw new Exception("이미 회원가입 한 이메일입니다.");
+    @Transactional
+    public MemberEntity signUp(SignupRequestDto dto) {
+        if (memberRepository.existsByEmail(dto.getEmail())) {
+            throw new MemberException.EmailAlreadyExistsException();
         }
 
-        if (memberRepository.existsMemberByNickname(dto.getNickname())) {
-            throw new Exception("이미 존재하는 닉네임입니다.");
+        if (memberRepository.existsByNickname(dto.getNickname())) {
+            throw new MemberException.NicknameAlreadyExistsException();
         }
 
-        MemberEntity memberEntity = memberRepository.save(MemberEntity.builder()
-            .email(dto.getEmail())
-            .password(bCryptPasswordEncoder.encode(dto.getPassword()))
-            .nickname(dto.getNickname())
-            .age(dto.getAge())
-            .gender(dto.getGender())
-            .income(dto.getIncome())
-            .savingGoal(dto.getSavingGoal())
-            .profileImage(dto.getProfileImage())
-            .role(Role.MEMBER)
-            .build());
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setEmail(dto.getEmail());
+        memberEntity.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
+        memberEntity.setNickname(dto.getNickname());
+        memberEntity.setAge(dto.getAge());
+        memberEntity.setGender(dto.getGender());
+        memberEntity.setIncome(dto.getIncome());
+        memberEntity.setSavingGoal(dto.getSavingGoal());
+        memberEntity.setProfileImage(dto.getProfileImage());
+        memberEntity.setRole(Role.MEMBER);
 
-        return memberEntity;
+        return memberRepository.save(memberEntity);
     }
 
     // 로그인
+    @Transactional(readOnly = true)
     public TokenResponseDto login(LoginRequestDto dto) {
+        MemberEntity memberEntity = (MemberEntity) loginService.loadUserByUsername(
+            dto.getEmail()); // 회원이 존재하는지 확인
+        if (!bCryptPasswordEncoder.matches(dto.getPassword(),
+            memberEntity.getPassword())) { // 비밀번호 확인
+            throw new InvalidPasswordException();
+        }
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             dto.getEmail(), dto.getPassword());
 
@@ -66,13 +79,14 @@ public class MemberService {
     }
 
     // 회원 정보 수정
+    @Transactional
     public MemberEntity updateMember(Long id, String password, String nickname, int age, int gender,
-        int income, int savingGoal, String profileImage) throws Exception {
+        int income, int savingGoal, String profileImage) {
         MemberEntity memberEntity = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + id));
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
-        if (memberRepository.existsMemberByNickname(nickname)) {
-            throw new Exception("이미 존재하는 닉네임입니다.");
+        if (memberRepository.existsByNickname(nickname)) {
+            throw new MemberException.NicknameAlreadyExistsException();
         }
 
         memberEntity.setPassword(bCryptPasswordEncoder.encode(password));
@@ -91,7 +105,7 @@ public class MemberService {
         List<MemberEntity> memberEntities = memberRepository.findAll();
         List<MemberDto> memberDtos = new ArrayList<>();
         for (MemberEntity memberEntity : memberEntities) {
-            memberDtos.add(memberEntity.toDto());
+            memberDtos.add(memberMapper.toDto(memberEntity));
         }
 
         return memberDtos;
@@ -100,23 +114,23 @@ public class MemberService {
     // id로 회원 찾기
     public MemberDto findMemberById(Long id) {
         MemberEntity memberEntity = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + id));
-        return memberEntity.toDto();
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
+        return memberMapper.toDto(memberEntity);
     }
 
     // 이메일로 회원 찾기
     public MemberDto findMemberByEmail(String email) {
         MemberEntity memberEntity = memberRepository.findByEmail(email)
             .orElseThrow(
-                () -> new IllegalArgumentException("Member not found with email: " + email));
-        return memberEntity.toDto();
+                () -> new MemberException.MemberNotFoundException("email", email));
+        return memberMapper.toDto(memberEntity);
     }
 
     // 닉네임으로 회원 찾기
     public MemberEntity findMemberByNickname(String nickname) {
         return memberRepository.findByNickname(nickname)
             .orElseThrow(
-                () -> new IllegalArgumentException("Member not found with nickname: " + nickname));
+                () -> new MemberException.MemberNotFoundException("nickname", nickname));
     }
 
     // 같은 수입 범위 내에 있는 회원들 찾기

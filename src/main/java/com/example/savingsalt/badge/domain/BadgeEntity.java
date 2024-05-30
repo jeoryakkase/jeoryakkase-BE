@@ -1,28 +1,32 @@
-package com.example.savingsalt.challange.domain;
+package com.example.savingsalt.badge.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "badge")
+@Table(name = "badges")
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Badge {
+public class BadgeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "badge_id", updatable = false)
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "name", nullable = false, length = 20)
@@ -36,4 +40,7 @@ public class Badge {
 
     @Column(name = "badge_type", nullable = false)
     private String badgeType;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "badgeEntity")
+    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
 }

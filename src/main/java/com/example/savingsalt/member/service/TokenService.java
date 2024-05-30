@@ -3,6 +3,7 @@ package com.example.savingsalt.member.service;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.exception.MemberException;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +22,7 @@ public class TokenService {
 
     public TokenResponseDto createNewAccessToken(String refreshToken) {
         if (!tokenProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("Unexpected token");
+            throw new MemberException.RefreshTokenNotFoundException();
         }
 
         Long memberId = refreshTokenService.findByRefreshToken(refreshToken).getMemberId();
