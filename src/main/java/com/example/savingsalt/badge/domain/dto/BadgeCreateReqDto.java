@@ -20,13 +20,4 @@ public class BadgeCreateReqDto {
     private String badgeImage;
 
     private String badgeType;
-
-    public BadgeEntity toEntity(BadgeCreateReqDto badgeCreateReqDto) {
-        return BadgeEntity.builder()
-            .name(badgeCreateReqDto.getName())
-            .badgeDesc(badgeCreateReqDto.getBadgeDesc())
-            .badgeImage(badgeCreateReqDto.getBadgeImage())
-            .badgeType(badgeCreateReqDto.getBadgeType())
-            .build();
-    }
 }

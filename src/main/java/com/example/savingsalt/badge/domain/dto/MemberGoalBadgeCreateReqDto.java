@@ -1,6 +1,8 @@
 package com.example.savingsalt.badge.domain.dto;
 
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
+import com.example.savingsalt.member.domain.MemberEntity;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,13 +10,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MemberGoalBadgeResDto {
+public class MemberGoalBadgeCreateReqDto {
 
-    private String name;
+    private BadgeEntity badgeEntity;
 
-    private String badgeDesc;
-
-    private String badgeImage;
+    private MemberEntity memberEntity;
 }

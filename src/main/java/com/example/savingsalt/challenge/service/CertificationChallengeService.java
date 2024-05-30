@@ -1,10 +1,10 @@
 package com.example.savingsalt.challenge.service;
 
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
+
 public interface CertificationChallengeService {
 
-    // 회원 챌린지 일일 인증
-    boolean authenticateDailyChallenge(Long memberId, Long memberChallengeId);
+    // 회원 챌린지 일일 인증 이미지 경로 및 인증 날짜 업로드
+    void uploadDailyChallengeImageUrlAndDateTime(Long memberChallngeId, CertificationChallengeDto certificationChallengeDto);
 
-    // 회원 챌린지 일일 인증 초기화
-    void resetDailyAuthentication(Long memberId, Long memberChallengeId);
 }
