@@ -85,4 +85,8 @@ public class MemberChallengeServiceImpl implements
         memberChallengeRepository.save(foundMemberchallenge);
     }
 
+    // 회원 챌린지 일일 인증
+    public void submitDailyMemberChallenge(Long memberChallengeId) {
+
+    }
 }
