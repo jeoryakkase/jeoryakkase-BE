@@ -8,9 +8,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ChallengeService {
 
-    // 챌린지 목록 아이디 조회
-    MemberChallengeCreateReqDto getChallenge(Long challengeId);
-
     // 챌린지 목록 조회
     Page<MemberChallengeCreateReqDto> getAllChallenges(int page, int size);
 
