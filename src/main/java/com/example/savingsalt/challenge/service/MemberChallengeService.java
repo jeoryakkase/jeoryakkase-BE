@@ -17,4 +17,6 @@ public interface MemberChallengeService {
     // 회원 챌린지 포기
     void abandonMemberChallenge(Long memberChallengeId);
 
+    // 회원 챌린지 일일 인증
+    void submitDailyMemberChallenge(Long memberChallengeId);
 }
