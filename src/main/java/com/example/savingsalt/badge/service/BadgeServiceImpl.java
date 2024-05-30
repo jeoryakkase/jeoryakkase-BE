@@ -7,6 +7,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
 import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
+import com.example.savingsalt.badge.mapper.BadgeMainMapper;
 import com.example.savingsalt.badge.repository.BadgeRepository;
 import com.example.savingsalt.badge.repository.MemberGoalBadgeRepository;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
@@ -25,13 +26,15 @@ public class BadgeServiceImpl implements BadgeService {
     private final MemberGoalBadgeRepository memberGoalBadgeRepository;
     private final MemberRepository memberRepository;
     private final MemberChallengeRepository memberChallengeRepository;
+    private final BadgeMainMapper badgeMainMapper;
 
     public BadgeServiceImpl(BadgeRepository badgeRepository,
-        MemberGoalBadgeRepository memberGoalBadgeRepository, MemberRepository memberRepository, MemberChallengeRepository memberChallengeRepository) {
+        MemberGoalBadgeRepository memberGoalBadgeRepository, MemberRepository memberRepository, MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper) {
         this.badgeRepository = badgeRepository;
         this.memberGoalBadgeRepository = memberGoalBadgeRepository;
         this.memberRepository = memberRepository;
         this.memberChallengeRepository = memberChallengeRepository;
+        this.badgeMainMapper = badgeMainMapper;
     }
 
     // 모든 뱃지 정보 조회
@@ -41,10 +44,7 @@ public class BadgeServiceImpl implements BadgeService {
         if (allBadges.size() == 0) {
             // Todo: 예외발생 ("뱃지 정보들을 가져오는데 실패했습니다. or 생성된 벳지가 없습니다.");
         }
-        List<BadgeDto> allBadgeResDto = new ArrayList<>();
-        for (int i = 0; i < allBadges.size(); i++) {
-            allBadgeResDto.add(BadgeDto.fromEntity(allBadges.get(i)));
-        }
+        List<BadgeDto> allBadgeResDto = badgeMainMapper.toDto(allBadges);
 
         return allBadgeResDto;
     }
@@ -56,11 +56,7 @@ public class BadgeServiceImpl implements BadgeService {
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
         List<MemberGoalBadgeEntity> memberGoalBadges = memberGoalBadgeRepository.findALlByMemberEntity(
             member);
-        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = new ArrayList<>();
-        for (int i = 0; i < memberGoalBadges.size(); i++) {
-            memberGoalBadgesResDto.add(
-                MemberGoalBadgeResDto.fromEntity(memberGoalBadges.get(i).getBadgeEntity()));
-        }
+        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(memberGoalBadges);
 
         return memberGoalBadgesResDto;
     }
@@ -79,7 +75,7 @@ public class BadgeServiceImpl implements BadgeService {
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
             if(memberChallengeEntity.get(i).getChallengeStatus() == MemberChallengeEntity.ChallengeStatus.COMPLETED) {
                 BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity().getBadgeEntity();
-                memberChallengeBadgeResDto.add(MemberChallengeBadgeResDto.fromEntity(badgeEntity));
+                memberChallengeBadgeResDto.add(badgeMainMapper.toMemberChallengeBadgeResDto(badgeEntity));
             }
         }
 
@@ -89,10 +85,10 @@ public class BadgeServiceImpl implements BadgeService {
     // 뱃지 생성
     @Transactional
     public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
-        BadgeEntity badgeEntity = badgeCreateReqDto.toEntity(badgeCreateReqDto);
+        BadgeEntity badgeEntity = badgeMainMapper.toEntity(badgeCreateReqDto);
         BadgeEntity createdBadge = badgeRepository.save(badgeEntity);
         // Todo: createdBadge가 null이면 예외발생 ("뱃지 정보를 저장하는데 실패했습니다.");
-        BadgeDto createdBadgeDto = BadgeDto.fromEntity(createdBadge);
+        BadgeDto createdBadgeDto = badgeMainMapper.toDto(createdBadge);
 
         return createdBadgeDto;
     }
@@ -108,7 +104,7 @@ public class BadgeServiceImpl implements BadgeService {
             .badgeImage(badgeUpdateReqDto.getBadgeImage())
             .badgeType(badgeUpdateReqDto.getBadgeType())
             .build();
-        BadgeDto updateBadgeDto = BadgeDto.fromEntity(badgeEntity);
+        BadgeDto updateBadgeDto = badgeMainMapper.toDto(badgeEntity);
 
         return updateBadgeDto;
     }
