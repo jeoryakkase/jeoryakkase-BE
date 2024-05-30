@@ -4,12 +4,13 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
+import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
+import com.example.savingsalt.global.ChallengeException.MemberChallengeNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,20 +24,25 @@ public class MemberChallengeServiceImpl implements
     private final MemberChallengeRepository memberChallengeRepository;
     private final MemberChallengeMapper memberChallengeMapper;
     private final MemberRepository memberRepository;
+    private final CertificationChallengeRepository certificationChallengeRepository;
 
     public MemberChallengeServiceImpl(MemberChallengeRepository memberChallengeRepository,
         MemberChallengeMapper memberChallengeMapper
-        , MemberRepository memberRepository) {
+        , MemberRepository memberRepository,
+        CertificationChallengeRepository certificationChallengeRepository) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
         this.memberRepository = memberRepository;
+        this.certificationChallengeRepository = certificationChallengeRepository;
     }
 
     // 회원 챌린지 목록 조회
     public List<MemberChallengeDto> getMemberChallenges(Long memberId) {
 
-        MemberEntity foundMember = memberRepository.findById(memberId).orElse(null);
+        MemberEntity foundMember = memberRepository.findById(memberId).orElseThrow(
+            MemberChallengeNotFoundException::new);
+
         return memberChallengeMapper.toDto(
             memberChallengeRepository.findAllByMemberEntity(foundMember));
     }
@@ -52,7 +58,7 @@ public class MemberChallengeServiceImpl implements
     // 회원 챌린지 완료
     public void authenticateFinalChallenge(Long memberId, Long memberChallengeId) {
         MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow(
-            NoSuchElementException::new);
+            MemberChallengeNotFoundException::new);
         MemberChallengeEntity foundMemberChallengeEntity = null;
 
         List<MemberChallengeEntity> memberChallengeEntities = foundMemberEntity.getMemberChallengeEntities();
@@ -75,18 +81,39 @@ public class MemberChallengeServiceImpl implements
 
     // 회원 챌린지 포기
     public void abandonMemberChallenge(Long memberChallengeId) {
-        MemberChallengeEntity foundMemberchallenge = memberChallengeRepository.findById(
-            memberChallengeId).orElse(null);
+        MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
+            memberChallengeId).orElseThrow(
+            MemberChallengeNotFoundException::new);
 
-        Objects.requireNonNull(foundMemberchallenge).toBuilder()
+        Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
             .challengeStatus(ChallengeStatus.CANCELLED)
             .build();
 
-        memberChallengeRepository.save(foundMemberchallenge);
+        memberChallengeRepository.save(foundMemberChallengeEntity);
     }
 
     // 회원 챌린지 일일 인증
     public void submitDailyMemberChallenge(Long memberChallengeId) {
+        MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
+            memberChallengeId).orElseThrow(
+            MemberChallengeNotFoundException::new);
 
+        Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
+            .isTodayCertification(true)
+            .build();
+
+        memberChallengeRepository.save(foundMemberChallengeEntity);
+
+    }
+
+    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
+    public void resetDailyMemberChallengeAuthentication() {
+        List<MemberChallengeEntity> memberChallengeEntities = memberChallengeRepository.findAll();
+        for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+            memberChallengeEntity.toBuilder()
+                .isTodayCertification(false)
+                .build();
+            memberChallengeRepository.save(memberChallengeEntity);
+        }
     }
 }

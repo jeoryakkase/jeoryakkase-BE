@@ -19,4 +19,7 @@ public interface MemberChallengeService {
 
     // 회원 챌린지 일일 인증
     void submitDailyMemberChallenge(Long memberChallengeId);
+
+    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
+    void resetDailyMemberChallengeAuthentication();
 }
