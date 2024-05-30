@@ -8,9 +8,9 @@ import com.example.savingsalt.challenge.repository.CertificationChallengeReposit
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
+import com.example.savingsalt.global.ChallengeException.MemberChallengeNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +40,9 @@ public class MemberChallengeServiceImpl implements
     // 회원 챌린지 목록 조회
     public List<MemberChallengeDto> getMemberChallenges(Long memberId) {
 
-        MemberEntity foundMember = memberRepository.findById(memberId).orElse(null);
+        MemberEntity foundMember = memberRepository.findById(memberId).orElseThrow(
+            MemberChallengeNotFoundException::new);
+
         return memberChallengeMapper.toDto(
             memberChallengeRepository.findAllByMemberEntity(foundMember));
     }
@@ -56,7 +58,7 @@ public class MemberChallengeServiceImpl implements
     // 회원 챌린지 완료
     public void authenticateFinalChallenge(Long memberId, Long memberChallengeId) {
         MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow(
-            NoSuchElementException::new);
+            MemberChallengeNotFoundException::new);
         MemberChallengeEntity foundMemberChallengeEntity = null;
 
         List<MemberChallengeEntity> memberChallengeEntities = foundMemberEntity.getMemberChallengeEntities();
@@ -80,7 +82,8 @@ public class MemberChallengeServiceImpl implements
     // 회원 챌린지 포기
     public void abandonMemberChallenge(Long memberChallengeId) {
         MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
-            memberChallengeId).orElse(null);
+            memberChallengeId).orElseThrow(
+            MemberChallengeNotFoundException::new);
 
         Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
             .challengeStatus(ChallengeStatus.CANCELLED)
@@ -92,7 +95,8 @@ public class MemberChallengeServiceImpl implements
     // 회원 챌린지 일일 인증
     public void submitDailyMemberChallenge(Long memberChallengeId) {
         MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
-            memberChallengeId).orElse(null);
+            memberChallengeId).orElseThrow(
+            MemberChallengeNotFoundException::new);
 
         Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
             .isTodayCertification(true)
@@ -106,10 +110,10 @@ public class MemberChallengeServiceImpl implements
     public void resetDailyMemberChallengeAuthentication() {
         List<MemberChallengeEntity> memberChallengeEntities = memberChallengeRepository.findAll();
         for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-               memberChallengeEntity.toBuilder()
-                   .isTodayCertification(false)
-                   .build();
-               memberChallengeRepository.save(memberChallengeEntity);
+            memberChallengeEntity.toBuilder()
+                .isTodayCertification(false)
+                .build();
+            memberChallengeRepository.save(memberChallengeEntity);
         }
     }
 }
