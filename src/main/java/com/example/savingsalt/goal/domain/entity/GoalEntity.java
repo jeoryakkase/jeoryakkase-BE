@@ -34,6 +34,9 @@ public class GoalEntity {
     @Column(name = "goal_amount")
     private Long goalAmount;
 
+    @Column(name = "goal_image")
+    private String goalImage;
+
     @Column(name = "goal_desc")
     private String goalDesc;
 
