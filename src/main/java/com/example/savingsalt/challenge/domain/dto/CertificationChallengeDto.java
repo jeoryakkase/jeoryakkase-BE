@@ -1,6 +1,5 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,6 +16,4 @@ public class CertificationChallengeDto {
     private LocalDateTime certificationDate;
 
     private String challengeImg;
-
-    private MemberChallengeEntity memberChallengeEntity;
 }
