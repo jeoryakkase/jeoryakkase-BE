@@ -26,9 +26,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
         String token = getAccessToken(authorizationHeader);
-        if (tokenProvider.validateToken(token)) {
-            Authentication authentication = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        System.out.println("Authorization Header: " + authorizationHeader);
+        System.out.println("Token: " + token);
+
+        try {
+            if (tokenProvider.validateToken(token)) {
+                Authentication authentication = tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("Authenticated user: " + authentication.getName()); // 로그 추가
+            } else {
+                System.out.println("Invalid or missing token"); // 로그 추가
+            }
+        } catch (Exception e) {
+            System.out.println("Authentication error: " + e.getMessage()); // 로그 추가
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

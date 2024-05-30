@@ -3,6 +3,7 @@ package com.example.savingsalt.member.controller;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.MemberUpdateRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
@@ -25,7 +26,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -82,5 +85,19 @@ public class MemberController {
         Long expiration = tokenProvider.getExpiration(token);
         tokenBlacklistService.blacklistToken(token, expiration);
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
+    }
+
+    @PutMapping("/api/members/{id}")
+    @Operation(summary = "member update", description = "Update member info")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Update success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> updateMember(@PathVariable Long id, @RequestBody MemberUpdateRequestDto dto) {
+        MemberEntity memberEntity = memberService.updateMember(id, dto.getPassword(), dto.getNickname(), dto.getAge(),
+            dto.getGender(), dto.getIncome(), dto.getSavingGoal(), dto.getProfileImage());
+
+        return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
 }
