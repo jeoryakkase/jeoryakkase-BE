@@ -1,10 +1,10 @@
 package com.example.savingsalt.badge.service;
 
-import com.example.savingsalt.badge.domain.BadgeCreateReqDto;
-import com.example.savingsalt.badge.domain.BadgeDto;
-import com.example.savingsalt.badge.domain.BadgeUpdateReqDto;
-import com.example.savingsalt.badge.domain.MemberChallengeBadgeResDto;
-import com.example.savingsalt.badge.domain.MemberGoalBadgeResDto;
+import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
+import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
+import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
 import java.util.List;
 
 public interface BadgeService {

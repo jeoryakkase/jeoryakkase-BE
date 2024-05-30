@@ -1,16 +1,15 @@
 package com.example.savingsalt.badge.service;
 
-import com.example.savingsalt.badge.domain.BadgeCreateReqDto;
-import com.example.savingsalt.badge.domain.BadgeDto;
-import com.example.savingsalt.badge.domain.BadgeEntity;
-import com.example.savingsalt.badge.domain.BadgeUpdateReqDto;
-import com.example.savingsalt.badge.domain.MemberChallengeBadgeResDto;
-import com.example.savingsalt.badge.domain.MemberGoalBadgeEntity;
-import com.example.savingsalt.badge.domain.MemberGoalBadgeResDto;
+import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
+import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
+import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
+import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
+import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
 import com.example.savingsalt.badge.repository.BadgeRepository;
 import com.example.savingsalt.badge.repository.MemberGoalBadgeRepository;
-import com.example.savingsalt.challenge.domain.ChallengeEntity;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;

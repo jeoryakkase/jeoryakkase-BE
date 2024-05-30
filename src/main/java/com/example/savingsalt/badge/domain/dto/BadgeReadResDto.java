@@ -1,4 +1,4 @@
-package com.example.savingsalt.badge.domain;
+package com.example.savingsalt.badge.domain.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

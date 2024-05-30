@@ -1,4 +1,4 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.dto;
 
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -11,17 +11,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MemberChallengePlayResDto {
+public class MemberChallengeCompleteResDto {
 
     private String challengeTitle;
-
-    private String certificationImage;
-
-    private Boolean challengeProgressStatus;
-
-    private String challengeTerm;
 
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
+
+    private String challengeTerm;
+
+    private String badgeImage;
 }

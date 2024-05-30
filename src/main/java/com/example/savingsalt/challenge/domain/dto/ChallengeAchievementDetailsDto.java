@@ -1,4 +1,4 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.dto;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package com.example.savingsalt.challenge.service;
 
-import com.example.savingsalt.challenge.domain.MemberChallengeDto;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;

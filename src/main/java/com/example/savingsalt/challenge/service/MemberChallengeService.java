@@ -1,6 +1,6 @@
 package com.example.savingsalt.challenge.service;
 
-import com.example.savingsalt.challenge.domain.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import java.util.List;
 
 public interface MemberChallengeService {

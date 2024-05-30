@@ -1,8 +1,8 @@
 package com.example.savingsalt.challenge.service;
 
-import com.example.savingsalt.challenge.domain.ChallengeCreateReqDto;
-import com.example.savingsalt.challenge.domain.MemberChallengeCreateReqDto;
-import com.example.savingsalt.challenge.domain.ChallengeUpdateReqDto;
+import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

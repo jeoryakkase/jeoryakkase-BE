@@ -1,7 +1,7 @@
 package com.example.savingsalt.challenge.mapper;
 
-import com.example.savingsalt.challenge.domain.MemberChallengeDto;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.EntityMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

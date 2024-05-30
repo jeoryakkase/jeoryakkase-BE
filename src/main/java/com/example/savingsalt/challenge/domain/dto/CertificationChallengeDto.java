@@ -1,5 +1,6 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.dto;
 
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

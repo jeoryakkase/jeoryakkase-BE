@@ -1,6 +1,6 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.entity;
 
-import com.example.savingsalt.badge.domain.BadgeEntity;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
