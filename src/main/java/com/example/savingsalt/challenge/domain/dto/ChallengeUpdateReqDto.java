@@ -31,4 +31,6 @@ public class ChallengeUpdateReqDto {
     private LocalDateTime updateAt;
 
     private String authContent;
+
+    private Long badgeId;
 }

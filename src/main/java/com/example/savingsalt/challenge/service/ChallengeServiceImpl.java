@@ -20,11 +20,13 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeMapper challengeMapper;
+    private final BadgeRepository badgeRepository;
 
     public ChallengeServiceImpl(ChallengeRepository challengeRepository,
-        ChallengeMapper challengeMapper) {
+        ChallengeMapper challengeMapper, BadgeRepository badgeRepository) {
         this.challengeRepository = challengeRepository;
         this.challengeMapper = challengeMapper;
+        this.badgeRepository = badgeRepository;
     }
 
     // 챌린지 상세 정보 조회
@@ -63,4 +65,50 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         return challengesReadResDto;
     }
+
+    // 챌린지 생성
+    @Transactional
+    public ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto) {
+        ChallengeEntity challengeEntity = challengeMapper.toEntity(challengeCreateDto);
+        ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeEntity);
+        ChallengeDto createdChallengeDto = challengeMapper.toDto(createdChallengeEntity);
+        // Todo: challengeEntity, createdChallengeEntity, createdChallengeDto가 null이면 예외발생 ("챌린지 정보를 저장하는데 실패했습니다.");
+        return createdChallengeDto;
+    }
+
+    // 챌린지 수정
+    @Transactional
+    public ChallengeDto updateChallenge(Long challengeId,
+        ChallengeUpdateReqDto updatedChallengeDto) {
+        ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 챌린지를 찾을 수 없습니다."));
+
+        BadgeEntity badgeEntity = badgeRepository.findById(updatedChallengeDto.getBadgeId())
+            .orElseThrow(() -> new IllegalArgumentException("벳지를 찾을 수 없습니다."));
+
+        challengeEntity.toBuilder()
+            .challengeTitle(updatedChallengeDto.getChallengeTitle())
+            .challengeDesc(updatedChallengeDto.getChallengeDesc())
+            .challengeGoal(updatedChallengeDto.getChallengeGoal())
+            .challengeCount(updatedChallengeDto.getChallengeCount())
+            .challengeType(updatedChallengeDto.getChallengeType())
+            .challengeTerm(updatedChallengeDto.getChallengeTerm())
+            .challengeDifficulty(updatedChallengeDto.getChallengeDifficulty())
+            .authContent(updatedChallengeDto.getAuthContent())
+            .badgeEntity(badgeEntity)
+            .build();
+
+        ChallengeEntity updatedChallengeEntity = challengeRepository.save(challengeEntity);
+        ChallengeDto challengeDto = challengeMapper.toDto(updatedChallengeEntity);
+        // Todo: updatedChallengeEntity, challengeDto가 null이면 예외발생 ("챌린지 정보를 수정하는데 실패했습니다.");
+        return challengeDto;
+    }
+
+
+    // 챌린지 삭제
+    @Transactional
+    public void deleteChallenge(Long challengeId) {
+        challengeRepository.deleteById(challengeId);
+    }
+
 }
