@@ -29,7 +29,8 @@ public class BadgeServiceImpl implements BadgeService {
     private final BadgeMainMapper badgeMainMapper;
 
     public BadgeServiceImpl(BadgeRepository badgeRepository,
-        MemberGoalBadgeRepository memberGoalBadgeRepository, MemberRepository memberRepository, MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper) {
+        MemberGoalBadgeRepository memberGoalBadgeRepository, MemberRepository memberRepository,
+        MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper) {
         this.badgeRepository = badgeRepository;
         this.memberGoalBadgeRepository = memberGoalBadgeRepository;
         this.memberRepository = memberRepository;
@@ -56,7 +57,8 @@ public class BadgeServiceImpl implements BadgeService {
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
         List<MemberGoalBadgeEntity> memberGoalBadges = memberGoalBadgeRepository.findALlByMemberEntity(
             member);
-        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(memberGoalBadges);
+        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(
+            memberGoalBadges);
 
         return memberGoalBadgesResDto;
     }
@@ -66,16 +68,20 @@ public class BadgeServiceImpl implements BadgeService {
     public List<MemberChallengeBadgeResDto> getMemberChallengeBadges(Long memberId) {
         MemberEntity member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-        List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(member);
+        List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
+            member);
         if (memberChallengeEntity.size() == 0) {
             // Todo: 예외발생 ("회원 챌린지 정보들을 가져오는데 실패했습니다. or 회원 챌린지 달성 뱃지가 없습니다.");
         }
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = new ArrayList<>();
         // 회원 챌린지가 완료된 뱃지만 저장
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
-            if(memberChallengeEntity.get(i).getChallengeStatus() == MemberChallengeEntity.ChallengeStatus.COMPLETED) {
-                BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity().getBadgeEntity();
-                memberChallengeBadgeResDto.add(badgeMainMapper.toMemberChallengeBadgeResDto(badgeEntity));
+            if (memberChallengeEntity.get(i).getChallengeStatus()
+                == MemberChallengeEntity.ChallengeStatus.COMPLETED) {
+                BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
+                    .getBadgeEntity();
+                memberChallengeBadgeResDto.add(
+                    badgeMainMapper.toMemberChallengeBadgeResDto(badgeEntity));
             }
         }
 
@@ -114,8 +120,6 @@ public class BadgeServiceImpl implements BadgeService {
     // 뱃지 삭제
     @Transactional
     public void deleteBadge(Long badgeId) {
-        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
-            .orElseThrow(() -> new IllegalArgumentException("벳지를 찾을 수 없습니다."));
-        badgeRepository.deleteById(badgeEntity.getId());
+        badgeRepository.deleteById(badgeId);
     }
 }
