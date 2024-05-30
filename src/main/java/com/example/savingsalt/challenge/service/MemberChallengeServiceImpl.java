@@ -9,6 +9,7 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +51,8 @@ public class MemberChallengeServiceImpl implements
 
     // 회원 챌린지 완료
     public void authenticateFinalChallenge(Long memberId, Long memberChallengeId) {
-        MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow();
+        MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow(
+            NoSuchElementException::new);
         MemberChallengeEntity foundMemberChallengeEntity = null;
 
         List<MemberChallengeEntity> memberChallengeEntities = foundMemberEntity.getMemberChallengeEntities();
@@ -83,4 +85,8 @@ public class MemberChallengeServiceImpl implements
         memberChallengeRepository.save(foundMemberchallenge);
     }
 
+    // 회원 챌린지 일일 인증
+    public void submitDailyMemberChallenge(Long memberChallengeId) {
+
+    }
 }
