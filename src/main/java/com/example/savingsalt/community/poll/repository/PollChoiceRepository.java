@@ -1,8 +1,8 @@
 package com.example.savingsalt.community.poll.repository;
 
-import com.example.savingsalt.community.poll.domain.PollChoice;
+import com.example.savingsalt.community.poll.domain.PollChoiceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PollChoiceRepository extends JpaRepository<PollChoice, Long> {
+public interface PollChoiceRepository extends JpaRepository<PollChoiceEntity, Long> {
 
 }

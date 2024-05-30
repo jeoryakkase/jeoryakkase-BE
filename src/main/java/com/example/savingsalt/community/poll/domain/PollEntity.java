@@ -19,16 +19,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Poll extends BaseEntity {
+public class PollEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity board;
 
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
-    private List<PollChoice> choices;
+    @OneToMany(mappedBy = "pollEntity", cascade = CascadeType.ALL)
+    private List<PollChoiceEntity> choices;
 }
