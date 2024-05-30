@@ -78,7 +78,8 @@ public class BadgeServiceImpl implements BadgeService {
         // 회원 챌린지에서 각각 처음 완료한 챌린지의 뱃지만 저장
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
             if ((memberChallengeEntity.get(i).getChallengeStatus()
-                == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getChallengeTry() == 0)) {
+                == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getChallengeTry()
+                == 0)) {
                 BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                     .getBadgeEntity();
                 memberChallengeBadgeResDto.add(
@@ -98,6 +99,25 @@ public class BadgeServiceImpl implements BadgeService {
         BadgeDto createdBadgeDto = badgeMainMapper.toDto(createdBadge);
 
         return createdBadgeDto;
+    }
+
+    // 회원 목표 달성 뱃지 생성
+    @Transactional
+    public BadgeDto createMemberGoalBadge(Long badgeId, Long memberId) {
+        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+            .orElseThrow(() -> new IllegalArgumentException("벳지를 찾을 수 없습니다."));
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        MemberGoalBadgeEntity memberGoalBadgeEntity = MemberGoalBadgeEntity.builder()
+            .badgeEntity(badgeEntity)
+            .memberEntity(memberEntity)
+            .build();
+
+        BadgeDto createdMemberGoalBadgeDto = badgeMainMapper.toDto(
+            memberGoalBadgeRepository.save(memberGoalBadgeEntity));
+
+        return createdMemberGoalBadgeDto;
     }
 
     // 뱃지 정보 수정

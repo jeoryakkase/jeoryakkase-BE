@@ -21,4 +21,6 @@ public interface BadgeMainMapper extends EntityMapper<BadgeEntity, BadgeDto> {
 
     List<MemberGoalBadgeResDto> toMemberGoalBadgeResDto(List<MemberGoalBadgeEntity> entities);
 
+    BadgeDto toDto(MemberGoalBadgeEntity entity);
+
 }
