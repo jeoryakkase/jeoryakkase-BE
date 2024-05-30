@@ -1,6 +1,10 @@
-package com.example.savingsalt.member.config;
+package com.example.savingsalt.config;
 
+import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,11 +20,14 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     UsernamePasswordAuthenticationFilter {
 
     private final ObjectMapper objectMapper;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public CustomUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager,
-        ObjectMapper objectMapper) {
+        ObjectMapper objectMapper,
+        JwtTokenProvider jwtTokenProvider) {
         super.setAuthenticationManager(authenticationManager);
         this.objectMapper = objectMapper;
+        this.jwtTokenProvider = jwtTokenProvider;
         setFilterProcessesUrl("/api/login");
     }
 
@@ -61,5 +68,15 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     @Override
     protected AuthenticationManager getAuthenticationManager() {
         return super.getAuthenticationManager();
+    }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authResult);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(tokenResponseDto));
     }
 }

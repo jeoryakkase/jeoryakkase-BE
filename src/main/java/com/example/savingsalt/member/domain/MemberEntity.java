@@ -110,17 +110,4 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     public void authorizeUser() {
         this.role = Role.MEMBER;
     }
-
-    public MemberDto toDto() {
-        return MemberDto.builder()
-            .id(this.id)
-            .email(this.email)
-            .password(this.password)
-            .nickname(this.nickname)
-            .age(this.age)
-            .gender(this.gender)
-            .income(this.income)
-            .saving_goal(this.savingGoal)
-            .build();
-    }
 }
