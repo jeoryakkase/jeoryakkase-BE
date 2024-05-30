@@ -9,6 +9,7 @@ import com.example.savingsalt.badge.domain.MemberGoalBadgeEntity;
 import com.example.savingsalt.badge.domain.MemberGoalBadgeResDto;
 import com.example.savingsalt.badge.repository.BadgeRepository;
 import com.example.savingsalt.badge.repository.MemberGoalBadgeRepository;
+import com.example.savingsalt.challenge.domain.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
@@ -74,9 +75,15 @@ public class BadgeServiceImpl implements BadgeService {
         if (memberChallengeEntity.size() == 0) {
             // Todo: 예외발생 ("회원 챌린지 정보들을 가져오는데 실패했습니다. or 회원 챌린지 달성 뱃지가 없습니다.");
         }
-        // Todo: 회원 챌린지 테이블 변경사황 적용 후 이어서 작업("challengeStatus")
-
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = new ArrayList<>();
+        // 회원 챌린지가 완료된 뱃지만 저장
+        for (int i = 0; i < memberChallengeEntity.size(); i++) {
+            if(memberChallengeEntity.get(i).getChallengeStatus() == MemberChallengeEntity.ChallengeStatus.COMPLETED) {
+                BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity().getBadgeEntity();
+                memberChallengeBadgeResDto.add(MemberChallengeBadgeResDto.fromEntity(badgeEntity));
+            }
+        }
+
         return memberChallengeBadgeResDto;
     }
 
