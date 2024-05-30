@@ -11,6 +11,7 @@ public interface ChallengeMainMapper {
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
     interface MemberChallengeMapper extends
         EntityMapper<MemberChallengeEntity, MemberChallengeDto> {
+
     }
 
 }
