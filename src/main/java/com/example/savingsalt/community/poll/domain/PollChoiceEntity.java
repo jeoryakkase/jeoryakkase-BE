@@ -1,6 +1,5 @@
 package com.example.savingsalt.community.poll.domain;
 
-import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class PollResult {
+public class PollChoiceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,14 +22,9 @@ public class PollResult {
 
     @ManyToOne
     @JoinColumn(name = "poll_id", nullable = false)
-    private Poll poll;
+    private PollEntity pollEntity;
 
-    @ManyToOne
-    @JoinColumn(name = "choice_id", nullable = false)
-    private PollChoice choice;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private MemberEntity memberEntity;
+    private String answer;
+    private int count = 0;
 
 }
