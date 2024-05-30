@@ -2,11 +2,16 @@ package com.example.savingsalt.challenge.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class MemberChallengeDto {
 
     private LocalDateTime startDate;
@@ -27,7 +32,8 @@ public class MemberChallengeDto {
 
     private Integer saveMoney;
 
-    private List<CertificationChallengeEntity> certificationChallengeEntities;
+    private List<CertificationChallengeDto> certificationChallengeDtos;
 
-    private ChallengeEntity challengeEntity;
+    private ChallengeDto challengeDto;
+
 }

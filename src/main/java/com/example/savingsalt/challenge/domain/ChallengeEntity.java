@@ -4,6 +4,8 @@ import com.example.savingsalt.badge.domain.BadgeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -51,6 +53,7 @@ public class ChallengeEntity extends BaseEntity {
     private String challengeTerm;
 
     @Column(name = "challenge_difficulty", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ChallengeDifficulty challengeDifficulty;
 
     public enum ChallengeDifficulty {
@@ -59,6 +62,9 @@ public class ChallengeEntity extends BaseEntity {
         NORMAL,
         HARD
     }
+
+    @Column(name = "auth_content", nullable = false, length = 50)
+    private String authContent;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "badge_id")

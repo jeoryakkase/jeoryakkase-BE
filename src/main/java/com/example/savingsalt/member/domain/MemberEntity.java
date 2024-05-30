@@ -1,5 +1,7 @@
 package com.example.savingsalt.member.domain;
 
+import com.example.savingsalt.badge.domain.MemberGoalBadgeEntity;
+import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.enums.Role;
 import jakarta.persistence.Column;
@@ -7,10 +9,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -31,7 +36,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
-public class MemberEntity extends BaseEntity implements UserDetails{
+public class MemberEntity extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,6 +70,12 @@ public class MemberEntity extends BaseEntity implements UserDetails{
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity")
+    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity")
+    private List<MemberChallengeEntity> memberChallengeEntities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

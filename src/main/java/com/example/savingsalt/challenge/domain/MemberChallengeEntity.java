@@ -1,7 +1,10 @@
 package com.example.savingsalt.challenge.domain;
 
+import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,11 +44,12 @@ public class MemberChallengeEntity {
     @Column(name = "certify_date")
     private LocalDateTime certifyDate;
 
-    @Column(name = "challenge_progress_status", nullable = false)
-    private Boolean challengeProgressStatus;
+    @Column(name = "challenge_status", columnDefinition = "IN_PROGRESS")
+    @Enumerated(EnumType.STRING)
+    private ChallengeStatus challengeStatus;
 
-    @Column(name = "challenge_status", nullable = false)
-    private Boolean challengeStatus;
+    @Column(name = "is_Today_certification", nullable = false, columnDefinition = "false")
+    private Boolean isTodayCertification;
 
     @Column(name = "challenge_conut", nullable = false)
     private Integer challengeConut;
@@ -66,4 +70,13 @@ public class MemberChallengeEntity {
     @JoinColumn(name = "challenge_id")
     private ChallengeEntity challengeEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
+
+    public enum ChallengeStatus {
+        IN_PROGRESS,
+        COMPLETED,
+        CANCELLED
+    }
 }

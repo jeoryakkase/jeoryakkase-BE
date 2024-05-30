@@ -9,22 +9,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BadgeDto {
+public class MemberChallengeBadgeResDto {
 
     private String name;
 
-    private String badgeImage;
-
     private String badgeDesc;
 
-    private String badgeType;
+    private String badgeImage;
 
-    public static BadgeDto fromEntity(BadgeEntity badgeEntity) {
-        return BadgeDto.builder()
+    public static MemberChallengeBadgeResDto fromEntity(BadgeEntity badgeEntity) {
+        return MemberChallengeBadgeResDto.builder()
             .name(badgeEntity.getName())
-            .badgeImage(badgeEntity.getBadgeImage())
             .badgeDesc(badgeEntity.getBadgeDesc())
-            .badgeType(badgeEntity.getBadgeType())
+            .badgeImage(badgeEntity.getBadgeImage())
             .build();
     }
 }
