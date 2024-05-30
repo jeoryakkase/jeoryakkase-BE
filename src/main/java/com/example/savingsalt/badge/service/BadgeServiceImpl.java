@@ -104,7 +104,9 @@ public class BadgeServiceImpl implements BadgeService {
             .badgeImage(badgeUpdateReqDto.getBadgeImage())
             .badgeType(badgeUpdateReqDto.getBadgeType())
             .build();
-        BadgeDto updateBadgeDto = badgeMainMapper.toDto(badgeEntity);
+        BadgeEntity updatedBadge = badgeRepository.save(badgeEntity);
+        BadgeDto updateBadgeDto = badgeMainMapper.toDto(updatedBadge);
+        // Todo: updatedBadge, updateBadgeDto가 null이면 예외발생 ("뱃지 정보를 수정하는데 실패했습니다.");
 
         return updateBadgeDto;
     }
