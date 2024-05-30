@@ -1,12 +1,17 @@
 package com.example.savingsalt.community.board.service;
 
 import com.example.savingsalt.community.board.domain.BoardEntity;
+import com.example.savingsalt.community.board.domain.BoardTypeHofCreateReqDto;
+import com.example.savingsalt.community.board.domain.BoardTypeHofReadResDto;
 import com.example.savingsalt.community.board.domain.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.BoardTypeTipReadResDto;
+import com.example.savingsalt.community.board.domain.BoardTypeVoteCreateReqDto;
+import com.example.savingsalt.community.board.domain.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.category.domain.CategoryEntity;
 import com.example.savingsalt.community.category.repository.CategoryRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +43,70 @@ public class BoardServiceImpl implements BoardService {
         return convertToBoardTypeTipReadResDto(savedBoardEntity);
     }
 
+    @Override
+    public List<BoardTypeTipReadResDto> findAllTipBoard() {
+        return null;
+    }
+
+    @Override
+    public BoardTypeTipReadResDto findTipBoardById(Long id) {
+        return null;
+    }
+
+    @Override
+    public BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto) {
+        return null;
+    }
+
+    @Override
+    public void deleteTipBoard(Long id) {
+
+    }
+
+    @Override
+    public BoardTypeVoteReadResDto createVoteBoard(BoardTypeVoteCreateReqDto requestDto) {
+        return null;
+    }
+
+    @Override
+    public List<BoardTypeVoteReadResDto> findAllVoteBoard() {
+        return null;
+    }
+
+    @Override
+    public BoardTypeVoteReadResDto findVoteBoardById(Long id) {
+        return null;
+    }
+
+    @Override
+    public BoardTypeVoteReadResDto updateTipBoard(Long id, BoardTypeVoteCreateReqDto boardDto) {
+        return null;
+    }
+
+    @Override
+    public void deleteVoteBoard(Long id) {
+
+    }
+
+    @Override
+    public BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto) {
+        return null;
+    }
+
+    @Override
+    public List<BoardTypeHofReadResDto> findAllHofBoard() {
+        return null;
+    }
+
+    @Override
+    public BoardTypeHofReadResDto updateHofBoard(Long id, BoardTypeHofCreateReqDto boardDto) {
+        return null;
+    }
+
+    @Override
+    public void deleteHofBoard(Long id) {
+
+    }
 
 
     // BoardEntity를 BoardTypeTipReadResDto로 변환

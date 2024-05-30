@@ -1,5 +1,6 @@
 package com.example.savingsalt.challenge.domain;
 
+import com.example.savingsalt.challenge.domain.MemberChallengeEntity.ChallengeStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -22,7 +23,7 @@ public class MemberChallengeDto {
 
     private Boolean challengeProgressStatus;
 
-    private Boolean challengeStatus;
+    private ChallengeStatus challengeStatus;
 
     private Integer challengeConut;
 
