@@ -2,6 +2,8 @@ package com.example.savingsalt.challenge.domain.dto;
 
 
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,17 +16,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MemberChallengeCreateReqDto {
 
-    private String challengeTitle;
+    private LocalDateTime startDate;
 
-    private String challengeDesc;
+    private LocalDateTime endDate;
 
-    private int challengeGoal;
+    private LocalDateTime certifyDate;
 
-    private int challengeCount;
+    private ChallengeStatus challengeStatus;
 
-    private String challengeType;
+    private Boolean isTodayCertification;
 
-    private String challengeTerm;
+    private Integer challengeConut;
+
+    private Integer challengeTry;
+
+    private String challengeComment;
+
+    private Integer saveMoney;
 
     private ChallengeDifficulty challengeDifficulty;
 }
