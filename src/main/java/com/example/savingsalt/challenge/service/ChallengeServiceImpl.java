@@ -13,6 +13,8 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.Chal
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.ChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
+import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
+import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +43,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Transactional(readOnly = true)
     public ChallengeDto getChallenge(Long challengeId) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 챌린지를 찾을 수 없습니다."));
+            .orElseThrow(ChallengeNotFoundException::new);
         ChallengeDto challengeDto = challengeMapper.toDto(challengeEntity);
         // Todo: challengeDto가 null이면 예외발생
         return challengeDto;
@@ -52,8 +54,9 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Page<ChallengeReadResDto> getAllChallenges(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ChallengeEntity> challengeEntities = challengeRepository.findAll(pageable);
-        Page<ChallengeReadResDto> challengesReadResDto = challengeMapper.toChallengesReadResDto(
-            challengeEntities);
+
+        Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(
+            challengeMapper::toChallengesReadResDto);
 
         return challengesReadResDto;
     }
@@ -68,8 +71,8 @@ public class ChallengeServiceImpl implements ChallengeService {
             challengeEntities = challengeRepository.findAllByOrderByCreatedDateDesc(pageable);
         }
 
-        Page<ChallengeReadResDto> challengesReadResDto = challengeMapper.toChallengesReadResDto(
-            challengeEntities);
+        Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(
+            challengeMapper::toChallengesReadResDto);
 
         return challengesReadResDto;
     }
@@ -89,10 +92,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     public ChallengeDto updateChallenge(Long challengeId,
         ChallengeUpdateReqDto updatedChallengeDto) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 챌린지를 찾을 수 없습니다."));
+            .orElseThrow(ChallengeNotFoundException::new);
 
         BadgeEntity badgeEntity = badgeRepository.findById(updatedChallengeDto.getBadgeId())
-            .orElseThrow(() -> new IllegalArgumentException("벳지를 찾을 수 없습니다."));
+            .orElseThrow(BadgeNotFoundException::new);
 
         challengeEntity.toBuilder()
             .challengeTitle(updatedChallengeDto.getChallengeTitle())
@@ -116,12 +119,16 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Transactional
     public void setChallengeDifficulty(Long challengeId) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 챌린지를 찾을 수 없습니다."));
+            .orElseThrow(ChallengeNotFoundException::new);
         List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByChallengeEntity(
             challengeEntity);
 
         // 전체 회원들이 챌린지에 시도한 수
         long totalMemberChallengeSize = memberChallengeEntity.size();
+        if (totalMemberChallengeSize == 0) {
+            return;
+        }
+
         //회원 챌린지에서 각각 처음 완료한 챌린지의 수
         long successMemberChallengeSize = 0;
 
