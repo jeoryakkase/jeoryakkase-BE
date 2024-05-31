@@ -4,6 +4,7 @@ import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberDto;
+import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.enums.Role;
@@ -53,6 +54,23 @@ public class MemberService {
         memberEntity.setSavingGoal(dto.getSavingGoal());
         memberEntity.setProfileImage(dto.getProfileImage());
         memberEntity.setRole(Role.MEMBER);
+
+        return memberRepository.save(memberEntity);
+    }
+
+    // OAuth2 회원가입 (추가 정보 입력)
+    public MemberEntity saveAdditionalInfo(OAuth2SignupRequestDto dto) {
+        String email = dto.getEmail();
+        MemberEntity memberEntity = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+
+        memberEntity.setNickname(dto.getNickname());
+        memberEntity.setAge(dto.getAge());
+        memberEntity.setGender(dto.getGender());
+        memberEntity.setIncome(dto.getIncome());
+        memberEntity.setSavingGoal(dto.getSavingGoal());
+        memberEntity.setProfileImage(dto.getProfileImage());
+        memberEntity.authorizeUser();
 
         return memberRepository.save(memberEntity);
     }
