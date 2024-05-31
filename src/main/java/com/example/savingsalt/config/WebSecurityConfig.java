@@ -43,19 +43,28 @@ public class WebSecurityConfig {
 
         return http
             .authorizeRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/", "/login", "/api/login", "/signup", "/api/signup", "/api/token")
+                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
+                    "/api/signup", "/api/token")
                 .permitAll()
                 // h2 콘솔 허용
                 .requestMatchers("/h2-console/**").permitAll()
                 // swagger 관련 경로 허용
-                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
+                    "/swagger-resources/**", "/webjars/**").permitAll()
                 .anyRequest().authenticated())
+            // 폼 로그인
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
                 .loginProcessingUrl("/api/login")
                 .defaultSuccessUrl("/")
                 .successHandler(customAuthenticationSuccessHandler)
                 .permitAll())
+            // 소셜 로그인
+            .oauth2Login(oauth2Login -> oauth2Login
+                .loginPage("/login")
+                .defaultSuccessUrl("/")
+                .successHandler(customAuthenticationSuccessHandler))
+            // 로그아웃
             .logout(logout -> logout
                 .logoutUrl("/api/logout")
                 .logoutSuccessUrl("/")
