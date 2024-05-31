@@ -1,8 +1,11 @@
 package com.example.savingsalt.config;
 
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.handler.CustomAuthenticationFailureHandler;
 import com.example.savingsalt.handler.CustomAuthenticationSuccessHandler;
+import com.example.savingsalt.handler.OAuth2SuccessHandler;
 import com.example.savingsalt.member.service.LoginService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +17,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,8 +34,16 @@ public class WebSecurityConfig {
     private final LoginService loginService;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Bean
+    public WebSecurityCustomizer configure() {
+        return (web) -> web.ignoring()
+            .requestMatchers(toH2Console())
+            .requestMatchers("/static/**");
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -46,8 +58,6 @@ public class WebSecurityConfig {
                 .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
                     "/api/signup", "/api/token")
                 .permitAll()
-                // h2 콘솔 허용
-                .requestMatchers("/h2-console/**").permitAll()
                 // swagger 관련 경로 허용
                 .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**").permitAll()
@@ -62,8 +72,7 @@ public class WebSecurityConfig {
             // 소셜 로그인
             .oauth2Login(oauth2Login -> oauth2Login
                 .loginPage("/login")
-                .defaultSuccessUrl("/")
-                .successHandler(customAuthenticationSuccessHandler))
+                .successHandler(oAuth2SuccessHandler))
             // 로그아웃
             .logout(logout -> logout
                 .logoutUrl("/api/logout")
@@ -79,6 +88,8 @@ public class WebSecurityConfig {
             .sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterAt(customFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(tokenAuthenticationFilter(),
+                UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 
@@ -86,6 +97,11 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManager(
         AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter(jwtTokenProvider);
     }
 
     @Bean
