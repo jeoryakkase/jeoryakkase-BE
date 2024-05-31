@@ -21,7 +21,7 @@ public class GoalUpdateReqDto {
     public GoalEntity toEntity(Long id, GoalEntity existingGoalEntity) {
         return GoalEntity.builder()
             .id(id)
-            .memberEntity(existingGoalEntity.getMemberEntity()) // Keep the existing memberEntity
+            .memberEntity(existingGoalEntity.getMemberEntity())
             .goalAmount(goalAmount)
             .goalImage(goalImage)
             .goalDesc(goalDesc)
