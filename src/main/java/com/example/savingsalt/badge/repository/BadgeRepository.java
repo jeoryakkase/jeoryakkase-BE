@@ -1,6 +1,6 @@
 package com.example.savingsalt.badge.repository;
 
-import com.example.savingsalt.badge.domain.BadgeEntity;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 

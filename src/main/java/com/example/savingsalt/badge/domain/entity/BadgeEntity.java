@@ -1,4 +1,4 @@
-package com.example.savingsalt.badge.domain;
+package com.example.savingsalt.badge.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

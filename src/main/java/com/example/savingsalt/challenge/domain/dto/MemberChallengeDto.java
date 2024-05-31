@@ -1,6 +1,6 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.dto;
 
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -21,9 +21,9 @@ public class MemberChallengeDto {
 
     private LocalDateTime certifyDate;
 
-    private Boolean challengeProgressStatus;
-
     private ChallengeStatus challengeStatus;
+
+    private Boolean isTodayCertification;
 
     private Integer challengeConut;
 

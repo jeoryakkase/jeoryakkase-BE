@@ -1,4 +1,4 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.entity;
 
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Column;
@@ -44,11 +44,11 @@ public class MemberChallengeEntity {
     @Column(name = "certify_date")
     private LocalDateTime certifyDate;
 
-    @Column(name = "challenge_status", columnDefinition = "IN_PROGRESS")
+    @Column(name = "challenge_status")
     @Enumerated(EnumType.STRING)
     private ChallengeStatus challengeStatus;
 
-    @Column(name = "is_Today_certification", nullable = false, columnDefinition = "false")
+    @Column(name = "is_Today_certification", nullable = false)
     private Boolean isTodayCertification;
 
     @Column(name = "challenge_conut", nullable = false)

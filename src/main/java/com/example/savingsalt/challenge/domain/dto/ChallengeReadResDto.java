@@ -1,6 +1,6 @@
-package com.example.savingsalt.challenge.domain;
+package com.example.savingsalt.challenge.domain.dto;
 
-import com.example.savingsalt.badge.domain.BadgeDto;
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,21 +11,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ChallengeDetailsReadResDto {
+public class ChallengeReadResDto {
 
     private String challengeTitle;
-
-    private String challengeDesc;
-
-    private int challengeGoal;
-
-    private int challengeCount;
 
     private String challengeType;
 
     private String challengeTerm;
 
-    private ChallengeEntity.ChallengeDifficulty challengeDifficulty;
+    private int challengeCount;
 
     private BadgeDto badgeDto;
 }

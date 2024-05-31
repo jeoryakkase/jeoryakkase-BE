@@ -1,7 +1,7 @@
 package com.example.savingsalt.member.domain;
 
-import com.example.savingsalt.badge.domain.MemberGoalBadgeEntity;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
+import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.enums.Role;
 import jakarta.persistence.Column;
