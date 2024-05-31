@@ -13,6 +13,7 @@ import com.example.savingsalt.badge.repository.MemberGoalBadgeRepository;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
+import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public class BadgeServiceImpl implements BadgeService {
     @Transactional
     public BadgeDto createMemberGoalBadge(Long badgeId, Long memberId) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
-            .orElseThrow(() -> new IllegalArgumentException("벳지를 찾을 수 없습니다."));
+            .orElseThrow(BadgeNotFoundException::new);
         MemberEntity memberEntity = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
 
@@ -124,7 +125,7 @@ public class BadgeServiceImpl implements BadgeService {
     @Transactional
     public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
-            .orElseThrow(() -> new IllegalArgumentException("벳지를 찾을 수 없습니다."));
+            .orElseThrow(BadgeNotFoundException::new);
         badgeEntity.toBuilder()
             .name(badgeUpdateReqDto.getName())
             .badgeDesc(badgeUpdateReqDto.getBadgeDesc())
