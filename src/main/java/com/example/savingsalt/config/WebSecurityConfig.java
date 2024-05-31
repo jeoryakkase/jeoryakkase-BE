@@ -45,6 +45,10 @@ public class WebSecurityConfig {
             .authorizeRequests(authorizeRequests -> authorizeRequests
                 .requestMatchers("/", "/login", "/api/login", "/signup", "/api/signup", "/api/token")
                 .permitAll()
+                // h2 콘솔 허용
+                .requestMatchers("/h2-console/**").permitAll()
+                // swagger 관련 경로 허용
+                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                 .anyRequest().authenticated())
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
