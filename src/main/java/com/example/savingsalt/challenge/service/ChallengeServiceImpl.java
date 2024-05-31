@@ -66,9 +66,9 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable) {
         Page<ChallengeEntity> challengeEntities;
         if (keyword != null && !keyword.isEmpty()) {
-            challengeEntities = challengeRepository.findAllByTitleContaining(keyword, pageable);
+            challengeEntities = challengeRepository.findAllByChallengeTitleContaining(keyword, pageable);
         } else {
-            challengeEntities = challengeRepository.findAllByOrderByCreatedDateDesc(pageable);
+            challengeEntities = challengeRepository.findAllByOrderByCreatedAtDesc(pageable);
         }
 
         Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(
