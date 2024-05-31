@@ -3,7 +3,6 @@ package com.example.savingsalt.handler;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

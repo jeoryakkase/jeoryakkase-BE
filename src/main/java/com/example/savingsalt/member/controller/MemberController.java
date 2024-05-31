@@ -58,7 +58,7 @@ public class MemberController {
     }
 
     @PostMapping("/api/signup/additional-info")
-    @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after OAuth2 signup")
+    @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Save success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),

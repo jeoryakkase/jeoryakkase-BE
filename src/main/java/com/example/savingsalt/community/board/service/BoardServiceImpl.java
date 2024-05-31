@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BoardServiceImpl  {
+public class BoardServiceImpl implements BoardService  {
 
     private BoardRepository boardRepository;
 
