@@ -85,11 +85,15 @@ public class MemberService {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
-        if (memberRepository.existsByNickname(nickname)) {
+        if (!memberEntity.getNickname().equals(nickname) && memberRepository.existsByNickname(
+            nickname)) {
             throw new MemberException.NicknameAlreadyExistsException();
         }
 
-        memberEntity.setPassword(bCryptPasswordEncoder.encode(password));
+        if (password != null && !password.isEmpty()) { // 수정 폼에서 비밀번호 필드는 비어있고, 수정할 경우에만 입력
+            memberEntity.setPassword(bCryptPasswordEncoder.encode(password));
+        }
+
         memberEntity.setNickname(nickname);
         memberEntity.setAge(age);
         memberEntity.setGender(gender);
