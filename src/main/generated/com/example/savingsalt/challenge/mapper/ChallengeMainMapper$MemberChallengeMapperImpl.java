@@ -1,7 +1,8 @@
 package com.example.savingsalt.challenge.mapper;
 
-import com.example.savingsalt.challenge.domain.MemberChallengeDto;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
@@ -9,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-05-30T19:17:15+0900",
-    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.10 (Amazon.com Inc.)"
+    date = "2024-05-31T22:36:27+0900",
+    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.10 (Azul Systems, Inc.)"
 )
 @Component
 public class ChallengeMainMapper$MemberChallengeMapperImpl implements ChallengeMainMapper.MemberChallengeMapper {
@@ -27,6 +28,7 @@ public class ChallengeMainMapper$MemberChallengeMapperImpl implements ChallengeM
         memberChallengeEntity.endDate( dto.getEndDate() );
         memberChallengeEntity.certifyDate( dto.getCertifyDate() );
         memberChallengeEntity.challengeStatus( dto.getChallengeStatus() );
+        memberChallengeEntity.isTodayCertification( dto.getIsTodayCertification() );
         memberChallengeEntity.challengeConut( dto.getChallengeConut() );
         memberChallengeEntity.challengeTry( dto.getChallengeTry() );
         memberChallengeEntity.challengeComment( dto.getChallengeComment() );
@@ -61,6 +63,7 @@ public class ChallengeMainMapper$MemberChallengeMapperImpl implements ChallengeM
         memberChallengeDto.endDate( entity.getEndDate() );
         memberChallengeDto.certifyDate( entity.getCertifyDate() );
         memberChallengeDto.challengeStatus( entity.getChallengeStatus() );
+        memberChallengeDto.isTodayCertification( entity.getIsTodayCertification() );
         memberChallengeDto.challengeConut( entity.getChallengeConut() );
         memberChallengeDto.challengeTry( entity.getChallengeTry() );
         memberChallengeDto.challengeComment( entity.getChallengeComment() );
@@ -81,5 +84,26 @@ public class ChallengeMainMapper$MemberChallengeMapperImpl implements ChallengeM
         }
 
         return list;
+    }
+
+    @Override
+    public MemberChallengeEntity toEntity(MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
+        if ( memberChallengeCreateReqDto == null ) {
+            return null;
+        }
+
+        MemberChallengeEntity.MemberChallengeEntityBuilder memberChallengeEntity = MemberChallengeEntity.builder();
+
+        memberChallengeEntity.startDate( memberChallengeCreateReqDto.getStartDate() );
+        memberChallengeEntity.endDate( memberChallengeCreateReqDto.getEndDate() );
+        memberChallengeEntity.certifyDate( memberChallengeCreateReqDto.getCertifyDate() );
+        memberChallengeEntity.challengeStatus( memberChallengeCreateReqDto.getChallengeStatus() );
+        memberChallengeEntity.isTodayCertification( memberChallengeCreateReqDto.getIsTodayCertification() );
+        memberChallengeEntity.challengeConut( memberChallengeCreateReqDto.getChallengeConut() );
+        memberChallengeEntity.challengeTry( memberChallengeCreateReqDto.getChallengeTry() );
+        memberChallengeEntity.challengeComment( memberChallengeCreateReqDto.getChallengeComment() );
+        memberChallengeEntity.saveMoney( memberChallengeCreateReqDto.getSaveMoney() );
+
+        return memberChallengeEntity.build();
     }
 }
