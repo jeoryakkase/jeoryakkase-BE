@@ -4,6 +4,7 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
@@ -31,6 +32,7 @@ public interface ChallengeMainMapper {
     interface MemberChallengeMapper extends
         EntityMapper<MemberChallengeEntity, MemberChallengeDto> {
 
+        MemberChallengeEntity toEntity(MemberChallengeCreateReqDto memberChallengeCreateReqDto);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
