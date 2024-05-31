@@ -52,8 +52,8 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Page<ChallengeReadResDto> getAllChallenges(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ChallengeEntity> challengeEntities = challengeRepository.findAll(pageable);
-        Page<ChallengeReadResDto> challengesReadResDto = challengeMapper.toChallengesReadResDto(
-            challengeEntities);
+
+        Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(challengeMapper::toChallengesReadResDto);
 
         return challengesReadResDto;
     }
@@ -68,8 +68,7 @@ public class ChallengeServiceImpl implements ChallengeService {
             challengeEntities = challengeRepository.findAllByOrderByCreatedDateDesc(pageable);
         }
 
-        Page<ChallengeReadResDto> challengesReadResDto = challengeMapper.toChallengesReadResDto(
-            challengeEntities);
+        Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(challengeMapper::toChallengesReadResDto);
 
         return challengesReadResDto;
     }
@@ -122,6 +121,10 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         // 전체 회원들이 챌린지에 시도한 수
         long totalMemberChallengeSize = memberChallengeEntity.size();
+        if (totalMemberChallengeSize == 0) {
+            return;
+        }
+
         //회원 챌린지에서 각각 처음 완료한 챌린지의 수
         long successMemberChallengeSize = 0;
 
