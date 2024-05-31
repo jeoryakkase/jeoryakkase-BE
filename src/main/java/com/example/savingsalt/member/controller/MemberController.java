@@ -87,15 +87,15 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 
-    @PutMapping("/api/members/{id}")
+    @PutMapping("/api/members/{memberId}")
     @Operation(summary = "member update", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> updateMember(@PathVariable Long id, @RequestBody MemberUpdateRequestDto dto) {
-        MemberEntity memberEntity = memberService.updateMember(id, dto.getPassword(), dto.getNickname(), dto.getAge(),
+    public ResponseEntity<?> updateMember(@PathVariable Long memberId, @RequestBody MemberUpdateRequestDto dto) {
+        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getPassword(), dto.getNickname(), dto.getAge(),
             dto.getGender(), dto.getIncome(), dto.getSavingGoal(), dto.getProfileImage());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
