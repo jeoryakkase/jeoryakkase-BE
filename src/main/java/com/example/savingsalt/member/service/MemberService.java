@@ -5,6 +5,7 @@ import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberDto;
 import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
+import com.example.savingsalt.member.domain.RefreshToken;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.enums.Role;
@@ -12,6 +13,7 @@ import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.exception.MemberException.InvalidPasswordException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
+import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final LoginService loginService;
     private final MemberMapper memberMapper;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // 회원가입
     @Transactional
@@ -92,12 +95,15 @@ public class MemberService {
             throw new InvalidPasswordException();
         }
 
+        // 인증 토큰 생성
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             dto.getEmail(), dto.getPassword());
 
+        // 인증 수행
         Authentication authentication = authenticationManagerBuilder.getObject()
             .authenticate(authenticationToken);
 
+        // JWT 토큰 생성
         TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
 
         return tokenResponseDto;
