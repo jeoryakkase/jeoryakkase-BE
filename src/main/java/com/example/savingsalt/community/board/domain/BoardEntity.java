@@ -1,12 +1,13 @@
 package com.example.savingsalt.community.board.domain;
 
-import com.example.savingsalt.community.category.domain.CategoryEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,7 +20,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "Boards")
+@Table(name = "boards")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -35,6 +36,8 @@ public class BoardEntity extends BaseEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
+    private String nickname;
+
     private String title;
 
     @Column(columnDefinition = "TEXT")
@@ -46,14 +49,28 @@ public class BoardEntity extends BaseEntity {
     @Column(nullable = false)
     private int boardHits;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private CategoryEntity categoryEntity;
+    @Enumerated(EnumType.STRING)
+    private BoardCategory category;
 
     @ElementCollection
     @CollectionTable(name = "board_image_urls", joinColumns = @JoinColumn(name = "board_id"))
     @Column(name = "image_url")
     private List<String> imageUrls;
+
+    public void updateTipBoard(BoardTypeTipCreateReqDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.contents = requestDto.getContents();
+    }
+
+    public void updateVoteBoard(BoardTypeVoteCreateReqDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.contents = requestDto.getContents();
+    }
+
+    public void updateHofBoard(BoardTypeHofCreateReqDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.contents = requestDto.getContents();
+    }
 
 
 }

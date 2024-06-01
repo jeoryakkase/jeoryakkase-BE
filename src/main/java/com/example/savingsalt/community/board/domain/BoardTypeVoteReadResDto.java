@@ -4,8 +4,9 @@ import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.global.BaseEntity;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-
+@Builder
 @Getter
 @AllArgsConstructor
 public class BoardTypeVoteReadResDto extends BaseEntity {
@@ -15,7 +16,7 @@ public class BoardTypeVoteReadResDto extends BaseEntity {
     private String title;
     private String contents;
     private int boardHits;
-    private PollResDto pollResData;
+    private PollResDto pollResDto;
 
     public LocalDateTime getCreatedAt() {
         return this.getCreatedAt();

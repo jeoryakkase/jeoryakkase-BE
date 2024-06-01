@@ -23,7 +23,7 @@ public class CommentEntity extends BaseEntity {
     private String comment;
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "board_id")
     private BoardEntity boardEntity;
 
     @ManyToOne
