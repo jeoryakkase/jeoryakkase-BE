@@ -1,8 +1,8 @@
-package com.example.savingsalt.community.like.domain;
+package com.example.savingsalt.community.board.domain.entity;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,32 +10,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Table(name = "memberLikes")
+@Table(name = "comments")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
-public class  MemberLikeEntity {
+public class CommentEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_like_id")
     private Long id;
 
+    private String comment;
+
     @ManyToOne
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id")
     private BoardEntity boardEntity;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    public MemberLikeEntity(BoardEntity boardEntity, MemberEntity memberEntity) {
-        this.boardEntity = boardEntity;
-        this.memberEntity = memberEntity;
-    }
 }

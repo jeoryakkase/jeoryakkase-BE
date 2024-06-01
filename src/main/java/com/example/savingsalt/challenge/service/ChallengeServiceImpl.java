@@ -66,7 +66,8 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable) {
         Page<ChallengeEntity> challengeEntities;
         if (keyword != null && !keyword.isEmpty()) {
-            challengeEntities = challengeRepository.findAllByChallengeTitleContaining(keyword, pageable);
+            challengeEntities = challengeRepository.findAllByChallengeTitleContaining(keyword,
+                pageable);
         } else {
             challengeEntities = challengeRepository.findAllByOrderByCreatedAtDesc(pageable);
         }
@@ -97,7 +98,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         BadgeEntity badgeEntity = badgeRepository.findById(updatedChallengeDto.getBadgeId())
             .orElseThrow(BadgeNotFoundException::new);
 
-        challengeEntity.toBuilder()
+        ChallengeEntity updateChallengeEntity = challengeEntity.toBuilder()
             .challengeTitle(updatedChallengeDto.getChallengeTitle())
             .challengeDesc(updatedChallengeDto.getChallengeDesc())
             .challengeGoal(updatedChallengeDto.getChallengeGoal())
@@ -109,7 +110,7 @@ public class ChallengeServiceImpl implements ChallengeService {
             .badgeEntity(badgeEntity)
             .build();
 
-        ChallengeEntity updatedChallengeEntity = challengeRepository.save(challengeEntity);
+        ChallengeEntity updatedChallengeEntity = challengeRepository.save(updateChallengeEntity);
         ChallengeDto challengeDto = challengeMapper.toDto(updatedChallengeEntity);
         // Todo: updatedChallengeEntity, challengeDto가 null이면 예외발생 ("챌린지 정보를 수정하는데 실패했습니다.");
         return challengeDto;
@@ -140,23 +141,24 @@ public class ChallengeServiceImpl implements ChallengeService {
             }
         }
 
+        ChallengeEntity updatedChallengeEntity;
         double successPercent =
             (double) totalMemberChallengeSize / (double) successMemberChallengeSize * 100;
         if (successPercent <= 30) {
-            challengeEntity.toBuilder()
+            updatedChallengeEntity = challengeEntity.toBuilder()
                 .challengeDifficulty(ChallengeDifficulty.HARD)
                 .build();
         } else if (successPercent <= 60) {
-            challengeEntity.toBuilder()
+            updatedChallengeEntity = challengeEntity.toBuilder()
                 .challengeDifficulty(ChallengeDifficulty.NORMAL)
                 .build();
         } else {
-            challengeEntity.toBuilder()
+            updatedChallengeEntity = challengeEntity.toBuilder()
                 .challengeDifficulty(ChallengeDifficulty.EASY)
                 .build();
         }
 
-        challengeRepository.save(challengeEntity);
+        challengeRepository.save(updatedChallengeEntity);
     }
 
     // 챌린지 삭제
