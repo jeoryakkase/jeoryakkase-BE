@@ -36,10 +36,12 @@ public class MemberService {
     // 회원가입
     @Transactional
     public MemberEntity signUp(SignupRequestDto dto) {
+        // 이메일 중복 검사
         if (memberRepository.existsByEmail(dto.getEmail())) {
             throw new MemberException.EmailAlreadyExistsException();
         }
 
+        // 닉네임 중복 검사
         if (memberRepository.existsByNickname(dto.getNickname())) {
             throw new MemberException.NicknameAlreadyExistsException();
         }
@@ -63,6 +65,11 @@ public class MemberService {
         String email = dto.getEmail();
         MemberEntity memberEntity = memberRepository.findByEmail(email)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+
+        // 닉네임 중복 검사
+        if (memberRepository.existsByNickname(dto.getNickname())) {
+            throw new MemberException.NicknameAlreadyExistsException();
+        }
 
         memberEntity.setNickname(dto.getNickname());
         memberEntity.setAge(dto.getAge());
@@ -183,12 +190,12 @@ public class MemberService {
             endIncome = 10000;
         }
 
-        return memberRepository.findByIncomeBetween(startIncome, endIncome);
+        return memberRepository.findAllByIncomeBetween(startIncome, endIncome);
     }
 
     // 같은 성별인 회원들 찾기
     public List<MemberEntity> findMembersByGender(int gender) {
-        return memberRepository.findByGender(gender);
+        return memberRepository.findAllByGender(gender);
     }
 
     // 같은 나이대인 회원들 찾기
@@ -196,6 +203,6 @@ public class MemberService {
         int startAge = age / 10 * 10;
         int endAge = startAge + 9;
 
-        return memberRepository.findByAgeBetween(startAge, endAge);
+        return memberRepository.findAllByAgeBetween(startAge, endAge);
     }
 }

@@ -2,6 +2,7 @@ package com.example.savingsalt.member.service;
 
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.enums.Role;
+import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
@@ -23,6 +24,14 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User user = super.loadUser(userRequest);
+
+        // 일반 회원가입으로 가입했던 이메일인지 확인
+        String email = (String) user.getAttributes().get("email");
+        if (memberRepository.existsByEmail(email)) {
+            throw new MemberException.EmailAlreadyExistsException("This email is registered with normal login.");
+        }
+
+        // 새로운 회원인지 확인
         boolean isNewUser = saveOrUpdate(user);
         if (isNewUser) {
             // 세션에 새 사용자 정보 저장 (성공 핸들러에서 확인하기 위해)
@@ -46,6 +55,6 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
             memberRepository.save(memberEntity);
             return true; // 새로운 소셜 회원 -> 회원가입
         }
-        return false; // 기존 회원 -> 소셜 로그인
+        return false; // 기존 소셜 회원 -> 소셜 로그인
     }
 }
