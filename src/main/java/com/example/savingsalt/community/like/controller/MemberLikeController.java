@@ -2,6 +2,7 @@ package com.example.savingsalt.community.like.controller;
 
 import com.example.savingsalt.community.like.domain.LikeReqDto;
 import com.example.savingsalt.community.like.domain.LikeResDto;
+import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.service.MemberLikeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +25,9 @@ public class MemberLikeController {
 
     @Operation(summary = "Like or Unlike a Post", description = "Toggle like status on a post for a member")
     @PostMapping("/like")
-    public ResponseEntity<Void> likePost(@RequestBody LikeReqDto likeReqDto) {
-        memberLikeService.likeBoard(likeReqDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MemberLikeDto> likePost(@RequestBody LikeReqDto likeReqDto) {
+        MemberLikeDto response = memberLikeService.likeBoard(likeReqDto);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Count Likes on a Post", description = "Get the total number of likes for a specific post")

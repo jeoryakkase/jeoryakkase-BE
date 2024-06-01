@@ -38,5 +38,4 @@ public class  MemberLikeEntity {
         this.boardEntity = boardEntity;
         this.memberEntity = memberEntity;
     }
-
 }
