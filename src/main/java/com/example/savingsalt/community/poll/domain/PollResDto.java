@@ -14,4 +14,5 @@ public class PollResDto {
     private Long id;
     private Long boardId;
     private List<PollChoiceDto> choices;
+
 }
