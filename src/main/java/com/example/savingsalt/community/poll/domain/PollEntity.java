@@ -13,6 +13,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
+@Builder
 public class PollEntity extends BaseEntity {
 
     @Id
@@ -33,4 +35,12 @@ public class PollEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "pollEntity", cascade = CascadeType.ALL)
     private List<PollChoiceEntity> choices;
+
+    public void addChoices(List<PollChoiceEntity> choices) {
+        this.choices = choices;
+        for (PollChoiceEntity choice : choices) {
+            choice.setPollEntity(this);
+        }
+    }
+
 }
