@@ -18,12 +18,5 @@ public class BoardTypeVoteReadResDto extends BaseEntity {
     private int boardHits;
     private PollResDto pollResDto;
 
-    public LocalDateTime getCreatedAt() {
-        return this.getCreatedAt();
-    }
-
-    public LocalDateTime getModifiedAt() {
-        return this.getModifiedAt();
-    }
 
 }

@@ -50,6 +50,9 @@ dependencies {
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // OAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     // Mapstruct
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     testAnnotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
