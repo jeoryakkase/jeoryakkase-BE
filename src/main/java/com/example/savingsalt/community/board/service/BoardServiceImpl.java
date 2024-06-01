@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BoardServiceImpl implements BoardService {
+public class BoardServiceImpl implements BoardService  {
 
     private BoardRepository boardRepository;
 
@@ -26,7 +26,7 @@ public class BoardServiceImpl implements BoardService {
 //    private MemberRepository memberRepository;
 
     // 절약팁 게시글 작성
-    @Override
+
     public BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto) {
         // 인증된 사용자 정보 가져오기(추가예정)
 
