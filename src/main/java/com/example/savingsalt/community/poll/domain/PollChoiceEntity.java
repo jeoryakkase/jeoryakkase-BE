@@ -6,17 +6,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Table(name = "pollChoices")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Entity
-public class PollChoice {
+@Builder
+public class PollChoiceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +26,16 @@ public class PollChoice {
 
     @ManyToOne
     @JoinColumn(name = "poll_id", nullable = false)
-    private Poll poll;
+    private PollEntity pollEntity;
 
     private String answer;
     private int count = 0;
 
+    public void setPollEntity(PollEntity pollEntity) {
+        this.pollEntity = pollEntity;
+    }
+
+    public void incrementCount() {
+        this.count++;
+    }
 }
