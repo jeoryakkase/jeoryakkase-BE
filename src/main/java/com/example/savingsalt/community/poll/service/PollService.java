@@ -13,4 +13,6 @@ public interface PollService {
     PollResDto getPoll(Long voteId, Long pollId);
     PollResultDto participateInPoll(Long voteId, Long pollId, PollChoiceDto choiceDto);
     List<PollResultDto> getPollResults(Long voteId, Long pollId);
+
+    PollResDto findPollByBoardId(Long boardId);
 }
