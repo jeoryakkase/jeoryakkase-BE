@@ -4,6 +4,8 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import com.example.savingsalt.util.CookieUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +35,11 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
 
         // 새로운 회원인지 확인
         boolean isNewUser = saveOrUpdate(user);
+
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         if (isNewUser) {
-            // 세션에 새 사용자 정보 저장 (성공 핸들러에서 확인하기 위해)
-            HttpSession session = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-                .getSession();
-            session.setAttribute("newUser", true);
+            // 쿠키에 새 사용자 정보 저장 (성공 핸들러에서 확인하기 위해)
+            CookieUtil.addCookie(response, "newUser", "true", 18000);
         }
         return user;
     }
