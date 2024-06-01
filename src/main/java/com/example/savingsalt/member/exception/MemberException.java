@@ -9,35 +9,39 @@ public class MemberException extends RuntimeException {
     public static class EmailAlreadyExistsException extends MemberException {
 
         public EmailAlreadyExistsException() {
-            super("Member with this email already exists");
+            super("Member with this email already exists.");
+        }
+
+        public EmailAlreadyExistsException(String message) {
+            super(message);
         }
     }
 
     public static class NicknameAlreadyExistsException extends MemberException {
 
         public NicknameAlreadyExistsException() {
-            super("Member with this nickname already exists");
+            super("Member with this nickname already exists.");
         }
     }
 
     public static class MemberNotFoundException extends MemberException {
 
         public MemberNotFoundException(String field, Object value) {
-            super(String.format("Member with %s '%s' not found", field, value));
+            super(String.format("Member with %s '%s' not found.", field, value));
         }
     }
 
     public static class RefreshTokenNotFoundException extends MemberException {
 
         public RefreshTokenNotFoundException() {
-            super("Unexpected token");
+            super("Unexpected token.");
         }
     }
 
     public static class InvalidPasswordException extends MemberException {
 
         public InvalidPasswordException() {
-            super("Password doesn't match");
+            super("Password doesn't match.");
         }
     }
 }

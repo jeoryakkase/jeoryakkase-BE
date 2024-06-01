@@ -1,10 +1,11 @@
 package com.example.savingsalt.badge.service;
 
-import com.example.savingsalt.badge.domain.BadgeCreateReqDto;
-import com.example.savingsalt.badge.domain.BadgeDto;
-import com.example.savingsalt.badge.domain.BadgeUpdateReqDto;
-import com.example.savingsalt.badge.domain.MemberChallengeBadgeResDto;
-import com.example.savingsalt.badge.domain.MemberGoalBadgeResDto;
+import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
+import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
+import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeCreateReqDto;
+import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
 import java.util.List;
 
 public interface BadgeService {
@@ -20,6 +21,9 @@ public interface BadgeService {
 
     // 뱃지 생성
     BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto);
+
+    // 회원 목표 달성 뱃지 생성
+    BadgeDto createMemberGoalBadge(Long badgeId, Long memberId);
 
     // 뱃지 정보 수정
     BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto);

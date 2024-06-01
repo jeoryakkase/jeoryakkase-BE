@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.board.domain;
 
-import com.example.savingsalt.challenge.domain.ChallengeAchievementDetailsDto;
+import com.example.savingsalt.challenge.domain.dto.ChallengeAchievementDetailsDto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

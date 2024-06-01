@@ -12,11 +12,11 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     Optional<MemberEntity> findByNickname(String nickname);
 
     // 평균을 내기 위한 메서드
-    List<MemberEntity> findByAgeBetween(int startAge, int endAge);
+    List<MemberEntity> findAllByAgeBetween(int startAge, int endAge);
 
-    List<MemberEntity> findByGender(int gender);
+    List<MemberEntity> findAllByGender(int gender);
 
-    List<MemberEntity> findByIncomeBetween(int startIncome, int endIncome);
+    List<MemberEntity> findAllByIncomeBetween(int startIncome, int endIncome);
 
     boolean existsByEmail(String email);
 

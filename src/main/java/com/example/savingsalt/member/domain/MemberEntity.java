@@ -1,7 +1,7 @@
 package com.example.savingsalt.member.domain;
 
-import com.example.savingsalt.badge.domain.MemberGoalBadgeEntity;
-import com.example.savingsalt.challenge.domain.MemberChallengeEntity;
+import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.enums.Role;
 import jakarta.persistence.Column;
@@ -34,7 +34,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "members")
+@Table(name = "memberㄴ")
 @EntityListeners(AuditingEntityListener.class)
 public class MemberEntity extends BaseEntity implements UserDetails {
 
@@ -49,19 +49,19 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     @Column(name = "password", nullable = true) // 소셜 로그인일 경우 비밀번호가 없음
     private String password;
 
-    @Column(name = "nickname", nullable = false)
+    @Column(name = "nickname", nullable = true) // 소셜 회원가입을 할 경우 나중에 입력
     private String nickname;
 
-    @Column(name = "age", nullable = false)
+    @Column(name = "age", nullable = true)
     private int age;
 
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender", nullable = true)
     private int gender;
 
-    @Column(name = "income", nullable = false)
+    @Column(name = "income", nullable = true)
     private int income;
 
-    @Column(name = "saving_goal", nullable = false)
+    @Column(name = "saving_goal", nullable = true)
     private int savingGoal;
 
     @Column(name = "profile_image", nullable = true)
