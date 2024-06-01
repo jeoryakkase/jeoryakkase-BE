@@ -91,7 +91,7 @@ public class MemberController {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
+            throw new MemberException.InvalidTokenException();
         }
 
         String token = authHeader.substring(7);
