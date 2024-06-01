@@ -7,15 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Table(name = "pollResults")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Entity
-public class PollResult {
+public class PollResultEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +25,11 @@ public class PollResult {
 
     @ManyToOne
     @JoinColumn(name = "poll_id", nullable = false)
-    private Poll poll;
+    private PollEntity pollEntity;
 
     @ManyToOne
     @JoinColumn(name = "choice_id", nullable = false)
-    private PollChoice choice;
+    private PollChoiceEntity choice;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)

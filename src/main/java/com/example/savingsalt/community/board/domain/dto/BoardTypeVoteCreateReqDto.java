@@ -2,8 +2,8 @@ package com.example.savingsalt.community.board.domain.dto;
 
 import com.example.savingsalt.community.board.domain.BoardCategory;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
-import com.example.savingsalt.community.poll.domain.Poll;
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
+import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class BoardTypeVoteCreateReqDto {
             .build();
     }
 
-    public Poll toPollEntity(BoardEntity boardEntity) {
+    public PollEntity toPollEntity(BoardEntity boardEntity) {
         return pollReqDto.toEntity(boardEntity);
     }
 

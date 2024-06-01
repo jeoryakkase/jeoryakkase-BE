@@ -10,7 +10,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.repository.BoardRepository;
-import com.example.savingsalt.community.poll.domain.Poll;
+import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.service.PollService;
@@ -115,7 +115,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board =requestDto.toEntity(member, category);
         boardRepository.save(board);
 
-        Poll poll = requestDto.toPollEntity(board);
+        PollEntity poll = requestDto.toPollEntity(board);
         pollRepository.save(poll);
 
         return convertToBoardTypeVoteReadResDto(board);

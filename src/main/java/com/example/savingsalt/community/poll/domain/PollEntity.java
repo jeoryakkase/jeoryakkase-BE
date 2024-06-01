@@ -10,18 +10,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
+@Table(name = "polls")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Entity
-public class Poll extends BaseEntity {
+@Builder
+public class PollEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +33,14 @@ public class Poll extends BaseEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity board;
 
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
-    private List<PollChoice> choices;
+    @OneToMany(mappedBy = "pollEntity", cascade = CascadeType.ALL)
+    private List<PollChoiceEntity> choices;
+
+    public void addChoices(List<PollChoiceEntity> choices) {
+        this.choices = choices;
+        for (PollChoiceEntity choice : choices) {
+            choice.setPollEntity(this);
+        }
+    }
 
 }
