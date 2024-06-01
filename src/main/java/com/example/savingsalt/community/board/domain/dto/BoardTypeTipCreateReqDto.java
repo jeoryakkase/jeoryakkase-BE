@@ -1,5 +1,7 @@
-package com.example.savingsalt.community.board.domain;
+package com.example.savingsalt.community.board.domain.dto;
 
+import com.example.savingsalt.community.board.domain.BoardCategory;
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import java.util.List;
 import lombok.AllArgsConstructor;

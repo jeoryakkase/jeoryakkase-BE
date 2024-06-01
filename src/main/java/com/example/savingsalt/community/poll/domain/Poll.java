@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.poll.domain;
 
-import com.example.savingsalt.community.board.domain.BoardEntity;
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

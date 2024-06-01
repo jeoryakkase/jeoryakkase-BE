@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.board.controller;
 
-import com.example.savingsalt.community.board.domain.BoardTypeTipCreateReqDto;
-import com.example.savingsalt.community.board.domain.BoardTypeTipReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.service.BoardService;
 import com.example.savingsalt.member.domain.MemberEntity;
 import io.swagger.v3.oas.annotations.Operation;

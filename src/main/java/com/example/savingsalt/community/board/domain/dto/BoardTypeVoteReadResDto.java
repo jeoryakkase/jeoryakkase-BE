@@ -1,4 +1,4 @@
-package com.example.savingsalt.community.board.domain;
+package com.example.savingsalt.community.board.domain.dto;
 
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.global.BaseEntity;

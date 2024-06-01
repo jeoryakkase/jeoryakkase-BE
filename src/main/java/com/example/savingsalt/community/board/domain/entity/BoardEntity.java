@@ -1,5 +1,9 @@
-package com.example.savingsalt.community.board.domain;
+package com.example.savingsalt.community.board.domain.entity;
 
+import com.example.savingsalt.community.board.domain.BoardCategory;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.CollectionTable;

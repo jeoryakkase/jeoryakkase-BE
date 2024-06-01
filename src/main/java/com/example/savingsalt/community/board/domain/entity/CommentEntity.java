@@ -1,5 +1,6 @@
-package com.example.savingsalt.community.board.domain;
+package com.example.savingsalt.community.board.domain.entity;
 
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Entity;

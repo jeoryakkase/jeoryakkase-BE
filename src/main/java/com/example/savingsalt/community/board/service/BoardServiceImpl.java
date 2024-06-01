@@ -2,13 +2,13 @@ package com.example.savingsalt.community.board.service;
 
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.community.board.domain.BoardCategory;
-import com.example.savingsalt.community.board.domain.BoardEntity;
-import com.example.savingsalt.community.board.domain.BoardTypeHofCreateReqDto;
-import com.example.savingsalt.community.board.domain.BoardTypeHofReadResDto;
-import com.example.savingsalt.community.board.domain.BoardTypeTipCreateReqDto;
-import com.example.savingsalt.community.board.domain.BoardTypeTipReadResDto;
-import com.example.savingsalt.community.board.domain.BoardTypeVoteCreateReqDto;
-import com.example.savingsalt.community.board.domain.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeHofReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.poll.domain.Poll;
 import com.example.savingsalt.community.poll.domain.PollResDto;
@@ -18,7 +18,6 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
