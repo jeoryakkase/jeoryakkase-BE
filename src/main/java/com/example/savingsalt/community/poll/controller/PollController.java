@@ -51,8 +51,8 @@ public class PollController {
 
     @Operation(summary = "Get Poll Results", description = "Gets the results of a Poll")
     @GetMapping("/{voteId}/poll/{pollId}/result")
-    public ResponseEntity<List<PollResultDto>> getPollResults(@PathVariable Long voteId, @PathVariable Long pollId) {
-        List<PollResultDto> response = pollService.getPollResults(voteId, pollId);
+    public ResponseEntity<List<PollChoiceDto>> getPollResults(@PathVariable Long voteId, @PathVariable Long pollId) {
+        List<PollChoiceDto> response = pollService.getPollResults(voteId, pollId);
         return ResponseEntity.ok(response);
     }
 }

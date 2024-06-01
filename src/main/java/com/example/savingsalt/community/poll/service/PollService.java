@@ -2,7 +2,6 @@ package com.example.savingsalt.community.poll.service;
 
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.community.poll.domain.PollDto;
-import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.domain.PollChoiceDto;
 
@@ -13,5 +12,5 @@ public interface PollService {
     void deletePoll(Long voteId, Long pollId);
     PollDto getPoll(Long voteId, Long pollId);
     PollResultDto participateInPoll(Long voteId, Long pollId, PollChoiceDto choiceDto);
-    List<PollResultDto> getPollResults(Long voteId, Long pollId);
+    List<PollChoiceDto> getPollResults(Long voteId, Long pollId);
 }

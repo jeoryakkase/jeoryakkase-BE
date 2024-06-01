@@ -9,6 +9,7 @@ import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.domain.PollChoiceDto;
 import com.example.savingsalt.community.poll.domain.PollResultEntity;
+import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollChoiceMapper;
 import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollMapper;
 import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollResultMapper;
 import com.example.savingsalt.community.poll.repository.PollRepository;
@@ -46,6 +47,8 @@ public class PollServiceImpl implements PollService {
     @Autowired
     private PollMapper pollMapper;
 
+    @Autowired
+    private PollChoiceMapper pollChoiceMapper;
 
     @Autowired
     private PollResultMapper pollResultMapper;
@@ -107,10 +110,11 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    public List<PollResultDto> getPollResults(Long voteId, Long pollId) {
-        List<PollResultEntity> results = pollResultRepository.findByPollEntityId(pollId);
-        return results.stream()
-            .map(result -> pollResultMapper.toDto(result))
+    public List<PollChoiceDto> getPollResults(Long voteId, Long pollId) {
+        PollEntity poll = pollRepository.findById(pollId).orElseThrow(() -> new RuntimeException("Poll not found"));
+        List<PollChoiceEntity> choices = pollChoiceRepository.findByPollEntity(poll);
+        return choices.stream()
+            .map(choice -> pollChoiceMapper.toDto(choice))
             .collect(Collectors.toList());
     }
 }
