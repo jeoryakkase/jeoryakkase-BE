@@ -6,9 +6,13 @@ import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import java.util.List;
 
 public interface BadgeService {
+
+    // 해당 뱃지 조회
+    BadgeEntity findById(Long badgeId);
 
     // 모든 뱃지 정보 조회
     List<BadgeDto> getAllBadges();

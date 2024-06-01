@@ -2,6 +2,8 @@ package com.example.savingsalt.community.board.controller;
 
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.service.BoardService;
 import com.example.savingsalt.member.domain.MemberEntity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,6 +57,7 @@ public class BoardController {
     @GetMapping("/tips")
     public ResponseEntity<List<BoardTypeTipReadResDto>> getTipBoards() {
         List<BoardTypeTipReadResDto> allTipBoard = boardService.findAllTipBoard();
+
         return ResponseEntity.ok(allTipBoard);
     }
 
@@ -108,6 +111,80 @@ public class BoardController {
         }
 
     }
+
+    // 투표 게시글 작성
+    @Operation(summary = "Create a Vote Board", description = "create a new post in the Vote Board")
+    @PostMapping("/votes")
+    public ResponseEntity<?> createVoteBoard(@RequestBody BoardTypeVoteCreateReqDto requestDto,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+
+        MemberEntity member = (MemberEntity) userDetails;
+
+        BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member);
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    // 투표 게시글 목록 조회
+    @Operation(summary = "Get all Vote Boards", description = "Retrieve a list of all posts available in the Vote Board, sorted by the most recent.")
+    @GetMapping("/votes")
+    public ResponseEntity<List<BoardTypeVoteReadResDto>> getVoteBoards() {
+        List<BoardTypeVoteReadResDto> allVoteBoard = boardService.findAllVoteBoard();
+
+        return ResponseEntity.ok(allVoteBoard);
+    }
+
+    // 투표 게시글 조회
+    @Operation(summary = "Get a Vote Board", description = "Retrieve the details of a specific post in the Vote Board using its ID.")
+    @GetMapping("/votes/{boardId}")
+    public ResponseEntity<BoardTypeVoteReadResDto> getVoteBoardById(@PathVariable Long boardId) {
+
+        BoardTypeVoteReadResDto VoteBoardById = boardService.findVoteBoardById(boardId);
+
+        return ResponseEntity.ok(VoteBoardById);
+    }
+
+    // 투표 게시글 수정
+    @Operation(summary = "update a Vote Board", description = "Modify the title, contents, and images of a specific post in the Vote Board by its ID.")
+    @PutMapping("/votes/{boardId}")
+    public ResponseEntity<?> updateVoteBoard(@PathVariable Long boardId,
+        @RequestBody BoardTypeTipCreateReqDto requestDto,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        MemberEntity member = (MemberEntity) userDetails;
+
+        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId,
+            requestDto, member);
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    // 투표 게시글 삭제
+    @Operation(summary = "Delete a Vote Board", description = "Remove a specific post from the Vote Board by its ID.")
+    @DeleteMapping("/votes/{boardId}")
+    public ResponseEntity<String> deleteVoteBoard(@PathVariable Long boardId,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        MemberEntity member = (MemberEntity) userDetails;
+
+        boardService.deleteTipBoard(boardId, member);
+
+        return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
+
+    }
+
 
 
 }
