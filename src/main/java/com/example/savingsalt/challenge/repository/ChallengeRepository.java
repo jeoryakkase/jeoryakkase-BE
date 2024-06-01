@@ -1,7 +1,6 @@
 package com.example.savingsalt.challenge.repository;
 
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
-import com.example.savingsalt.community.board.domain.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
