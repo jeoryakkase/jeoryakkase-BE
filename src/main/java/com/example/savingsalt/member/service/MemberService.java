@@ -135,6 +135,19 @@ public class MemberService {
         return memberRepository.save(memberEntity);
     }
 
+    // 회원 탈퇴
+    @Transactional
+    public void deleteMember(Long memberId) {
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("id", memberId));
+
+        // 리프레시 토큰 삭제
+        refreshTokenRepository.deleteByMemberId(memberId);
+
+        // 회원 삭제
+        memberRepository.delete(memberEntity);
+    }
+
     // 모든 회원 찾기
     public List<MemberDto> findAllMembers() {
         List<MemberEntity> memberEntities = memberRepository.findAll();
