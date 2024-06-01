@@ -40,12 +40,19 @@ public class BadgeServiceImpl implements BadgeService {
         this.badgeMainMapper = badgeMainMapper;
     }
 
+    // 해당 뱃지 조회
+    @Transactional(readOnly = true)
+    public BadgeEntity findById(Long badgeId) {
+        return badgeRepository.findById(badgeId)
+            .orElseThrow(BadgeNotFoundException::new);
+    }
+
     // 모든 뱃지 정보 조회
     @Transactional(readOnly = true)
     public List<BadgeDto> getAllBadges() {
         List<BadgeEntity> allBadges = badgeRepository.findAll();
         if (allBadges.size() == 0) {
-            // Todo: 예외발생 ("뱃지 정보들을 가져오는데 실패했습니다. or 생성된 벳지가 없습니다.");
+            return null;
         }
         List<BadgeDto> allBadgeResDto = badgeMainMapper.toDto(allBadges);
 
@@ -73,7 +80,7 @@ public class BadgeServiceImpl implements BadgeService {
         List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
             member);
         if (memberChallengeEntity.size() == 0) {
-            // Todo: 예외발생 ("회원 챌린지 정보들을 가져오는데 실패했습니다. or 회원 챌린지 달성 뱃지가 없습니다.");
+            return null;
         }
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = new ArrayList<>();
         // 회원 챌린지에서 각각 처음 완료한 챌린지의 뱃지만 저장
@@ -96,7 +103,7 @@ public class BadgeServiceImpl implements BadgeService {
     public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
         BadgeEntity badgeEntity = badgeMainMapper.toEntity(badgeCreateReqDto);
         BadgeEntity createdBadge = badgeRepository.save(badgeEntity);
-        // Todo: createdBadge가 null이면 예외발생 ("뱃지 정보를 저장하는데 실패했습니다.");
+
         BadgeDto createdBadgeDto = badgeMainMapper.toDto(createdBadge);
 
         return createdBadgeDto;
@@ -126,15 +133,16 @@ public class BadgeServiceImpl implements BadgeService {
     public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
-        badgeEntity.toBuilder()
+        BadgeEntity updateBadgeEntity = badgeEntity.toBuilder()
             .name(badgeUpdateReqDto.getName())
             .badgeDesc(badgeUpdateReqDto.getBadgeDesc())
             .badgeImage(badgeUpdateReqDto.getBadgeImage())
             .badgeType(badgeUpdateReqDto.getBadgeType())
             .build();
-        BadgeEntity updatedBadge = badgeRepository.save(badgeEntity);
+
+        BadgeEntity updatedBadge = badgeRepository.save(updateBadgeEntity);
+        System.out.println(updatedBadge);
         BadgeDto updateBadgeDto = badgeMainMapper.toDto(updatedBadge);
-        // Todo: updatedBadge, updateBadgeDto가 null이면 예외발생 ("뱃지 정보를 수정하는데 실패했습니다.");
 
         return updateBadgeDto;
     }
@@ -142,6 +150,9 @@ public class BadgeServiceImpl implements BadgeService {
     // 뱃지 삭제
     @Transactional
     public void deleteBadge(Long badgeId) {
+        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+            .orElseThrow(BadgeNotFoundException::new);
+
         badgeRepository.deleteById(badgeId);
     }
 }
