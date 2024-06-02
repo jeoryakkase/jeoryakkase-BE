@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,5 +55,28 @@ public class MemberChallengeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    // 회원 챌린지 성공
+    @Operation(summary = "Complete member challenge", description = "Complete a member challnenge")
+    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    public ResponseEntity<Void> completeMemberChallenge(
+        @Parameter(description = "ID of the member") @PathVariable Long memberId,
+        @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
+        memberChallengeService.completeMemberChallenge(memberId, memberChallengeId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 회원 챌린지 포기
+    @Operation(summary = "Abandon member challenge", description = "Abandon a member challnenge")
+    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    public ResponseEntity<Void> abandonMemberChallenge(
+        @Parameter(description = "ID of the member") @PathVariable Long memberId,
+        @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
+        memberChallengeService.abandonMemberChallenge(memberId, memberChallengeId);
+
+        return ResponseEntity.ok().build();
+    }
+
 
 }

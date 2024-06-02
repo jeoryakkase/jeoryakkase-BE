@@ -14,10 +14,10 @@ public interface MemberChallengeService {
         MemberChallengeCreateReqDto memberChallengeCreateReqDto);
 
     // 회원 챌린지 최종 성공 인증
-    void authenticateFinalChallenge(Long memberId, Long memberChallengeId);
+    void completeMemberChallenge(Long memberId, Long memberChallengeId);
 
     // 회원 챌린지 포기
-    void abandonMemberChallenge(Long memberChallengeId);
+    void abandonMemberChallenge(Long memberId, Long memberChallengeId);
 
     // 회원 챌린지 일일 인증
     void submitDailyMemberChallenge(Long memberChallengeId, MemberChallengeDto memberChallengeDto);

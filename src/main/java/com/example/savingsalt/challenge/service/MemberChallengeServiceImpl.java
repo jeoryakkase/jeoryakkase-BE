@@ -65,7 +65,7 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 성공
-    public void authenticateFinalChallenge(Long memberId, Long memberChallengeId) {
+    public void completeMemberChallenge(Long memberId, Long memberChallengeId) {
         MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow(
             MemberChallengeNotFoundException::new);
         MemberChallengeEntity foundMemberChallengeEntity = null;
@@ -115,14 +115,22 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 포기
-    public void abandonMemberChallenge(Long memberChallengeId) {
-        MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
-            memberChallengeId).orElseThrow(
+    public void abandonMemberChallenge(Long memberId, Long memberChallengeId) {
+        MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow(
             MemberChallengeNotFoundException::new);
+        MemberChallengeEntity foundMemberChallengeEntity = null;
+
+        List<MemberChallengeEntity> memberChallengeEntities = foundMemberEntity.getMemberChallengeEntities();
+
+        for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+            if (memberChallengeEntity.getId().equals(memberChallengeId)) {
+                foundMemberChallengeEntity = memberChallengeEntity;
+            }
+        }
 
         Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-            .challengeStatus(ChallengeStatus.CANCELLED)
-            .build();
+                        .challengeStatus(ChallengeStatus.CANCELLED)
+                        .build();
 
         memberChallengeRepository.save(foundMemberChallengeEntity);
     }
