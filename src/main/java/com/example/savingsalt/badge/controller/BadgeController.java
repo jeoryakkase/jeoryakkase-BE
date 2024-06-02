@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,11 +38,8 @@ public class BadgeController {
     public ResponseEntity<List<BadgeDto>> getAllBadges() {
         List<BadgeDto> badges = badgeService.getAllBadges();
 
-        if (!ObjectUtils.isEmpty(badges)) {
-            return ResponseEntity.ok(badges);
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+        return badges.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            : ResponseEntity.ok(badges);
     }
 
     // 회원 목표 달성 뱃지 정보 조회
@@ -54,11 +50,8 @@ public class BadgeController {
         List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeService.getMemberGoalBadges(
             memberId);
 
-        if (!ObjectUtils.isEmpty(memberGoalBadgesResDto)) {
-            return ResponseEntity.ok(memberGoalBadgesResDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+        return memberGoalBadgesResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .build() : ResponseEntity.ok(memberGoalBadgesResDto);
     }
 
     // 회원 챌린지 달성 뱃지 정보 조회
@@ -69,11 +62,8 @@ public class BadgeController {
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = badgeService.getMemberChallengeBadges(
             memberId);
 
-        if (!ObjectUtils.isEmpty(memberChallengeBadgeResDto)) {
-            return ResponseEntity.ok(memberChallengeBadgeResDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+        return memberChallengeBadgeResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .build() : ResponseEntity.ok(memberChallengeBadgeResDto);
     }
 
     // 뱃지 생성
@@ -83,26 +73,20 @@ public class BadgeController {
         @Parameter(description = "Information about the badge to be created") @RequestBody BadgeCreateReqDto badgeCreateReqDto) {
         BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto);
 
-        if (createdBadgeDto != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdBadgeDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        return (createdBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            : ResponseEntity.status(HttpStatus.CREATED).body(createdBadgeDto);
     }
 
     // 회원 목표 달성 뱃지 생성
     @Operation(summary = "Create memberGoalbadge", description = "Create a memberGoalbadge")
-    @PostMapping("/members/{memberId}/goals/badges{badgeId}")
+    @PostMapping("/members/{memberId}/goals/badges/{badgeId}")
     public ResponseEntity<BadgeDto> createMemberGoalBadge(
         @Parameter(description = "ID of the badge") @PathVariable Long badgeId,
         @Parameter(description = "ID of the member") @PathVariable Long memberId) {
         BadgeDto createdMemberGoalBadgeDto = badgeService.createMemberGoalBadge(badgeId, memberId);
 
-        if (createdMemberGoalBadgeDto != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdMemberGoalBadgeDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        return (createdMemberGoalBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .build() : ResponseEntity.status(HttpStatus.CREATED).body(createdMemberGoalBadgeDto);
     }
 
     // 뱃지 정보 수정
@@ -113,11 +97,8 @@ public class BadgeController {
         @Parameter(description = "Information about the badge to be updated") @RequestBody BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeDto updatedBadgeDto = badgeService.updateBadge(badgeId, badgeUpdateReqDto);
 
-        if (updatedBadgeDto != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(updatedBadgeDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return (updatedBadgeDto == null) ? ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            : ResponseEntity.ok(updatedBadgeDto);
     }
 
     // 뱃지 삭제
@@ -125,7 +106,6 @@ public class BadgeController {
     @DeleteMapping("/badges/{badgeId}")
     public ResponseEntity<Void> deleteBadge(
         @Parameter(description = "ID of the badge") @PathVariable Long badgeId) {
-
         badgeService.deleteBadge(badgeId);
 
         return ResponseEntity.ok().build();
