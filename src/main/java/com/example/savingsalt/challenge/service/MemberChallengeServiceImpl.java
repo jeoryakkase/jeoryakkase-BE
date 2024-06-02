@@ -140,7 +140,7 @@ public class MemberChallengeServiceImpl implements
             // 챌린지 종류(목표 금액 달성) > 기입한 금액만큼 저장
             case "Goal":
                 Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-                    .saveMoney(memberChallengeDto.getSaveMoney())
+                    .saveMoney(foundMemberChallengeEntity.getSaveMoney() + memberChallengeDto.getSaveMoney())
                     .isTodayCertification(true)
                     .build();
 
@@ -150,7 +150,8 @@ public class MemberChallengeServiceImpl implements
             // 챌린지 종류(횟수 달성) > 기입한 금액만큼 저장 + 달성 횟수 + 1
             case "Conut":
                 Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-                    .saveMoney(memberChallengeDto.getSaveMoney())
+                    .saveMoney(foundMemberChallengeEntity.getSaveMoney() + memberChallengeDto.getSaveMoney())
+                    .challengeConut(foundMemberChallengeEntity.getChallengeConut() + 1)
                     .isTodayCertification(true)
                     .build();
 
