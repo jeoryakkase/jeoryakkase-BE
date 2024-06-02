@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -91,7 +92,7 @@ public class MemberController {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
+            throw new MemberException.InvalidTokenException();
         }
 
         String token = authHeader.substring(7);
@@ -114,5 +115,17 @@ public class MemberController {
             dto.getGender(), dto.getIncome(), dto.getSavingGoal(), dto.getProfileImage());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
+    }
+
+    @DeleteMapping("/api/members/{memberId}")
+    @Operation(summary = "delete member", description = "Delete member")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Delete success"),
+        @ApiResponse(responseCode = "404", description = "Member not found"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> deleteMember(@PathVariable Long memberId) {
+        memberService.deleteMember(memberId);
+        return ResponseEntity.status(HttpStatus.OK).body("Delete success");
     }
 }
