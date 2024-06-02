@@ -33,6 +33,8 @@ public interface ChallengeMainMapper {
         EntityMapper<MemberChallengeEntity, MemberChallengeDto> {
 
         MemberChallengeEntity toEntity(MemberChallengeCreateReqDto memberChallengeCreateReqDto);
+
+        MemberChallengeCreateReqDto toMemberChallengeCreateReqDto(MemberChallengeEntity memberChallenge);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)

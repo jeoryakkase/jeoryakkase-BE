@@ -10,7 +10,7 @@ public interface MemberChallengeService {
     List<MemberChallengeDto> getMemberChallenges(Long memberId);
 
     // 회원 챌린지 생성
-    public void createMemberChallenge(Long ChallengeId,
+    public MemberChallengeCreateReqDto createMemberChallenge(Long ChallengeId,
         MemberChallengeCreateReqDto memberChallengeCreateReqDto);
 
     // 회원 챌린지 최종 성공 인증

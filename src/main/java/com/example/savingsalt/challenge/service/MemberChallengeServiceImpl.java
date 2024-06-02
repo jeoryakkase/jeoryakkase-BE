@@ -50,7 +50,7 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 생성
-    public void createMemberChallenge(
+    public MemberChallengeCreateReqDto createMemberChallenge(
         Long ChallengeId, MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
         ChallengeEntity challengeEntity = challengeRepository.findById(ChallengeId).orElseThrow(
             ChallengeNotFoundException::new);
@@ -60,7 +60,8 @@ public class MemberChallengeServiceImpl implements
 
         memberChallengeEntity.toBuilder().challengeEntity(challengeEntity);
 
-        memberChallengeRepository.save(memberChallengeEntity);
+        return memberChallengeMapper.toMemberChallengeCreateReqDto(
+            memberChallengeRepository.save(memberChallengeEntity));
     }
 
     // 회원 챌린지 성공
