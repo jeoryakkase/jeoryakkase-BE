@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ChallengeServiceImpl implements ChallengeService {
 
     private final ChallengeRepository challengeRepository;
@@ -79,7 +80,6 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     // 챌린지 생성
-    @Transactional
     public ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto) {
         ChallengeEntity challengeEntity = challengeMapper.toEntity(challengeCreateDto);
         ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeEntity);
@@ -89,7 +89,6 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     // 챌린지 수정
-    @Transactional
     public ChallengeDto updateChallenge(Long challengeId,
         ChallengeUpdateReqDto updatedChallengeDto) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
@@ -117,7 +116,6 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: 상, 60%: 중, 나머지: 하)
-    @Transactional
     public void setChallengeDifficulty(Long challengeId) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
@@ -162,7 +160,6 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     // 챌린지 삭제
-    @Transactional
     public void deleteChallenge(Long challengeId) {
         challengeRepository.deleteById(challengeId);
     }

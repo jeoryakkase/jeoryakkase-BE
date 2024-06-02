@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class BadgeServiceImpl implements BadgeService {
 
     private final BadgeRepository badgeRepository;
@@ -99,7 +100,6 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 생성
-    @Transactional
     public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
         BadgeEntity badgeEntity = badgeMainMapper.toEntity(badgeCreateReqDto);
         BadgeEntity createdBadge = badgeRepository.save(badgeEntity);
@@ -110,7 +110,6 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 회원 목표 달성 뱃지 생성
-    @Transactional
     public BadgeDto createMemberGoalBadge(Long badgeId, Long memberId) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
@@ -129,7 +128,6 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 정보 수정
-    @Transactional
     public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
@@ -148,7 +146,6 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 삭제
-    @Transactional
     public void deleteBadge(Long badgeId) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
