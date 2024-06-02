@@ -36,6 +36,10 @@ public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
 
+    private static final int ACCESS_TOKEN_EXPIRE_TIME = 2 * 60 * 60 * 1000; // 2시간
+    private static final int REFRESH_TOKEN_EXPIRE_TIME = 14 * 24 * 60 * 60 * 1000; // 2주
+    private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
+
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
     public TokenResponseDto generateToken(Authentication authentication) {
         // 권한 가져오기
@@ -45,18 +49,18 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 2 * 60 * 60 * 1000); // 2시간
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME); // 2시간
         String accessToken = Jwts.builder()
             .setSubject(authentication.getName())
             .claim("auth", authorities)
             .setExpiration(accessTokenExpiresIn)
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
             .compact();
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
-            .setExpiration(new Date(now + 14 * 24 * 60 * 60 * 1000)) // 2주
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
+            .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME)) // 2주
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
             .compact();
 
         return TokenResponseDto.builder()
