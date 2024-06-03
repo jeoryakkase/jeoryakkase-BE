@@ -1,5 +1,6 @@
 package com.example.savingsalt.challenge.controller;
 
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.service.MemberChallengeService;
@@ -76,6 +77,19 @@ public class MemberChallengeController {
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
         memberChallengeService.abandonMemberChallenge(memberId, memberChallengeId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 회원 챌린지 일일 인증
+    @Operation(summary = "Certify daily member challenge", description = "Certify daily member challenge")
+    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    public ResponseEntity<Void> certifyDailyMemberChallenge(
+        @Parameter(description = "ID of the member") @PathVariable Long memberId,
+        @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
+        @RequestBody CertificationChallengeReqDto certificationChallengeReqDto) {
+        memberChallengeService.certifyDailyMemberChallenge(memberId, memberChallengeId,
+            certificationChallengeReqDto);
 
         return ResponseEntity.ok().build();
     }
