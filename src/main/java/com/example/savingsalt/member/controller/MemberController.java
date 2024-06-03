@@ -28,10 +28,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -116,6 +118,31 @@ public class MemberController {
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
+
+    @GetMapping("/api/check-email")
+    @Operation(summary = "check email", description = "Check whether this email already exists")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Check success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        memberService.checkEmail(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/api/check-nickname")
+    @Operation(summary = "check nickname", description = "Check whether this nickname already exists")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Check success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
+        memberService.checkNickname(nickname);
+        return ResponseEntity.ok().build();
+    }
+
 
     @DeleteMapping("/api/members/{memberId}")
     @Operation(summary = "delete member", description = "Delete member")

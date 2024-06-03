@@ -5,7 +5,6 @@ import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberDto;
 import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
-import com.example.savingsalt.member.domain.RefreshToken;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.enums.Role;
@@ -14,8 +13,8 @@ import com.example.savingsalt.member.exception.MemberException.InvalidPasswordEx
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,15 +38,8 @@ public class MemberService {
     // 회원가입
     @Transactional
     public MemberEntity signUp(SignupRequestDto dto) {
-        // 이메일 중복 검사
-        if (memberRepository.existsByEmail(dto.getEmail())) {
-            throw new MemberException.EmailAlreadyExistsException();
-        }
-
-        // 닉네임 중복 검사
-        if (memberRepository.existsByNickname(dto.getNickname())) {
-            throw new MemberException.NicknameAlreadyExistsException();
-        }
+        checkEmail(dto.getEmail()); // 이메일 중복 검사
+        checkNickname(dto.getNickname()); // 닉네임 중복 검사
 
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setEmail(dto.getEmail());
@@ -69,10 +61,7 @@ public class MemberService {
         MemberEntity memberEntity = memberRepository.findByEmail(email)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
 
-        // 닉네임 중복 검사
-        if (memberRepository.existsByNickname(dto.getNickname())) {
-            throw new MemberException.NicknameAlreadyExistsException();
-        }
+        checkNickname(dto.getNickname()); // 닉네임 중복 검사
 
         memberEntity.setNickname(dto.getNickname());
         memberEntity.setAge(dto.getAge());
@@ -111,14 +100,14 @@ public class MemberService {
 
     // 회원 정보 수정
     @Transactional
-    public MemberEntity updateMember(Long id, String password, String nickname, int age, int gender,
+    public MemberEntity updateMember(Long id, String password, String nickname,
+        int age, int gender,
         int income, int savingGoal, String profileImage) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
-        if (!memberEntity.getNickname().equals(nickname) && memberRepository.existsByNickname(
-            nickname)) {
-            throw new MemberException.NicknameAlreadyExistsException();
+        if (!memberEntity.getNickname().equals(nickname)) { // 닉네임을 수정하는 경우
+            checkNickname(nickname); // 닉네임 중복 검사
         }
 
         if (password != null && !password.isEmpty()) { // 수정 폼에서 비밀번호 필드는 비어있고, 수정할 경우에만 입력
@@ -133,6 +122,20 @@ public class MemberService {
         memberEntity.setProfileImage(profileImage);
 
         return memberRepository.save(memberEntity);
+    }
+
+    // 이메일 중복 검사
+    public void checkEmail(String email) {
+        if (memberRepository.existsByEmail(email)) {
+            throw new MemberException.EmailAlreadyExistsException();
+        }
+    }
+
+    // 닉네임 중복 검사
+    public void checkNickname(String nickname) {
+        if (memberRepository.existsByNickname(nickname)) {
+            throw new MemberException.NicknameAlreadyExistsException();
+        }
     }
 
     // 회원 탈퇴
@@ -151,10 +154,8 @@ public class MemberService {
     // 모든 회원 찾기
     public List<MemberDto> findAllMembers() {
         List<MemberEntity> memberEntities = memberRepository.findAll();
-        List<MemberDto> memberDtos = new ArrayList<>();
-        for (MemberEntity memberEntity : memberEntities) {
-            memberDtos.add(memberMapper.toDto(memberEntity));
-        }
+        List<MemberDto> memberDtos = memberEntities.stream().map(memberMapper::toDto).collect(
+            Collectors.toList());
 
         return memberDtos;
     }
