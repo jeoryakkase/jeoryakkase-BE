@@ -31,7 +31,7 @@ public class MemberChallengeDto {
 
     private String challengeComment;
 
-    private Integer saveMoney;
+    private Integer totalSaveMoney;
 
     private List<CertificationChallengeDto> certificationChallengeDtos;
 

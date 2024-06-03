@@ -32,7 +32,7 @@ public class MemberChallengeCreateReqDto {
 
     private String challengeComment;
 
-    private Integer saveMoney;
+    private Integer totalSaveMoney;
 
     private ChallengeDifficulty challengeDifficulty;
 }

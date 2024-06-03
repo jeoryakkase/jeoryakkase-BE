@@ -60,8 +60,8 @@ public class MemberChallengeEntity {
     @Column(name = "challenge_comment", length = 50)
     private String challengeComment;
 
-    @Column(name = "save_money", nullable = false, columnDefinition = "integer default 0")
-    private Integer saveMoney;
+    @Column(name = "total_save_money", nullable = false, columnDefinition = "integer default 0")
+    private Integer totalSaveMoney;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity")
     private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
