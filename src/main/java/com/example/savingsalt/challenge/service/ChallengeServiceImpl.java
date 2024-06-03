@@ -17,7 +17,6 @@ import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
 import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,8 +79,15 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     // 챌린지 생성
     public ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto) {
+        BadgeEntity badgeEntity = badgeRepository.findById(challengeCreateDto.getBadgeId())
+            .orElseThrow(BadgeNotFoundException::new);
+
         ChallengeEntity challengeEntity = challengeMapper.toEntity(challengeCreateDto);
-        ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeEntity);
+        ChallengeEntity challengeAndBadgeEntity = challengeEntity.toBuilder()
+            .badgeEntity(badgeEntity)
+            .build();
+
+        ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeAndBadgeEntity);
         ChallengeDto createdChallengeDto = challengeMapper.toDto(createdChallengeEntity);
 
         return createdChallengeDto;
@@ -110,11 +116,11 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         ChallengeEntity updatedChallengeEntity = challengeRepository.save(updateChallengeEntity);
         ChallengeDto challengeDto = challengeMapper.toDto(updatedChallengeEntity);
-        // Todo: updatedChallengeEntity, challengeDto가 null이면 예외발생 ("챌린지 정보를 수정하는데 실패했습니다.");
+
         return challengeDto;
     }
 
-    // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: 상, 60%: 중, 나머지: 하)
+    // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: HARD(상), 60%: NORMAL(중), 나머지: EASY(하))
     public void setChallengeDifficulty(Long challengeId) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
@@ -127,7 +133,7 @@ public class ChallengeServiceImpl implements ChallengeService {
             return;
         }
 
-        //회원 챌린지에서 각각 처음 완료한 챌린지의 수
+        // 회원 챌린지에서 각각 처음 완료한 챌린지의 수
         long successMemberChallengeSize = 0;
 
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
@@ -138,29 +144,28 @@ public class ChallengeServiceImpl implements ChallengeService {
             }
         }
 
-        ChallengeEntity updatedChallengeEntity;
+        // 챈린지 난이도 계산
+        ChallengeDifficulty difficulty;
         double successPercent =
             (double) totalMemberChallengeSize / (double) successMemberChallengeSize * 100;
         if (successPercent <= 30) {
-            updatedChallengeEntity = challengeEntity.toBuilder()
-                .challengeDifficulty(ChallengeDifficulty.HARD)
-                .build();
+            difficulty = ChallengeEntity.ChallengeDifficulty.HARD;
         } else if (successPercent <= 60) {
-            updatedChallengeEntity = challengeEntity.toBuilder()
-                .challengeDifficulty(ChallengeDifficulty.NORMAL)
-                .build();
+            difficulty = ChallengeEntity.ChallengeDifficulty.NORMAL;
         } else {
-            updatedChallengeEntity = challengeEntity.toBuilder()
-                .challengeDifficulty(ChallengeDifficulty.EASY)
-                .build();
+            difficulty = ChallengeEntity.ChallengeDifficulty.EASY;
         }
 
+        // 계산한 난이도 해당 챌린지에 적용
+        ChallengeEntity updatedChallengeEntity = challengeEntity.toBuilder()
+            .challengeDifficulty(difficulty)
+            .build();
         challengeRepository.save(updatedChallengeEntity);
     }
 
     // 챌린지 삭제
     public void deleteChallenge(Long challengeId) {
-        ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
+        challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
 
         challengeRepository.deleteById(challengeId);
