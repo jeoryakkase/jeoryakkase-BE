@@ -59,6 +59,19 @@ public class MemberChallengeController {
         }
     }
 
+    // 회원 챌린지 일일 인증 생성
+    @Operation(summary = "Certify daily member challenge", description = "Certify daily member challenge")
+    @PostMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    public ResponseEntity<Void> certifyDailyMemberChallenge(
+        @Parameter(description = "ID of the member") @PathVariable Long memberId,
+        @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
+        @RequestBody CertificationChallengeReqDto certificationChallengeReqDto) {
+        memberChallengeService.certifyDailyMemberChallenge(memberId, memberChallengeId,
+            certificationChallengeReqDto);
+
+        return ResponseEntity.ok().build();
+    }
+
     // 회원 챌린지 성공
     @Operation(summary = "Complete member challenge", description = "Complete a member challnenge")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
@@ -77,19 +90,6 @@ public class MemberChallengeController {
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
         memberChallengeService.abandonMemberChallenge(memberId, memberChallengeId);
-
-        return ResponseEntity.ok().build();
-    }
-
-    // 회원 챌린지 일일 인증
-    @Operation(summary = "Certify daily member challenge", description = "Certify daily member challenge")
-    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
-    public ResponseEntity<Void> certifyDailyMemberChallenge(
-        @Parameter(description = "ID of the member") @PathVariable Long memberId,
-        @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
-        @RequestBody CertificationChallengeReqDto certificationChallengeReqDto) {
-        memberChallengeService.certifyDailyMemberChallenge(memberId, memberChallengeId,
-            certificationChallengeReqDto);
 
         return ResponseEntity.ok().build();
     }
