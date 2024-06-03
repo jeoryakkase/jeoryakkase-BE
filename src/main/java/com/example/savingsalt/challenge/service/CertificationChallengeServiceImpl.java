@@ -6,7 +6,9 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
+import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,15 +33,20 @@ public class CertificationChallengeServiceImpl {
     public void uploadDailyChallengeImageUrlAndDateTime(
         Long memberChallngeId, CertificationChallengeDto certificationChallengeDto) {
 
-        MemberChallengeEntity memberChallengeEntity = memberChallengeRepository.findById(
-            memberChallngeId).orElse(null);
+        Optional<MemberChallengeEntity> memberChallengeEntityOpt = memberChallengeRepository.findById(
+            memberChallngeId);
 
-        CertificationChallengeEntity certificationChallengeEntity = certificationChallengeMapper.toEntity(
-            certificationChallengeDto);
+        if (memberChallengeEntityOpt.isPresent()) {
+            CertificationChallengeEntity certificationChallengeEntity = certificationChallengeMapper.toEntity(
+                certificationChallengeDto);
 
-        certificationChallengeEntity.toBuilder().memberChallengeEntity(memberChallengeEntity);
+            certificationChallengeEntity.toBuilder()
+                .memberChallengeEntity(memberChallengeEntityOpt.get());
 
-        certificationChallengeRepository.save(certificationChallengeEntity);
+            certificationChallengeRepository.save(certificationChallengeEntity);
+        } else {
+            throw new ChallengeNotFoundException();
+        }
     }
 
 }
