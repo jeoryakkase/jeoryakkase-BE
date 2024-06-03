@@ -35,6 +35,9 @@ public class CertificationChallengeEntity {
     @Column(name = "img_url", nullable = false)
     private String imgUrl;
 
+    @Column(name = "content", nullable = false, length = 200)
+    private String content;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;
