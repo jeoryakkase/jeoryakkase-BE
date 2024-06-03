@@ -218,14 +218,17 @@ public class MemberChallengeServiceImpl implements
 
     // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
     public void resetDailyMemberChallengeAuthentication() {
-        List<MemberChallengeEntity> memberChallengeEntities = memberChallengeRepository.findAll();
+        List<MemberEntity> memberEntityList = memberRepository.findAll();
+        for (MemberEntity memberEntity : memberEntityList) {
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
 
-        for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-            memberChallengeEntity.toBuilder()
-                .isTodayCertification(false)
-                .build();
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                memberChallengeEntity.toBuilder()
+                    .isTodayCertification(false)
+                    .build();
 
-            memberChallengeRepository.save(memberChallengeEntity);
+                memberChallengeRepository.save(memberChallengeEntity);
+            }
         }
     }
 }
