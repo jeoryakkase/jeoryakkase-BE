@@ -1,6 +1,6 @@
-package com.example.savingsalt.community.board.repository;
+package com.example.savingsalt.community.comment.repository;
 
-import com.example.savingsalt.community.board.domain.entity.CommentEntity;
+import com.example.savingsalt.community.comment.domain.CommentEntity;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

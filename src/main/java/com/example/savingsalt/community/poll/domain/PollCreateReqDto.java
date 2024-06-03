@@ -31,8 +31,6 @@ public class PollCreateReqDto {
             .choices(pollChoices)
             .build();
 
-        poll.addChoices(pollChoices);
-
         return poll;
     }
 }
