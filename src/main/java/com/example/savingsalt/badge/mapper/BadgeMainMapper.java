@@ -10,6 +10,7 @@ import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
 import com.example.savingsalt.global.EntityMapper;
 import java.util.List;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
@@ -19,8 +20,11 @@ public interface BadgeMainMapper extends EntityMapper<BadgeEntity, BadgeDto> {
 
     MemberChallengeBadgeResDto toMemberChallengeBadgeResDto(BadgeEntity entity);
 
-    List<MemberGoalBadgeResDto> toMemberGoalBadgeResDto(List<MemberGoalBadgeEntity> entities);
+    @Mapping(source = "entity.badgeEntity.name", target = "name")
+    @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDesc")
+    @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeImage")
+    MemberGoalBadgeResDto toMemberGoalBadgeResDto(MemberGoalBadgeEntity entity);
 
-    BadgeDto toDto(MemberGoalBadgeEntity entity);
+    List<MemberGoalBadgeResDto> toMemberGoalBadgeResDto(List<MemberGoalBadgeEntity> entity);
 
 }

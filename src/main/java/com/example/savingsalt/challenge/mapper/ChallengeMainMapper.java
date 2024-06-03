@@ -13,6 +13,7 @@ import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.EntityMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 public interface ChallengeMainMapper {
@@ -25,7 +26,17 @@ public interface ChallengeMainMapper {
 
         ChallengeEntity toEntity(ChallengeUpdateReqDto dto);
 
-        ChallengeReadResDto toChallengesReadResDto(ChallengeEntity entities);
+        @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
+        @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
+        @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
+        @Mapping(source = "entity.badgeEntity.badgeType", target = "badgeDto.badgeType")
+        ChallengeDto toDto(ChallengeEntity entity);
+
+        @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
+        @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
+        @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
+        @Mapping(source = "entity.badgeEntity.badgeType", target = "badgeDto.badgeType")
+        ChallengeReadResDto toChallengesReadResDto(ChallengeEntity entity);
 
     }
 
