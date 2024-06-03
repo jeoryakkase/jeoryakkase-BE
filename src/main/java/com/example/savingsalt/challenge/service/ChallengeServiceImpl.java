@@ -13,8 +13,8 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.Chal
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.ChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
-import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

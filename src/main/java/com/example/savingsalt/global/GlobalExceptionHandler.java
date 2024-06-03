@@ -1,7 +1,7 @@
 package com.example.savingsalt.global;
 
-import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
-import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

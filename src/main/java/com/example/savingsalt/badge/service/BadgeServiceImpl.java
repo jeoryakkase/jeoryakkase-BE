@@ -13,7 +13,7 @@ import com.example.savingsalt.badge.repository.MemberGoalBadgeRepository;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
+import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.ArrayList;

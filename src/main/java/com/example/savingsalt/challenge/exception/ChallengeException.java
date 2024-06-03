@@ -1,4 +1,4 @@
-package com.example.savingsalt.global;
+package com.example.savingsalt.challenge.exception;
 
 public class ChallengeException {
 
@@ -13,13 +13,6 @@ public class ChallengeException {
 
         public ChallengeNotFoundException() {
             super("해당 챌린지를 찾을 수 없습니다.");
-        }
-    }
-
-    public static class BadgeNotFoundException extends RuntimeException {
-
-        public BadgeNotFoundException() {
-            super("해당 뱃지 찾을 수 없습니다.");
         }
     }
 }

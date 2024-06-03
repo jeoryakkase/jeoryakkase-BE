@@ -9,7 +9,7 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.Chal
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
