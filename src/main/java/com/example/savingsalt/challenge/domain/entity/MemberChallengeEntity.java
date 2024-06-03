@@ -48,7 +48,7 @@ public class MemberChallengeEntity {
     @Enumerated(EnumType.STRING)
     private ChallengeStatus challengeStatus;
 
-    @Column(name = "is_Today_certification", nullable = false, columnDefinition = "bit default false")
+    @Column(name = "is_today_certification", nullable = false, columnDefinition = "bit default false")
     private Boolean isTodayCertification;
 
     @Column(name = "challenge_conut", nullable = false, columnDefinition = "integer default 0")
