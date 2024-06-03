@@ -406,6 +406,9 @@ gradle-app.setting
 ### Application Properties ###
 src/main/resources/application.yml
 
+# generated directory
+src/main/generated
+
 .idea
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,intellij,node,java,gradle,visualstudiocode,macos
