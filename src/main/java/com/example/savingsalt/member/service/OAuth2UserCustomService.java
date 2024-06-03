@@ -6,7 +6,6 @@ import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.util.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

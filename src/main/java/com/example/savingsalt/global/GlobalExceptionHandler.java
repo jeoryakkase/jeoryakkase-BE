@@ -31,6 +31,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MemberException.InvalidTokenException.class)
+    public ResponseEntity<String> handleInvalidTokenException(
+        MemberException.InvalidTokenException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MemberException.MemberNotFoundException.class)
     public ResponseEntity<String> handleMemberNotFoundException(
         MemberException.MemberNotFoundException ex) {
