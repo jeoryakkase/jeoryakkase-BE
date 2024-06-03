@@ -27,7 +27,7 @@ public class MemberChallengeDto {
 
     private Integer challengeConut;
 
-    private Integer challengeTry;
+    private Integer successConut;
 
     private String challengeComment;
 

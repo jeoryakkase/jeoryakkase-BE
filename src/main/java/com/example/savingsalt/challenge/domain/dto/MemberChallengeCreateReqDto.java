@@ -26,7 +26,7 @@ public class MemberChallengeCreateReqDto {
 
     private Boolean isTodayCertification;
 
-    private Integer challengeConut;
+    private Integer successConut;
 
     private Integer challengeTry;
 

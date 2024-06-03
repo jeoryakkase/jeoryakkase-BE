@@ -54,8 +54,8 @@ public class MemberChallengeEntity {
     @Column(name = "challenge_conut", nullable = false, columnDefinition = "integer default 0")
     private Integer challengeConut;
 
-    @Column(name = "challenge_try", nullable = false)
-    private Integer challengeTry;
+    @Column(name = "success_count", nullable = false)
+    private Integer successConut;
 
     @Column(name = "challenge_comment", length = 50)
     private String challengeComment;
