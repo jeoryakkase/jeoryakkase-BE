@@ -1,13 +1,14 @@
 package com.example.savingsalt.challenge.service;
 
-import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.global.ChallengeException.MemberChallengeNotFoundException;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -31,21 +32,24 @@ public class CertificationChallengeServiceImpl {
 
     // 회원 챌린지 일일 인증 이미지 경로 및 인증 날짜 업로드
     public void uploadDailyChallengeImageUrlAndDateTime(
-        Long memberChallngeId, CertificationChallengeDto certificationChallengeDto) {
+        Long memberChallngeId, CertificationChallengeReqDto certificationChallengeReqDto) {
 
         Optional<MemberChallengeEntity> memberChallengeEntityOpt = memberChallengeRepository.findById(
             memberChallngeId);
 
         if (memberChallengeEntityOpt.isPresent()) {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
             CertificationChallengeEntity certificationChallengeEntity = certificationChallengeMapper.toEntity(
-                certificationChallengeDto);
+                certificationChallengeReqDto);
 
             certificationChallengeEntity.toBuilder()
-                .memberChallengeEntity(memberChallengeEntityOpt.get());
+                .memberChallengeEntity(memberChallengeEntityOpt.get())
+                .certificationDate(currentDateTime);
 
             certificationChallengeRepository.save(certificationChallengeEntity);
         } else {
-            throw new ChallengeNotFoundException();
+            throw new MemberChallengeNotFoundException();
         }
     }
 
