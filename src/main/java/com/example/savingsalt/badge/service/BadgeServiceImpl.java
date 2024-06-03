@@ -86,7 +86,7 @@ public class BadgeServiceImpl implements BadgeService {
         // 회원 챌린지에서 각각 처음 완료한 챌린지의 뱃지만 저장
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
             if ((memberChallengeEntity.get(i).getChallengeStatus()
-                == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getChallengeTry()
+                == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessConut()
                 == 0)) {
                 BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                     .getBadgeEntity();
