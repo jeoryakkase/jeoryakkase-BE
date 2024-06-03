@@ -1,5 +1,6 @@
 package com.example.savingsalt.badge.domain.dto;
 
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,13 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BadgeDto {
+public class MemberGoalBadgeDto {
 
-    private String name;
-
-    private String badgeImage;
-
-    private String badgeDesc;
-
-    private String badgeType;
+    private BadgeEntity badgeEntity;
 }

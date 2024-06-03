@@ -4,6 +4,7 @@ package com.example.savingsalt.badge.mapper;
 import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
+import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeDto;
 import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
@@ -19,8 +20,8 @@ public interface BadgeMainMapper extends EntityMapper<BadgeEntity, BadgeDto> {
 
     MemberChallengeBadgeResDto toMemberChallengeBadgeResDto(BadgeEntity entity);
 
-    List<MemberGoalBadgeResDto> toMemberGoalBadgeResDto(List<MemberGoalBadgeEntity> entities);
+    List<MemberGoalBadgeDto> toMemberGoalBadgeDto(List<MemberGoalBadgeEntity> entities);
 
-    BadgeDto toDto(MemberGoalBadgeEntity entity);
+    List<MemberGoalBadgeResDto> toMemberGoalBadgeResDto(List<BadgeEntity> entities);
 
 }
