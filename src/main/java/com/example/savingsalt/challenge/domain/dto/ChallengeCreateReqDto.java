@@ -28,8 +28,8 @@ public class ChallengeCreateReqDto {
 
     private ChallengeDifficulty challengeDifficulty;
 
-    private LocalDateTime createAt;
-
     private String authContent;
+
+    private Long badgeId;
 
 }

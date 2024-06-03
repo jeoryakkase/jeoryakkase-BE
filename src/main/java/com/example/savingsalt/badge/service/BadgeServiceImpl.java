@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class BadgeServiceImpl implements BadgeService {
 
     private final BadgeRepository badgeRepository;
@@ -66,6 +67,7 @@ public class BadgeServiceImpl implements BadgeService {
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
         List<MemberGoalBadgeEntity> memberGoalBadges = memberGoalBadgeRepository.findALlByMemberEntity(
             member);
+
         List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(
             memberGoalBadges);
 
@@ -99,7 +101,6 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 생성
-    @Transactional
     public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
         BadgeEntity badgeEntity = badgeMainMapper.toEntity(badgeCreateReqDto);
         BadgeEntity createdBadge = badgeRepository.save(badgeEntity);
@@ -110,7 +111,6 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 회원 목표 달성 뱃지 생성
-    @Transactional
     public BadgeDto createMemberGoalBadge(Long badgeId, Long memberId) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
@@ -122,14 +122,15 @@ public class BadgeServiceImpl implements BadgeService {
             .memberEntity(memberEntity)
             .build();
 
+        MemberGoalBadgeEntity createdMemberGoalBadgeEntity = memberGoalBadgeRepository.save(
+            memberGoalBadgeEntity);
         BadgeDto createdMemberGoalBadgeDto = badgeMainMapper.toDto(
-            memberGoalBadgeRepository.save(memberGoalBadgeEntity));
+            createdMemberGoalBadgeEntity.getBadgeEntity());
 
         return createdMemberGoalBadgeDto;
     }
 
     // 뱃지 정보 수정
-    @Transactional
     public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
@@ -141,16 +142,14 @@ public class BadgeServiceImpl implements BadgeService {
             .build();
 
         BadgeEntity updatedBadge = badgeRepository.save(updateBadgeEntity);
-        System.out.println(updatedBadge);
         BadgeDto updateBadgeDto = badgeMainMapper.toDto(updatedBadge);
 
         return updateBadgeDto;
     }
 
     // 뱃지 삭제
-    @Transactional
     public void deleteBadge(Long badgeId) {
-        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+        badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
 
         badgeRepository.deleteById(badgeId);
