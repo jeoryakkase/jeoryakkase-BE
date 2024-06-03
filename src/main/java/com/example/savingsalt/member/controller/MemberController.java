@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -81,7 +82,9 @@ public class MemberController {
     })
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
         TokenResponseDto tokenResponseDto = memberService.login(dto);
-        return ResponseEntity.status(HttpStatus.OK).body(tokenResponseDto);
+        return ResponseEntity.status(HttpStatus.OK)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken())
+            .body(tokenResponseDto.getRefreshToken());
     }
 
     @PostMapping("/api/logout")
