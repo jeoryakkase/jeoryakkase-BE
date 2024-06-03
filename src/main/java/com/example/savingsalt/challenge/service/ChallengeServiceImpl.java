@@ -46,14 +46,13 @@ public class ChallengeServiceImpl implements ChallengeService {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
         ChallengeDto challengeDto = challengeMapper.toDto(challengeEntity);
-        // Todo: challengeDto가 null이면 예외발생
+
         return challengeDto;
     }
 
     // 챌린지 목록 조회
     @Transactional(readOnly = true)
-    public Page<ChallengeReadResDto> getAllChallenges(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ChallengeReadResDto> getAllChallenges(Pageable pageable) {
         Page<ChallengeEntity> challengeEntities = challengeRepository.findAll(pageable);
 
         Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(
@@ -67,7 +66,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable) {
         Page<ChallengeEntity> challengeEntities;
         if (keyword != null && !keyword.isEmpty()) {
-            challengeEntities = challengeRepository.findAllByChallengeTitleContaining(keyword,
+            challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,
                 pageable);
         } else {
             challengeEntities = challengeRepository.findAllByOrderByCreatedAtDesc(pageable);
@@ -84,7 +83,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         ChallengeEntity challengeEntity = challengeMapper.toEntity(challengeCreateDto);
         ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeEntity);
         ChallengeDto createdChallengeDto = challengeMapper.toDto(createdChallengeEntity);
-        // Todo: challengeEntity, createdChallengeEntity, createdChallengeDto가 null이면 예외발생 ("챌린지 정보를 저장하는데 실패했습니다.");
+
         return createdChallengeDto;
     }
 
@@ -161,6 +160,9 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     // 챌린지 삭제
     public void deleteChallenge(Long challengeId) {
+        ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
+            .orElseThrow(ChallengeNotFoundException::new);
+
         challengeRepository.deleteById(challengeId);
     }
 
