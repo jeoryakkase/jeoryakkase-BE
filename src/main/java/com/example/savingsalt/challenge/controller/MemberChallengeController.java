@@ -74,7 +74,7 @@ public class MemberChallengeController {
 
     // 회원 챌린지 성공
     @Operation(summary = "Complete member challenge", description = "Complete a member challnenge")
-    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/complete")
     public ResponseEntity<Void> completeMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
@@ -85,7 +85,7 @@ public class MemberChallengeController {
 
     // 회원 챌린지 포기
     @Operation(summary = "Abandon member challenge", description = "Abandon a member challnenge")
-    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/abandon")
     public ResponseEntity<Void> abandonMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {

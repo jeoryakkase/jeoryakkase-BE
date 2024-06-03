@@ -44,14 +44,14 @@ public class MemberChallengeEntity {
     @Column(name = "certify_date")
     private LocalDateTime certifyDate;
 
-    @Column(name = "challenge_status", nullable = false, columnDefinition = "eunm default 'IN_PROGRESS'")
+    @Column(name = "challenge_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private ChallengeStatus challengeStatus;
 
-    @Column(name = "is_today_certification", nullable = false, columnDefinition = "bit default false")
+    @Column(name = "is_today_certification", nullable = false)
     private Boolean isTodayCertification;
 
-    @Column(name = "challenge_conut", nullable = false, columnDefinition = "integer default 0")
+    @Column(name = "challenge_conut", nullable = false)
     private Integer challengeConut;
 
     @Column(name = "success_count", nullable = false)
@@ -60,7 +60,7 @@ public class MemberChallengeEntity {
     @Column(name = "challenge_comment", length = 50)
     private String challengeComment;
 
-    @Column(name = "total_save_money", nullable = false, columnDefinition = "integer default 0")
+    @Column(name = "total_save_money", nullable = false)
     private Integer totalSaveMoney;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity")
