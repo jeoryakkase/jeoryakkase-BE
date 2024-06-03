@@ -35,7 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "memberㄴ")
+@Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
 public class MemberEntity extends BaseEntity implements UserDetails {
 
