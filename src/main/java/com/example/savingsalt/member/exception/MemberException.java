@@ -42,6 +42,13 @@ public class MemberException extends RuntimeException {
         }
     }
 
+    public static class InvalidTokenException extends MemberException {
+
+        public InvalidTokenException() {
+            super("Invalid token.");
+        }
+    }
+
     public static class InvalidPasswordException extends MemberException {
 
         public InvalidPasswordException() {

@@ -11,8 +11,10 @@ import com.example.savingsalt.member.service.LoginService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -35,12 +37,14 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private final LoginService loginService;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Lazy // 순환 참조 방지
+    @Autowired
+    private OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public WebSecurityCustomizer configure() {
@@ -59,13 +63,14 @@ public class WebSecurityConfig {
 
         return http
             .authorizeRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
-                    "/api/signup", "/api/token")
-                .permitAll()
-                // swagger 관련 경로 허용
-                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
-                    "/swagger-resources/**", "/webjars/**").permitAll()
-                .anyRequest().authenticated())
+//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
+//                    "/api/signup", "/api/token")
+//                .permitAll()
+//                // swagger 관련 경로 허용
+//                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
+//                    "/swagger-resources/**", "/webjars/**").permitAll()
+//                .anyRequest().authenticated())
+                .anyRequest().permitAll()) // 테스트용
             // 폼 로그인
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
