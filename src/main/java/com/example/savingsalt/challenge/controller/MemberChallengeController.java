@@ -94,4 +94,12 @@ public class MemberChallengeController {
         return ResponseEntity.ok().build();
     }
 
+    // 모든 회원 챌린지 일일 인증 초기화
+    @Operation(summary = "Reset daily member challenges certification")
+    @PutMapping("/members")
+    public ResponseEntity<Void> resetMemberChallengeCertification() {
+        memberChallengeService.resetDailyMemberChallengeAuthentication();
+
+        return ResponseEntity.ok().build();
+    }
 }
