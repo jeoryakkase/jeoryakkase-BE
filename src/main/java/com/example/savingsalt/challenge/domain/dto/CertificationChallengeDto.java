@@ -16,4 +16,8 @@ public class CertificationChallengeDto {
     private LocalDateTime certificationDate;
 
     private String imgUrl;
+
+    private String content;
+
+    private String saveMoney;
 }

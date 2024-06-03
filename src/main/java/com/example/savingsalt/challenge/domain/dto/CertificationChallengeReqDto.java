@@ -15,4 +15,6 @@ public class CertificationChallengeReqDto {
     private String imgUrl;
 
     private String content;
+
+    private Integer saveMoney;
 }
