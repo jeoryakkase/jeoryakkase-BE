@@ -30,7 +30,7 @@ public class CertificationChallengeServiceImpl {
         this.memberChallengeRepository = memberChallengeRepository;
     }
 
-    // 회원 챌린지 일일 인증 이미지 경로 및 인증 날짜 업로드
+    // 회원 챌린지 일일 인증 생성
     public void uploadDailyChallengeImageUrlAndDateTime(
         Long memberChallngeId, CertificationChallengeReqDto certificationChallengeReqDto) {
 
