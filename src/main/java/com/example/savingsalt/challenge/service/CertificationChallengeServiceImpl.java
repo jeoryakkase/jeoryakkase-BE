@@ -31,8 +31,8 @@ public class CertificationChallengeServiceImpl {
     }
 
     // 회원 챌린지 일일 인증 생성
-    public void uploadDailyChallengeImageUrlAndDateTime(
-        Long memberChallngeId, CertificationChallengeReqDto certificationChallengeReqDto) {
+    public void createCertificationChallenge(Long memberChallngeId,
+        CertificationChallengeReqDto certificationChallengeReqDto) {
 
         Optional<MemberChallengeEntity> memberChallengeEntityOpt = memberChallengeRepository.findById(
             memberChallngeId);
