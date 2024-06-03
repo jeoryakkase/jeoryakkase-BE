@@ -149,7 +149,7 @@ public class BadgeServiceImpl implements BadgeService {
 
     // 뱃지 삭제
     public void deleteBadge(Long badgeId) {
-        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+        badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
 
         badgeRepository.deleteById(badgeId);
