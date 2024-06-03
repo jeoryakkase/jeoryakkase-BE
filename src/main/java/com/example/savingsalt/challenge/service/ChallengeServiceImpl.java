@@ -136,7 +136,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
             if ((memberChallengeEntity.get(i).getChallengeStatus()
                 == ChallengeStatus.COMPLETED) && (
-                memberChallengeEntity.get(i).getChallengeTry() == 0)) {
+                memberChallengeEntity.get(i).getSuccessConut() == 0)) {
                 successMemberChallengeSize++;
             }
         }

@@ -26,13 +26,13 @@ public class MemberChallengeCreateReqDto {
 
     private Boolean isTodayCertification;
 
-    private Integer challengeConut;
+    private Integer successConut;
 
     private Integer challengeTry;
 
     private String challengeComment;
 
-    private Integer saveMoney;
+    private Integer totalSaveMoney;
 
     private ChallengeDifficulty challengeDifficulty;
 }

@@ -27,11 +27,11 @@ public class MemberChallengeDto {
 
     private Integer challengeConut;
 
-    private Integer challengeTry;
+    private Integer successConut;
 
     private String challengeComment;
 
-    private Integer saveMoney;
+    private Integer totalSaveMoney;
 
     private List<CertificationChallengeDto> certificationChallengeDtos;
 
