@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-06-01T20:31:07+0900",
+    date = "2024-06-02T21:38:56+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.10 (Azul Systems, Inc.)"
 )
 @Component
@@ -30,29 +30,10 @@ public class BoardMainMapper$BoardMapperImpl implements BoardMainMapper.BoardMap
 
         boardEntity.title( dto.getTitle() );
         boardEntity.contents( dto.getContents() );
-        boardEntity.category( dto.getCategory() );
         List<String> list = dto.getImageUrls();
         if ( list != null ) {
             boardEntity.imageUrls( new ArrayList<String>( list ) );
         }
-
-        return boardEntity.build();
-    }
-
-    @Override
-    public BoardEntity toEntity(BoardTypeTipReadResDto dto) {
-        if ( dto == null ) {
-            return null;
-        }
-
-        BoardEntity.BoardEntityBuilder boardEntity = BoardEntity.builder();
-
-        boardEntity.id( dto.getId() );
-        boardEntity.nickname( dto.getNickname() );
-        boardEntity.title( dto.getTitle() );
-        boardEntity.contents( dto.getContents() );
-        boardEntity.totalLike( dto.getTotalLike() );
-        boardEntity.boardHits( dto.getBoardHits() );
 
         return boardEntity.build();
     }
@@ -73,23 +54,6 @@ public class BoardMainMapper$BoardMapperImpl implements BoardMainMapper.BoardMap
     }
 
     @Override
-    public BoardEntity toEntity(BoardTypeVoteReadResDto dto) {
-        if ( dto == null ) {
-            return null;
-        }
-
-        BoardEntity.BoardEntityBuilder boardEntity = BoardEntity.builder();
-
-        boardEntity.id( dto.getId() );
-        boardEntity.nickname( dto.getNickname() );
-        boardEntity.title( dto.getTitle() );
-        boardEntity.contents( dto.getContents() );
-        boardEntity.boardHits( dto.getBoardHits() );
-
-        return boardEntity.build();
-    }
-
-    @Override
     public BoardEntity toEntity(BoardTypeHofCreateReqDto dto) {
         if ( dto == null ) {
             return null;
@@ -97,26 +61,59 @@ public class BoardMainMapper$BoardMapperImpl implements BoardMainMapper.BoardMap
 
         BoardEntity.BoardEntityBuilder boardEntity = BoardEntity.builder();
 
-        boardEntity.title( dto.getTitle() );
         boardEntity.contents( dto.getContents() );
 
         return boardEntity.build();
     }
 
     @Override
-    public BoardEntity toEntity(BoardTypeHofReadResDto dto) {
-        if ( dto == null ) {
+    public BoardTypeTipReadResDto toTipReadDto(BoardEntity entity) {
+        if ( entity == null ) {
             return null;
         }
 
-        BoardEntity.BoardEntityBuilder boardEntity = BoardEntity.builder();
+        BoardTypeTipReadResDto.BoardTypeTipReadResDtoBuilder boardTypeTipReadResDto = BoardTypeTipReadResDto.builder();
 
-        boardEntity.id( dto.getId() );
-        boardEntity.nickname( dto.getNickname() );
-        boardEntity.title( dto.getTitle() );
-        boardEntity.contents( dto.getContents() );
-        boardEntity.totalLike( dto.getTotalLike() );
+        boardTypeTipReadResDto.id( entity.getId() );
+        boardTypeTipReadResDto.nickname( entity.getNickname() );
+        boardTypeTipReadResDto.title( entity.getTitle() );
+        boardTypeTipReadResDto.contents( entity.getContents() );
+        boardTypeTipReadResDto.totalLike( entity.getTotalLike() );
+        boardTypeTipReadResDto.boardHits( entity.getBoardHits() );
 
-        return boardEntity.build();
+        return boardTypeTipReadResDto.build();
+    }
+
+    @Override
+    public BoardTypeVoteReadResDto toVoteReadDto(BoardEntity entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        BoardTypeVoteReadResDto.BoardTypeVoteReadResDtoBuilder boardTypeVoteReadResDto = BoardTypeVoteReadResDto.builder();
+
+        boardTypeVoteReadResDto.id( entity.getId() );
+        boardTypeVoteReadResDto.nickname( entity.getNickname() );
+        boardTypeVoteReadResDto.title( entity.getTitle() );
+        boardTypeVoteReadResDto.contents( entity.getContents() );
+        boardTypeVoteReadResDto.boardHits( entity.getBoardHits() );
+
+        return boardTypeVoteReadResDto.build();
+    }
+
+    @Override
+    public BoardTypeHofReadResDto toHofReadDto(BoardEntity entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        BoardTypeHofReadResDto.BoardTypeHofReadResDtoBuilder boardTypeHofReadResDto = BoardTypeHofReadResDto.builder();
+
+        boardTypeHofReadResDto.id( entity.getId() );
+        boardTypeHofReadResDto.nickname( entity.getNickname() );
+        boardTypeHofReadResDto.contents( entity.getContents() );
+        boardTypeHofReadResDto.totalLike( entity.getTotalLike() );
+
+        return boardTypeHofReadResDto.build();
     }
 }

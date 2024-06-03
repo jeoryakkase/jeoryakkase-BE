@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-06-01T01:38:41+0900",
-    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.10 (Amazon.com Inc.)"
+    date = "2024-06-02T21:38:56+0900",
+    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.10 (Azul Systems, Inc.)"
 )
 @Component
 public class ChallengeMainMapper$MemberChallengeMapperImpl implements ChallengeMainMapper.MemberChallengeMapper {
