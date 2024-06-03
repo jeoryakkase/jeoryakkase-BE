@@ -2,7 +2,6 @@ package com.example.savingsalt.badge.service;
 
 import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.dto.BadgeDto;
-import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
@@ -68,15 +67,9 @@ public class BadgeServiceImpl implements BadgeService {
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
         List<MemberGoalBadgeEntity> memberGoalBadges = memberGoalBadgeRepository.findALlByMemberEntity(
             member);
-        List<MemberGoalBadgeDto> memberGoalBadgesDto = badgeMainMapper.toMemberGoalBadgeDto(
+
+        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(
             memberGoalBadges);
-
-        List<BadgeEntity> badgeEntities = new ArrayList<>();
-        for(int i=0;i<memberGoalBadgesDto.size();i++) {
-            badgeEntities.add(memberGoalBadgesDto.get(i).getBadgeEntity());
-        }
-
-        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(badgeEntities);
 
         return memberGoalBadgesResDto;
     }
@@ -129,8 +122,10 @@ public class BadgeServiceImpl implements BadgeService {
             .memberEntity(memberEntity)
             .build();
 
-        MemberGoalBadgeEntity createdMemberGoalBadgeEntity = memberGoalBadgeRepository.save(memberGoalBadgeEntity);
-        BadgeDto createdMemberGoalBadgeDto = badgeMainMapper.toDto(createdMemberGoalBadgeEntity.getBadgeEntity());
+        MemberGoalBadgeEntity createdMemberGoalBadgeEntity = memberGoalBadgeRepository.save(
+            memberGoalBadgeEntity);
+        BadgeDto createdMemberGoalBadgeDto = badgeMainMapper.toDto(
+            createdMemberGoalBadgeEntity.getBadgeEntity());
 
         return createdMemberGoalBadgeDto;
     }

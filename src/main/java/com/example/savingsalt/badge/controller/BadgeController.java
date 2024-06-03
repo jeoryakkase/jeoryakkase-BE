@@ -34,7 +34,7 @@ public class BadgeController {
 
     // 모든 뱃지 조회
     @Operation(summary = "Get badges", description = "Gets all existing badge information")
-    @GetMapping("/challenges/badges")
+    @GetMapping("/badges")
     public ResponseEntity<List<BadgeDto>> getAllBadges() {
         List<BadgeDto> badges = badgeService.getAllBadges();
 
