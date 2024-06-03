@@ -63,13 +63,14 @@ public class WebSecurityConfig {
 
         return http
             .authorizeRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
-                    "/api/signup", "/api/token")
-                .permitAll()
-                // swagger 관련 경로 허용
-                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
-                    "/swagger-resources/**", "/webjars/**").permitAll()
-                .anyRequest().authenticated())
+//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
+//                    "/api/signup", "/api/token")
+//                .permitAll()
+//                // swagger 관련 경로 허용
+//                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
+//                    "/swagger-resources/**", "/webjars/**").permitAll()
+//                .anyRequest().authenticated())
+                .anyRequest().permitAll()) // 테스트용
             // 폼 로그인
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
