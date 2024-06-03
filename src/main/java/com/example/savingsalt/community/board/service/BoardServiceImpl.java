@@ -1,7 +1,8 @@
 package com.example.savingsalt.community.board.service;
 
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.community.board.domain.BoardCategory;
+import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeHofReadResDto;
@@ -9,6 +10,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDt
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
@@ -18,11 +20,11 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-@Service
+
 @RequiredArgsConstructor
+@Service
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
@@ -31,21 +33,19 @@ public class BoardServiceImpl implements BoardService {
 
     private final PollRepository pollRepository;
 
-    private final MemberChallengeRepository memberChallengeRepository;
-
     // 절약팁 게시글 작성
     @Override
     public BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto,
         MemberEntity member) {
 
-        BoardEntity boardEntity = requestDto.toEntity(member, BoardCategory.TIPS);
+        BoardEntity boardEntity = requestDto.toEntity(member);
 
         BoardEntity savedBoardEntity;
 
         try {
             savedBoardEntity = boardRepository.save(boardEntity);
         } catch (Exception e) {
-            throw new RuntimeException("게시글 저장 중 오류가 발생했습니다.", e);
+            throw new BoardException.InternalServerErrorException();
         }
 
         return convertToBoardTypeTipReadResDto(savedBoardEntity);
@@ -81,7 +81,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new IllegalStateException("작성자만 수정할 수 있습니다.");
+            throw new BoardException.UnauthorizedUpdateException();
         }
 
         board.updateTipBoard(requestDto);
@@ -96,12 +96,11 @@ public class BoardServiceImpl implements BoardService {
     public void deleteTipBoard(Long id, MemberEntity member) {
 
         BoardCategory category = BoardCategory.TIPS;
-        BoardEntity board= findBoard(id, category);
+        BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new IllegalStateException("작성자만 삭제할 수 있습니다.");
+            throw new BoardException.UnauthorizedDeleteException();
         }
-
         boardRepository.delete(board);
     }
 
@@ -111,8 +110,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardTypeVoteReadResDto createVoteBoard(BoardTypeVoteCreateReqDto requestDto,
         MemberEntity member) {
-        BoardCategory category = BoardCategory.VOTE;
-        BoardEntity board =requestDto.toEntity(member, category);
+
+        BoardEntity board = requestDto.toEntity(member);
         boardRepository.save(board);
 
         PollEntity poll = requestDto.toPollEntity(board);
@@ -151,7 +150,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new IllegalStateException("작성자만 수정할 수 있습니다.");
+            throw new BoardException.UnauthorizedUpdateException();
         }
 
         board.updateVoteBoard(requestDto);
@@ -163,10 +162,14 @@ public class BoardServiceImpl implements BoardService {
 
     // 투표 게시글 삭제
     @Override
-    public void deleteVoteBoard(Long id) {
+    public void deleteVoteBoard(Long id, MemberEntity member) {
 
         BoardCategory category = BoardCategory.VOTE;
         BoardEntity board = findBoard(id, category);
+
+        if (!board.getMemberEntity().getId().equals(member.getId())) {
+            throw new BoardException.UnauthorizedDeleteException();
+        }
 
         boardRepository.delete(board);
     }
@@ -175,16 +178,20 @@ public class BoardServiceImpl implements BoardService {
 
     // 달성 정보 게시글 작성
     @Override
-    public BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto) {
-        return null;
+    public BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto,
+        MemberEntity member) {
+
+        BoardEntity board = requestDto.toEntity(member);
+
+        boardRepository.save(board);
+
+        return convertToBoardTypeHofReadResDto(board);
     }
 
     // 달성 정보 게시글 목록 조회
     @Override
     public List<BoardTypeHofReadResDto> findAllHofBoard() {
-        BoardCategory category = BoardCategory.HALL_OF_FAME;
-        List<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
-            category);
+        List<BoardEntity> boards = boardRepository.findAllHofBoards(BoardCategory.HALL_OF_FAME);
         return boards.stream()
             .map(this::convertToBoardTypeHofReadResDto)
             .collect(Collectors.toList());
@@ -194,6 +201,10 @@ public class BoardServiceImpl implements BoardService {
     // 달성 정보 게시글 삭제
     @Override
     public void deleteHofBoard(Long id) {
+        BoardCategory boardCategory = BoardCategory.HALL_OF_FAME;
+        BoardEntity board = findBoard(id, boardCategory);
+
+        boardRepository.delete(board);
     }
 
 
@@ -226,13 +237,10 @@ public class BoardServiceImpl implements BoardService {
 
         return BoardTypeHofReadResDto.builder()
             .id(boardEntity.getId())
-            .nickname(boardEntity.getMemberEntity().getNickname())
-            .title(boardEntity.getTitle())
+            .nickname(boardEntity.getNickname())
             .contents(boardEntity.getContents())
             .totalLike(boardEntity.getTotalLike())
-//            .achievements()
             .build();
-
     }
 
     // 카테고리별 게시글 찾기
@@ -240,5 +248,6 @@ public class BoardServiceImpl implements BoardService {
         return boardRepository.findByIdAndCategory(id, category)
             .orElseThrow(() -> new IllegalArgumentException("선택한 게시글은 존재하지 않습니다."));
     }
+
 }
 
