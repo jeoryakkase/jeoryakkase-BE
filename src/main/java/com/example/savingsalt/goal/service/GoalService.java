@@ -4,6 +4,8 @@ import com.example.savingsalt.goal.domain.dto.GoalCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalResponseDto;
 import com.example.savingsalt.goal.domain.dto.GoalUpdateReqDto;
 import com.example.savingsalt.goal.domain.entity.GoalEntity;
+import com.example.savingsalt.goal.exception.GoalNotFoundException;
+import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
 import com.example.savingsalt.goal.repository.GoalRepository;
 import java.util.List;
 import java.util.Optional;
@@ -22,10 +24,6 @@ public class GoalService {
     public GoalResponseDto createGoal(GoalCreateReqDto goalCreateReqDto) {
         GoalEntity goalEntity = goalCreateReqDto.toEntity(goalCreateReqDto);
 
-        if (goalEntity.getId() != null) {
-            return null;
-        }
-
         GoalEntity savedGoal = goalRepository.save(goalEntity);
         return GoalResponseDto.fromEntity(savedGoal);
     }
@@ -43,14 +41,15 @@ public class GoalService {
     public GoalResponseDto updateGoal(Long id, GoalUpdateReqDto goalUpdateReqDto) {
         Optional<GoalEntity> optionalGoalEntity = goalRepository.findById(id);
 
-        if (optionalGoalEntity.isPresent()) {
-            GoalEntity existingGoalEntity = optionalGoalEntity.get();
-            GoalEntity updatedGoalEntity = goalUpdateReqDto.toEntity(id, existingGoalEntity);
-
-            GoalEntity savedGoal = goalRepository.save(updatedGoalEntity);
-            return GoalResponseDto.fromEntity(savedGoal);
-        } else {
-            return null;
+        if (optionalGoalEntity.isEmpty()) {
+            throw new GoalNotFoundException("해당하는 목표를 찾을 수 없습니다.");
         }
+
+        GoalEntity existingGoalEntity = optionalGoalEntity.get();
+        GoalEntity updatedGoalEntity = goalUpdateReqDto.toEntity(id, existingGoalEntity);
+
+        GoalEntity savedGoal = goalRepository.save(updatedGoalEntity);
+        return GoalResponseDto.fromEntity(savedGoal);
+
     }
 }
