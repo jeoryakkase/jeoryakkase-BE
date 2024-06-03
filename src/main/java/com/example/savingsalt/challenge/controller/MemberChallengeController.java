@@ -41,12 +41,14 @@ public class MemberChallengeController {
 
     // 회원 챌린지 생성
     @Operation(summary = "Create member challenge", description = "Create a member challnenge")
-    @PostMapping("/members/{memberId}/challenges")
+    @PostMapping("/members/{memberId}/challenges/{challengeId}")
     public ResponseEntity<MemberChallengeCreateReqDto> createMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
+        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId,
         @RequestBody MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
+
         MemberChallengeCreateReqDto createdMemberChallengeCreateReqDto = memberChallengeService.createMemberChallenge(
-            memberId, memberChallengeCreateReqDto);
+            memberId, challengeId, memberChallengeCreateReqDto);
 
         if (createdMemberChallengeCreateReqDto != null) {
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -77,6 +79,5 @@ public class MemberChallengeController {
 
         return ResponseEntity.ok().build();
     }
-
 
 }
