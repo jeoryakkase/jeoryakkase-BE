@@ -15,6 +15,7 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.Chal
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,7 @@ public class BadgeServiceImpl implements BadgeService {
     @Transactional(readOnly = true)
     public List<MemberGoalBadgeResDto> getMemberGoalBadges(Long memberId) {
         MemberEntity member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+            .orElseThrow(MemberNotFoundException::new);
         List<MemberGoalBadgeEntity> memberGoalBadges = memberGoalBadgeRepository.findALlByMemberEntity(
             member);
 
@@ -78,7 +79,7 @@ public class BadgeServiceImpl implements BadgeService {
     @Transactional(readOnly = true)
     public List<MemberChallengeBadgeResDto> getMemberChallengeBadges(Long memberId) {
         MemberEntity member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+            .orElseThrow(MemberNotFoundException::new);
         List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
             member);
         if (memberChallengeEntity.size() == 0) {
@@ -115,7 +116,7 @@ public class BadgeServiceImpl implements BadgeService {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
         MemberEntity memberEntity = memberRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+            .orElseThrow(MemberNotFoundException::new);
 
         MemberGoalBadgeEntity memberGoalBadgeEntity = MemberGoalBadgeEntity.builder()
             .badgeEntity(badgeEntity)
