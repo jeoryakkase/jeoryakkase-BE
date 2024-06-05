@@ -19,7 +19,7 @@ public class ChallengeException {
     public static class InvalidChallengeGoalAndCountException extends RuntimeException {
 
         public InvalidChallengeGoalAndCountException() {
-            super("챌린지 목표 금액, 챌린지 목표 횟수 중 하나만 꼭 입력해야 됩니다.");
+            super("챌린지 목표 금액, 챌린지 목표 횟수 중 하나만 꼭 존재해야 됩니다.");
         }
     }
 }
