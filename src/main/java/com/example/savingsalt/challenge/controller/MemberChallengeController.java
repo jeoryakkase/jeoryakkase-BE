@@ -29,7 +29,7 @@ public class MemberChallengeController {
     private final MemberChallengeService memberChallengeService;
 
     // 회원 챌린지 목록 조회
-    @Operation(summary = "Get member challenges", description = "Gets all existing memberchallenge information")
+    @Operation(summary = "회원 챌린지 목록 조회", description = "모든 회원 챌린지를 조회하는 API")
     @GetMapping("/members/{memberId}/challenges")
     public ResponseEntity<List<MemberChallengeDto>> getAllMemberChallenges(
         @Parameter(description = "ID of the member") @PathVariable Long memberId) {
@@ -41,7 +41,7 @@ public class MemberChallengeController {
     }
 
     // 회원 챌린지 생성
-    @Operation(summary = "Create member challenge", description = "Create a member challnenge")
+    @Operation(summary = "회원 챌린지 생성", description = "회원 아이디, 챌린지 아이디를 이용해서 회원 챌린지 생성하는 API")
     @PostMapping("/members/{memberId}/challenges/{challengeId}")
     public ResponseEntity<MemberChallengeCreateReqDto> createMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
@@ -60,7 +60,7 @@ public class MemberChallengeController {
     }
 
     // 회원 챌린지 일일 인증 생성
-    @Operation(summary = "Certify daily member challenge", description = "Certify daily member challenge")
+    @Operation(summary = "회원 챌린지 일일 인증 생성", description = "회원 챌린지를 인증 상태로 바꾸고 챌린지 인증 컬럼을 DTO에 맞게 생성하는 API")
     @PostMapping("/members/{memberId}/challenges/{memberChallengeId}/certify")
     public ResponseEntity<Void> certifyDailyMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
@@ -73,7 +73,7 @@ public class MemberChallengeController {
     }
 
     // 회원 챌린지 성공
-    @Operation(summary = "Complete member challenge", description = "Complete a member challnenge")
+    @Operation(summary = "회원 챌린지 성공", description = "회원 챌린지 목표 금액 달성 및 목표 횟수 달성 시 회원 챌린지가 성공하는 API")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/complete")
     public ResponseEntity<Void> completeMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
@@ -84,7 +84,7 @@ public class MemberChallengeController {
     }
 
     // 회원 챌린지 포기
-    @Operation(summary = "Abandon member challenge", description = "Abandon a member challnenge")
+    @Operation(summary = "회원 챌린지 포기", description = "회원 챌린지를 포기 상태로 바꾸는 API")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/abandon")
     public ResponseEntity<Void> abandonMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
@@ -95,7 +95,7 @@ public class MemberChallengeController {
     }
 
     // 모든 회원 챌린지 일일 인증 초기화
-    @Operation(summary = "Reset daily member challenges certification")
+    @Operation(summary = "모든 회원 챌린지 일일 인증 초기화", description = "오전 12시마다 모든 회원의 회원 챌린지가 미인증 상태로 초기화 하는 API")
     @PutMapping("/members")
     public ResponseEntity<Void> resetMemberChallengeCertification() {
         memberChallengeService.resetDailyMemberChallengeAuthentication();
