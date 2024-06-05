@@ -35,11 +35,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @Tag(name = "Member", description = "Member API")
 public class MemberController {
 
@@ -47,7 +49,7 @@ public class MemberController {
     private final JwtTokenProvider tokenProvider;
     private final TokenBlacklistService tokenBlacklistService;
 
-    @PostMapping("/api/signup")
+    @PostMapping("/signup")
     @Operation(summary = "signup", description = "Signup new member")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Signup success",
@@ -59,10 +61,10 @@ public class MemberController {
     })
     public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
         MemberEntity memberEntity = memberService.signUp(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/api/signup/additional-info")
+    @PostMapping("/signup/additional-info")
     @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Save success"),
@@ -74,7 +76,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
     }
 
-    @PostMapping("/api/login")
+    @PostMapping("/login")
     @Operation(summary = "login", description = "Member login")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Login success"),
@@ -88,7 +90,7 @@ public class MemberController {
             .body(tokenResponseDto.getRefreshToken());
     }
 
-    @PostMapping("/api/logout")
+    @PostMapping("/logout")
     @Operation(summary = "logout", description = "Member logout")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Logout success"),
@@ -107,7 +109,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 
-    @PatchMapping("/api/members/{memberId}")
+    @PatchMapping("/members/{memberId}")
     @Operation(summary = "member update", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
@@ -123,7 +125,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
 
-    @GetMapping("/api/check-email")
+    @GetMapping("/check-email")
     @Operation(summary = "check email", description = "Check whether this email already exists")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
@@ -135,7 +137,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/api/check-nickname")
+    @GetMapping("/check-nickname")
     @Operation(summary = "check nickname", description = "Check whether this nickname already exists")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
@@ -148,7 +150,7 @@ public class MemberController {
     }
 
 
-    @DeleteMapping("/api/members/{memberId}")
+    @DeleteMapping("/members/{memberId}")
     @Operation(summary = "delete member", description = "Delete member")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Delete success"),
