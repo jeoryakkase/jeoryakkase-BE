@@ -95,7 +95,7 @@ public class BadgeController {
     @PutMapping("/badges/{badgeId}")
     public ResponseEntity<BadgeDto> updateBadge(
         @Parameter(description = "뱃지 ID") @PathVariable Long badgeId,
-        @Parameter(description = "수정할 뱃지의 정보") @RequestBody BadgeUpdateReqDto badgeUpdateReqDto) {
+        @Parameter(description = "수정할 뱃지의 정보") @Valid @RequestBody BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeDto updatedBadgeDto = badgeService.updateBadge(badgeId, badgeUpdateReqDto);
 
         return (updatedBadgeDto == null) ? ResponseEntity.status(HttpStatus.NOT_FOUND).build()

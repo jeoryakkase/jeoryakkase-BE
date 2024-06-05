@@ -19,6 +19,7 @@ import com.example.savingsalt.member.exception.MemberException.MemberNotFoundExc
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,10 +137,13 @@ public class BadgeServiceImpl implements BadgeService {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
         BadgeEntity updateBadgeEntity = badgeEntity.toBuilder()
-            .name(badgeUpdateReqDto.getName())
-            .badgeDesc(badgeUpdateReqDto.getBadgeDesc())
-            .badgeImage(badgeUpdateReqDto.getBadgeImage())
-            .badgeType(badgeUpdateReqDto.getBadgeType())
+            .name(Optional.ofNullable(badgeUpdateReqDto.getName()).orElse(badgeEntity.getName()))
+            .badgeDesc(Optional.ofNullable(badgeUpdateReqDto.getBadgeDesc())
+                .orElse(badgeEntity.getBadgeDesc()))
+            .badgeImage(Optional.ofNullable(badgeUpdateReqDto.getBadgeImage())
+                .orElse(badgeEntity.getBadgeImage()))
+            .badgeType(Optional.ofNullable(badgeUpdateReqDto.getBadgeType()).orElse(
+                badgeEntity.getBadgeType()))
             .build();
 
         BadgeEntity updatedBadge = badgeRepository.save(updateBadgeEntity);
