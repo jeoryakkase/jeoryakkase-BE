@@ -8,6 +8,7 @@ import com.example.savingsalt.challenge.service.ChallengeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,7 +80,7 @@ public class ChallengeServiceController {
     @Operation(summary = "Create challenge", description = "Create a challenge")
     @PostMapping("/challenges")
     public ResponseEntity<ChallengeDto> createChallenge(
-        @Parameter(description = "Information about the challenge to be created") @RequestBody ChallengeCreateReqDto challengeCreateDto) {
+        @Parameter(description = "Information about the challenge to be created") @Valid @RequestBody ChallengeCreateReqDto challengeCreateDto) {
         ChallengeDto createdChallengeDto = challengeService.createChallenge(challengeCreateDto);
 
         return (createdChallengeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()

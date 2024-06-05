@@ -10,6 +10,7 @@ import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.ChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
@@ -81,6 +82,14 @@ public class ChallengeServiceImpl implements ChallengeService {
     public ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto) {
         BadgeEntity badgeEntity = badgeRepository.findById(challengeCreateDto.getBadgeId())
             .orElseThrow(BadgeNotFoundException::new);
+
+        // 챌린지 생성시 챌린지 목표 금액, 챌린지 목표 횟수가 하나만 입력 됐는지 검증
+        int challengeGoal = challengeCreateDto.getChallengeGoal();
+        int challengeCount = challengeCreateDto.getChallengeCount();
+        if ((challengeGoal == 0 && challengeCount == 0) || (challengeGoal != 0
+            && challengeCount != 0)) {
+            throw new InvalidChallengeGoalAndCountException();
+        }
 
         ChallengeEntity challengeEntity = challengeMapper.toEntity(challengeCreateDto);
         ChallengeEntity challengeAndBadgeEntity = challengeEntity.toBuilder()
