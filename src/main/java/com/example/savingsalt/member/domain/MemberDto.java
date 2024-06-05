@@ -1,5 +1,6 @@
 package com.example.savingsalt.member.domain;
 
+import com.example.savingsalt.member.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class MemberDto {
     String password;
     String nickname;
     int age;
-    int gender;
+    String gender;
     int income;
     int saving_goal;
 
@@ -29,7 +30,7 @@ public class MemberDto {
             .password(this.password)
             .nickname(this.nickname)
             .age(this.age)
-            .gender(this.gender)
+            .gender(Gender.valueOf(this.gender))
             .income(this.income)
             .savingGoal(this.saving_goal)
             .build();

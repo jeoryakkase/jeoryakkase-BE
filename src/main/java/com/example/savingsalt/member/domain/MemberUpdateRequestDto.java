@@ -17,7 +17,7 @@ public class MemberUpdateRequestDto {
     private String password;
     private String nickname;
     private int age;
-    private int gender;
+    private String gender;
     private int income;
     private int savingGoal;
     private String profileImage;

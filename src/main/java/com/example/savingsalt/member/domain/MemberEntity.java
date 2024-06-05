@@ -3,6 +3,7 @@ package com.example.savingsalt.member.domain;
 import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
+import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,7 +57,8 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     private int age;
 
     @Column(name = "gender", nullable = true)
-    private int gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(name = "income", nullable = true)
     private int income;

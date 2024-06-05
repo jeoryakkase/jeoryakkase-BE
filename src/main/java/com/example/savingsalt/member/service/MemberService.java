@@ -7,6 +7,7 @@ import com.example.savingsalt.member.domain.MemberDto;
 import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.exception.MemberException.InvalidPasswordException;
@@ -46,7 +47,7 @@ public class MemberService {
         memberEntity.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         memberEntity.setNickname(dto.getNickname());
         memberEntity.setAge(dto.getAge());
-        memberEntity.setGender(dto.getGender());
+        memberEntity.setGender(Gender.valueOf(dto.getGender()));
         memberEntity.setIncome(dto.getIncome());
         memberEntity.setSavingGoal(dto.getSavingGoal());
         memberEntity.setProfileImage(dto.getProfileImage());
@@ -65,7 +66,7 @@ public class MemberService {
 
         memberEntity.setNickname(dto.getNickname());
         memberEntity.setAge(dto.getAge());
-        memberEntity.setGender(dto.getGender());
+        memberEntity.setGender(Gender.valueOf(dto.getGender()));
         memberEntity.setIncome(dto.getIncome());
         memberEntity.setSavingGoal(dto.getSavingGoal());
         memberEntity.setProfileImage(dto.getProfileImage());
@@ -101,7 +102,7 @@ public class MemberService {
     // 회원 정보 수정
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
-        int age, int gender,
+        int age, String gender,
         int income, int savingGoal, String profileImage) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
@@ -120,7 +121,7 @@ public class MemberService {
 
         memberEntity.setNickname(nickname);
         memberEntity.setAge(age);
-        memberEntity.setGender(gender);
+        memberEntity.setGender(Gender.valueOf(gender));
         memberEntity.setIncome(income);
         memberEntity.setSavingGoal(savingGoal);
         memberEntity.setProfileImage(profileImage);
@@ -218,7 +219,7 @@ public class MemberService {
     }
 
     // 같은 성별인 회원들 찾기
-    public List<MemberEntity> findMembersByGender(int gender) {
+    public List<MemberEntity> findMembersByGender(Gender gender) {
         return memberRepository.findAllByGender(gender);
     }
 
