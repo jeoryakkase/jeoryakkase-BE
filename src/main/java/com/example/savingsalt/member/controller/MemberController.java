@@ -115,7 +115,7 @@ public class MemberController {
     })
     public ResponseEntity<?> updateMember(@PathVariable Long memberId,
         @RequestBody MemberUpdateRequestDto dto) {
-        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getPassword(),
+        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(), dto.getPassword(),
             dto.getNickname(), dto.getAge(),
             dto.getGender(), dto.getIncome(), dto.getSavingGoal(), dto.getProfileImage());
 

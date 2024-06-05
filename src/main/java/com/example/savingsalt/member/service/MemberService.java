@@ -100,11 +100,15 @@ public class MemberService {
 
     // 회원 정보 수정
     @Transactional
-    public MemberEntity updateMember(Long id, String password, String nickname,
+    public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, int gender,
         int income, int savingGoal, String profileImage) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
+
+        if (!memberEntity.getEmail().equals(email)) { // 이메일을 수정하는 경우
+            checkEmail(email); // 이메일 중복 검사
+        }
 
         if (!memberEntity.getNickname().equals(nickname)) { // 닉네임을 수정하는 경우
             checkNickname(nickname); // 닉네임 중복 검사

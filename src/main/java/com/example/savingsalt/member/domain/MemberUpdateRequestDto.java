@@ -13,6 +13,7 @@ import lombok.Setter;
 @Builder
 public class MemberUpdateRequestDto {
 
+    private String email;
     private String password;
     private String nickname;
     private int age;
