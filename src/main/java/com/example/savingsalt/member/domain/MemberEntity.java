@@ -6,6 +6,7 @@ import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -63,11 +64,15 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     @Column(name = "income", nullable = true)
     private int income;
 
-    @Column(name = "saving_goal", nullable = true)
-    private int savingGoal;
+    @Column(name = "save_purpose", nullable = true)
+    private String savePurpose;
 
     @Column(name = "profile_image", nullable = true)
     private String profileImage;
+
+    @Column(name = "interests", nullable = true)
+    @ElementCollection
+    private List<String> interests;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)

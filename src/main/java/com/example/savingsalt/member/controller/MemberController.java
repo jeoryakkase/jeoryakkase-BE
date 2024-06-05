@@ -30,6 +30,7 @@ import org.springframework.security.core.token.TokenService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -106,7 +107,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 
-    @PutMapping("/api/members/{memberId}")
+    @PatchMapping("/api/members/{memberId}")
     @Operation(summary = "member update", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
@@ -117,7 +118,7 @@ public class MemberController {
         @RequestBody MemberUpdateRequestDto dto) {
         MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(), dto.getPassword(),
             dto.getNickname(), dto.getAge(),
-            dto.getGender(), dto.getIncome(), dto.getSavingGoal(), dto.getProfileImage());
+            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(), dto.getInterests());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }

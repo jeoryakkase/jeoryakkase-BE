@@ -49,8 +49,9 @@ public class MemberService {
         memberEntity.setAge(dto.getAge());
         memberEntity.setGender(Gender.valueOf(dto.getGender()));
         memberEntity.setIncome(dto.getIncome());
-        memberEntity.setSavingGoal(dto.getSavingGoal());
+        memberEntity.setSavePurpose(dto.getSavePurpose());
         memberEntity.setProfileImage(dto.getProfileImage());
+        memberEntity.setInterests(dto.getInterests());
         memberEntity.setRole(Role.MEMBER);
 
         return memberRepository.save(memberEntity);
@@ -68,8 +69,9 @@ public class MemberService {
         memberEntity.setAge(dto.getAge());
         memberEntity.setGender(Gender.valueOf(dto.getGender()));
         memberEntity.setIncome(dto.getIncome());
-        memberEntity.setSavingGoal(dto.getSavingGoal());
+        memberEntity.setSavePurpose(dto.getSavePurpose());
         memberEntity.setProfileImage(dto.getProfileImage());
+        memberEntity.setInterests(dto.getInterests());
         memberEntity.authorizeUser();
 
         return memberRepository.save(memberEntity);
@@ -103,7 +105,7 @@ public class MemberService {
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, String gender,
-        int income, int savingGoal, String profileImage) {
+        int income, String savePurpose, String profileImage, List<String> interests) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
@@ -123,8 +125,9 @@ public class MemberService {
         memberEntity.setAge(age);
         memberEntity.setGender(Gender.valueOf(gender));
         memberEntity.setIncome(income);
-        memberEntity.setSavingGoal(savingGoal);
+        memberEntity.setSavePurpose(savePurpose);
         memberEntity.setProfileImage(profileImage);
+        memberEntity.setInterests(interests);
 
         return memberRepository.save(memberEntity);
     }
