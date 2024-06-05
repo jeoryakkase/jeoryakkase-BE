@@ -61,7 +61,7 @@ public class MemberChallengeController {
 
     // 회원 챌린지 일일 인증 생성
     @Operation(summary = "Certify daily member challenge", description = "Certify daily member challenge")
-    @PostMapping("/members/{memberId}/challenges/{memberChallengeId}")
+    @PostMapping("/members/{memberId}/challenges/{memberChallengeId}/certify")
     public ResponseEntity<Void> certifyDailyMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
