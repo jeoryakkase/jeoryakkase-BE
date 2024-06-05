@@ -41,13 +41,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Google OAuth 2.0 Authentication")
 public class GoogleAuthController {
 
-    @Value("${google.clientId}")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    @Value("${google.clientSecret}")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
-    @Value("${google.redirectUri}")
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
