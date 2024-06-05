@@ -1,7 +1,5 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +23,6 @@ public class ChallengeCreateReqDto {
     private String challengeType;
 
     private String challengeTerm;
-
-    private ChallengeDifficulty challengeDifficulty;
 
     private String authContent;
 
