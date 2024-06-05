@@ -74,7 +74,7 @@ public class MemberChallengeServiceImpl implements
                 MemberChallengeEntity memberChallengeEntity = memberChallengeMapper.toEntity(
                     memberChallengeCreateReqDto);
 
-                memberChallengeEntity.toBuilder().challengeEntity(challengeEntity)
+                memberChallengeEntity = memberChallengeEntity.toBuilder().challengeEntity(challengeEntity)
                     .memberEntity(memberEntity).build();
 
                 return memberChallengeMapper.toMemberChallengeCreateReqDto(
