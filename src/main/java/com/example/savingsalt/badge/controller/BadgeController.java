@@ -9,6 +9,7 @@ import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,7 +71,7 @@ public class BadgeController {
     @Operation(summary = "Create badge", description = "Create a badge")
     @PostMapping("/badges")
     public ResponseEntity<BadgeDto> createBadge(
-        @Parameter(description = "Information about the badge to be created") @RequestBody BadgeCreateReqDto badgeCreateReqDto) {
+        @Parameter(description = "Information about the badge to be created") @Valid @RequestBody BadgeCreateReqDto badgeCreateReqDto) {
         BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto);
 
         return (createdBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
