@@ -2,7 +2,7 @@ package com.example.savingsalt.challenge.controller;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.service.MemberChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,13 +31,13 @@ public class MemberChallengeController {
     // 회원 챌린지 목록 조회
     @Operation(summary = "회원 챌린지 목록 조회", description = "모든 회원 챌린지를 조회하는 API")
     @GetMapping("/members/{memberId}/challenges")
-    public ResponseEntity<List<MemberChallengeDto>> getAllMemberChallenges(
+    public ResponseEntity<List<MemberChallengeWithCertifyAndChallengeResDto>> getAllMemberChallenges(
         @Parameter(description = "ID of the member") @PathVariable Long memberId) {
-        List<MemberChallengeDto> memberChallengeDtos = memberChallengeService.getMemberChallenges(
+        List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtos = memberChallengeService.getMemberChallenges(
             memberId);
 
-        return memberChallengeDtos.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-            : ResponseEntity.ok(memberChallengeDtos);
+        return memberChallengeWithCertifyAndChallengeResDtos.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            : ResponseEntity.ok(memberChallengeWithCertifyAndChallengeResDtos);
     }
 
     // 회원 챌린지 생성

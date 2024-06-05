@@ -2,14 +2,15 @@ package com.example.savingsalt.challenge.service;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
+import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
@@ -31,29 +32,32 @@ public class MemberChallengeServiceImpl implements
     private final MemberRepository memberRepository;
     private final ChallengeRepository challengeRepository;
     private final CertificationChallengeServiceImpl certificationChallengeServiceImpl;
+    private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
 
     public MemberChallengeServiceImpl(MemberChallengeRepository memberChallengeRepository,
         MemberChallengeMapper memberChallengeMapper
         , MemberRepository memberRepository, ChallengeRepository challengeRepository,
-        CertificationChallengeServiceImpl certificationChallengeServiceImpl) {
+        CertificationChallengeServiceImpl certificationChallengeServiceImpl,
+        MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
         this.memberRepository = memberRepository;
         this.challengeRepository = challengeRepository;
         this.certificationChallengeServiceImpl = certificationChallengeServiceImpl;
+        this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
     }
 
     // 회원 챌린지 목록 조회
-    public List<MemberChallengeDto> getMemberChallenges(Long memberId) {
+    public List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId) {
 
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
 
-            return memberChallengeMapper.toDto(
-                memberChallengeRepository.findAllByMemberEntity(memberEntity));
+            return memberChallengeWithCertifyAndChallengeMapper.toDto(
+                memberChallengeRepository.findAllWithFetchJoinByMemberEntity(memberEntity));
         } else {
             throw new MemberNotFoundException();
         }
@@ -74,7 +78,8 @@ public class MemberChallengeServiceImpl implements
                 MemberChallengeEntity memberChallengeEntity = memberChallengeMapper.toEntity(
                     memberChallengeCreateReqDto);
 
-                memberChallengeEntity = memberChallengeEntity.toBuilder().challengeEntity(challengeEntity)
+                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .challengeEntity(challengeEntity)
                     .memberEntity(memberEntity).build();
 
                 return memberChallengeMapper.toMemberChallengeCreateReqDto(
@@ -231,4 +236,5 @@ public class MemberChallengeServiceImpl implements
             }
         }
     }
+
 }
