@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -21,8 +22,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -41,6 +45,9 @@ public class WebSecurityConfig {
     @Autowired
     private OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    @Autowired
+    private ClientRegistrationRepository clientRegistrationRepository;
+
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
@@ -58,7 +65,7 @@ public class WebSecurityConfig {
 
         return http
             .authorizeRequests(authorizeRequests -> authorizeRequests
-//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
+//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/api/login/oauth2/kakao", "/signup",
 //                    "/api/signup", "/api/token")
 //                .permitAll()
 //                // swagger 관련 경로 허용
@@ -77,8 +84,10 @@ public class WebSecurityConfig {
             .oauth2Login(oauth2Login -> oauth2Login
                 .loginPage("/login")
                 .authorizationEndpoint(authorizationEndpoint ->
-                    authorizationEndpoint.authorizationRequestRepository(
-                        oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                    authorizationEndpoint
+                        .authorizationRequestResolver(customAuthorizationRequestResolver())
+                        .authorizationRequestRepository(
+                            oAuth2AuthorizationRequestBasedOnCookieRepository()))
                 .successHandler(oAuth2SuccessHandler))
             // 로그아웃
             .logout(logout -> logout
@@ -104,6 +113,12 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManager(
         AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public OAuth2AuthorizationRequestResolver customAuthorizationRequestResolver() {
+        return new CustomAuthorizationRequestResolver(clientRegistrationRepository,
+            "/api/login/oauth2/authorization");
     }
 
     @Bean
