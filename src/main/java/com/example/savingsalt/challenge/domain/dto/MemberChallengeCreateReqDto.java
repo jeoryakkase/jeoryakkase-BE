@@ -1,7 +1,6 @@
 package com.example.savingsalt.challenge.domain.dto;
 
 
-import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -33,6 +32,4 @@ public class MemberChallengeCreateReqDto {
     private String challengeComment;
 
     private Integer totalSaveMoney;
-
-    private ChallengeDifficulty challengeDifficulty;
 }
