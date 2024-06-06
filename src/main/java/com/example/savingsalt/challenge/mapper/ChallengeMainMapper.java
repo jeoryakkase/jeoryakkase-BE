@@ -14,6 +14,7 @@ import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEnti
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.EntityMapper;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -75,10 +76,11 @@ public interface ChallengeMainMapper {
         MemberChallengeWithCertifyAndChallengeResDto toDto(
             MemberChallengeEntity memberChallengeEntity);
 
-        @Mapping(source = "certificationChallengeDtos", target = "certificationChallengeEntities")
-        @Mapping(source = "challengeDto", target = "challengeEntity")
-        MemberChallengeEntity toEntity(
-            MemberChallengeWithCertifyAndChallengeResDto memberChallengeWithCertifyAndChallengeResDto);
+        @Mapping(source = "certificationChallengeEntities", target = "certificationChallengeDtos")
+        @Mapping(source = "challengeEntity", target = "challengeDto")
+        List<MemberChallengeWithCertifyAndChallengeResDto> toDtoList(
+            List<MemberChallengeEntity> memberChallengeEntities);
+
     }
 
 }

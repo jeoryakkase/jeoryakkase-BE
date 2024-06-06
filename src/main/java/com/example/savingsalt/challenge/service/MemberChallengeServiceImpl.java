@@ -59,8 +59,8 @@ public class MemberChallengeServiceImpl implements
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
 
-            return memberChallengeWithCertifyAndChallengeMapper.toDto(
-                memberChallengeRepository.findAllWithFetchJoinByMemberEntity(memberEntity));
+            return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
+                memberChallengeRepository.findAllByMemberEntity(memberEntity));
         } else {
             throw new MemberNotFoundException();
         }

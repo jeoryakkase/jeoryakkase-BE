@@ -23,13 +23,9 @@ public class MemberChallengeCreateReqDto {
 
     private ChallengeStatus challengeStatus;
 
-    private Boolean isTodayCertification;
-
     private Integer successConut;
 
     private Integer challengeConut;
-
-    private String challengeComment;
 
     private Integer totalSaveMoney;
 }
