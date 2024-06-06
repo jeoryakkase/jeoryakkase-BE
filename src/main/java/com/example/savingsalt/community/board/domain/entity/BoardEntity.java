@@ -1,23 +1,22 @@
 package com.example.savingsalt.community.board.domain.entity;
 
-import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
+import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,30 +34,25 @@ public class BoardEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    private String nickname;
-
+    @NotNull
     private String title;
 
+    @NotNull
     @Column(columnDefinition = "TEXT")
     private String contents;
 
-    @Column(nullable = false)
     private int totalLike;
 
-    @Column(nullable = false)
     private int boardHits;
 
     @Enumerated(EnumType.STRING)
     private BoardCategory category;
 
-    @ElementCollection
-    @CollectionTable(name = "board_image_urls", joinColumns = @JoinColumn(name = "board_id"))
-    @Column(name = "image_url")
-    private List<String> imageUrls;
+    private String imageUrls;
 
     public void updateTipBoard(BoardTypeTipCreateReqDto requestDto) {
         this.title = requestDto.getTitle();
