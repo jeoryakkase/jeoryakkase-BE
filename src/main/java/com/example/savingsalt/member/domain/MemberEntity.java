@@ -72,7 +72,7 @@ public class MemberEntity extends BaseEntity implements UserDetails {
 
     @Column(name = "interests", nullable = true)
     @ElementCollection
-    private List<String> interests;
+    private List<Long> interests;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
