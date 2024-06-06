@@ -29,7 +29,5 @@ public class MemberChallengeCreateReqDto {
 
     private Integer challengeConut;
 
-    private String challengeComment;
-
     private Integer totalSaveMoney;
 }
