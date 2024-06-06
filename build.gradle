@@ -54,7 +54,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'com.google.api-client:google-api-client:1.32.1'
     implementation 'com.google.oauth-client:google-oauth-client-jetty:1.32.1'
-    implementation 'com.google.apis:google-api-services-oauth2:v2-rev185-1.25.0'
+    // implementation 'com.google.apis:google-api-services-oauth2:v2-rev185-1.25.0'
+    implementation group: 'com.google.apis', name: 'google-api-services-oauth2', version: 'v2-rev20200213-2.0.0'
 
     // Mapstruct
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
