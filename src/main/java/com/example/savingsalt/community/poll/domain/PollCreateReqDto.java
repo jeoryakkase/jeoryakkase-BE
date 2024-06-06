@@ -14,22 +14,23 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PollCreateReqDto {
 
-    private Long boardId;
+    private BoardEntity board;
     private List<PollChoiceDto> choices;
 
     public PollEntity toEntity(BoardEntity boardEntity) {
+        PollEntity poll = PollEntity.builder()
+            .board(boardEntity)
+            .build();
+
         List<PollChoiceEntity> pollChoices = choices.stream()
             .map(choiceDto -> PollChoiceEntity.builder()
                 .answer(choiceDto.getAnswer())
                 .count(choiceDto.getCount())
+                .pollEntity(poll) // 연관 관계 설정
                 .build())
             .collect(Collectors.toList());
 
-        // Poll 엔티티 생성 시 연관 관계 설정
-        PollEntity poll = PollEntity.builder()
-            .board(boardEntity)
-            .choices(pollChoices)
-            .build();
+        poll.setChoices(pollChoices);
 
         return poll;
     }

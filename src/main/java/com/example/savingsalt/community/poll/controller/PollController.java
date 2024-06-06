@@ -22,9 +22,9 @@ public class PollController {
     private PollService pollService;
 
     @Operation(summary = "Create a new Poll", description = "Creates a new Poll associated with a vote ID")
-    @PostMapping("/{voteId}/poll")
-    public ResponseEntity<PollDto> createPoll(@PathVariable Long voteId, @RequestBody PollCreateReqDto pollCreateReqDto) {
-        PollDto response = pollService.createPoll(voteId, pollCreateReqDto);
+    @PostMapping("/poll")
+    public ResponseEntity<PollDto> createPoll(@RequestBody PollCreateReqDto pollCreateReqDto) {
+        PollDto response = pollService.createPoll(pollCreateReqDto);
         return ResponseEntity.ok(response);
     }
 
