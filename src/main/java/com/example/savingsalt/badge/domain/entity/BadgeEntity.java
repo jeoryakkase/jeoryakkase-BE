@@ -1,5 +1,6 @@
 package com.example.savingsalt.badge.domain.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,7 +41,4 @@ public class BadgeEntity {
 
     @Column(name = "badge_type", nullable = false)
     private String badgeType;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "badgeEntity")
-    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
 }
