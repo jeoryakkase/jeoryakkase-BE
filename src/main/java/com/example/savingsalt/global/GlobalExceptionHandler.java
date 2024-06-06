@@ -1,7 +1,8 @@
 package com.example.savingsalt.global;
 
 import com.example.savingsalt.community.board.exception.BoardException;
-import com.example.savingsalt.community.board.exception.CommentException;
+import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
+import com.example.savingsalt.community.comment.exception.CommentException;
 import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
 import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.member.exception.MemberException;
@@ -64,17 +65,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    // 게시판 관련 예외처리
     @ExceptionHandler(BoardException.UnauthorizedCreateException.class)
     public ResponseEntity<String> handleUnauthorizedCreateException(
         BoardException.UnauthorizedCreateException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
     @ExceptionHandler(BoardException.UnauthorizedUpdateException.class)
     public ResponseEntity<String> handleUnauthorizedUpdateException(
         BoardException.UnauthorizedUpdateException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
     @ExceptionHandler(BoardException.UnauthorizedDeleteException.class)
     public ResponseEntity<String> handleUnauthorizedDeleteException(
         BoardException.UnauthorizedDeleteException ex) {
@@ -86,13 +88,18 @@ public class GlobalExceptionHandler {
         BoardException.EmptyBoardException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(BoardNotFoundException.class)
+    public ResponseEntity<String> handleBoardNotFoundException(BoardNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(BoardException.InternalServerErrorException.class)
     public ResponseEntity<String> handleInternalServerErrorException(
         BoardException.InternalServerErrorException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // 댓글 관련 예외 처리
     @ExceptionHandler(CommentException.CommentNotFoundException.class)
     public ResponseEntity<String> handleCommentNotFoundException(
         CommentException.CommentNotFoundException ex) {
@@ -110,4 +117,17 @@ public class GlobalExceptionHandler {
         CommentException.ValidateAuthorForDelete ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(CommentException.CannotUpdateCommentWithReplies.class)
+    public ResponseEntity<String> handleCannotUpdateCommentWithReplies(
+        CommentException.CannotUpdateCommentWithReplies ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CommentException.NotFoundParentComment.class)
+    public ResponseEntity<String> handleNotFoundParentComment(
+        CommentException.NotFoundParentComment ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }

@@ -8,7 +8,7 @@ public class BoardException extends RuntimeException {
 
     public static class UnauthorizedCreateException extends BoardException {
         public UnauthorizedCreateException() {
-            super("게시글 작성 권한이 없습니다. 로그인해주세요.");
+            super("게시글 작성 권한이 없습니다.");
         }
     }
 
