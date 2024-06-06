@@ -118,7 +118,7 @@ public class MemberChallengeServiceImpl implements
             }
 
             // 챌린지 종류(횟수 달성) > 챌린지 목표 횟수와 회원 챌린지 목표 달성 횟수가 같으면 챌린지 성공
-            if ("Conut".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 if (Objects.equals(foundMemberChallengeEntity.getChallengeConut(),
                     challengeEntity.getChallengeCount())) {
 
@@ -131,12 +131,14 @@ public class MemberChallengeServiceImpl implements
 
                     return memberChallengeMapper.toMemberChallengeCompleteReqDto(
                         memberChallengeRepository.save(foundMemberChallengeEntity));
+                } else {
+                    throw new MemberChallengeFailureException();
                 }
             }
             // 챌린지 종류(목표 금액 달성) > 챌린지 목표 금액과 회원 챌린지 목표 달성 금액이 같으면 챌린지 성공
             else if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 if (foundMemberChallengeEntity.getTotalSaveMoney()
-                    > challengeEntity.getChallengeGoal()) {
+                    >= challengeEntity.getChallengeGoal()) {
 
                     foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                         .toBuilder()
@@ -209,7 +211,7 @@ public class MemberChallengeServiceImpl implements
                 foundMemberChallengeEntity,
                 certificationChallengeReqDto);
 
-            // 총 절약 금액 저장 + 일일 인증 상태 True
+            // 일일 인증 상태 True + 총 절약 금액 저장
             if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -221,13 +223,10 @@ public class MemberChallengeServiceImpl implements
                 return memberChallengeMapper.toDto(
                     memberChallengeRepository.save(foundMemberChallengeEntity));
             }
-            // 총 절약 금액 저장 + 일일 인증 상태 True + 달성 횟수 1 증가
+            // 일일 인증 상태 True + 달성 횟수 1 증가
             else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
-                    .totalSaveMoney(
-                        foundMemberChallengeEntity.getTotalSaveMoney()
-                            + certificationChallengeReqDto.getSaveMoney())
                     .challengeConut(foundMemberChallengeEntity.getChallengeConut() + 1)
                     .isTodayCertification(true)
                     .build();
