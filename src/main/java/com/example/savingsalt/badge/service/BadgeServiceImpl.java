@@ -48,9 +48,6 @@ public class BadgeServiceImpl implements BadgeService {
     @Transactional(readOnly = true)
     public List<BadgeDto> getAllBadges() {
         List<BadgeEntity> allBadges = badgeRepository.findAll();
-        if (allBadges.size() == 0) {
-            return null;
-        }
         List<BadgeDto> allBadgeResDto = badgeMainMapper.toDto(allBadges);
 
         return allBadgeResDto;
@@ -63,9 +60,7 @@ public class BadgeServiceImpl implements BadgeService {
             .orElseThrow(MemberNotFoundException::new);
         List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
             member);
-        if (memberChallengeEntity.size() == 0) {
-            return null;
-        }
+
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = new ArrayList<>();
         // 회원 챌린지에서 각각 처음 완료한 챌린지의 뱃지만 저장
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
