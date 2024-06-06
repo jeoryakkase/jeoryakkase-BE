@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,14 +29,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @Tag(name = "Member", description = "Member API")
 public class MemberController {
 
@@ -43,7 +49,7 @@ public class MemberController {
     private final JwtTokenProvider tokenProvider;
     private final TokenBlacklistService tokenBlacklistService;
 
-    @PostMapping("/api/signup")
+    @PostMapping("/signup")
     @Operation(summary = "signup", description = "Signup new member")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Signup success",
@@ -55,10 +61,10 @@ public class MemberController {
     })
     public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
         MemberEntity memberEntity = memberService.signUp(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/api/signup/additional-info")
+    @PostMapping("/signup/additional-info")
     @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Save success"),
@@ -70,7 +76,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
     }
 
-    @PostMapping("/api/login")
+    @PostMapping("/login")
     @Operation(summary = "login", description = "Member login")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Login success"),
@@ -79,10 +85,12 @@ public class MemberController {
     })
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
         TokenResponseDto tokenResponseDto = memberService.login(dto);
-        return ResponseEntity.status(HttpStatus.OK).body(tokenResponseDto);
+        return ResponseEntity.status(HttpStatus.OK)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken())
+            .body(tokenResponseDto.getRefreshToken());
     }
 
-    @PostMapping("/api/logout")
+    @PostMapping("/logout")
     @Operation(summary = "logout", description = "Member logout")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Logout success"),
@@ -101,7 +109,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 
-    @PutMapping("/api/members/{memberId}")
+    @PatchMapping("/members/{memberId}")
     @Operation(summary = "member update", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
@@ -110,14 +118,39 @@ public class MemberController {
     })
     public ResponseEntity<?> updateMember(@PathVariable Long memberId,
         @RequestBody MemberUpdateRequestDto dto) {
-        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getPassword(),
+        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(), dto.getPassword(),
             dto.getNickname(), dto.getAge(),
-            dto.getGender(), dto.getIncome(), dto.getSavingGoal(), dto.getProfileImage());
+            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(), dto.getInterests());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
 
-    @DeleteMapping("/api/members/{memberId}")
+    @GetMapping("/check-email")
+    @Operation(summary = "check email", description = "Check whether this email already exists")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Check success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        memberService.checkEmail(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/check-nickname")
+    @Operation(summary = "check nickname", description = "Check whether this nickname already exists")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Check success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
+        memberService.checkNickname(nickname);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @DeleteMapping("/members/{memberId}")
     @Operation(summary = "delete member", description = "Delete member")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Delete success"),
