@@ -1,10 +1,17 @@
 package com.example.savingsalt.community.comment.domain.dto;
 
-import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
+@AllArgsConstructor
 public class CommentReqDto {
+
     private Long boardId;
-    private String comment;
+    private Long memberId;
+    private String content;
+
+
 }

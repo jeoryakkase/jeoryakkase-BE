@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.comment.domain;
 
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Entity;
@@ -10,9 +11,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Table(name = "reply_comments")
 @Getter
+@NoArgsConstructor
 @Entity
 public class ReplyCommentEntity extends BaseEntity {
 
@@ -20,9 +23,7 @@ public class ReplyCommentEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String reply;
-
-    private int depth;
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
@@ -32,10 +33,15 @@ public class ReplyCommentEntity extends BaseEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    public void saveReply(CommentEntity parentComment, String reply, int depth) {
+
+    public ReplyCommentEntity(String comment, CommentEntity parentComment, MemberEntity memberEntity) {
+        this.content = content;
         this.parentComment = parentComment;
-        this.reply = reply;
-        this.depth = depth;
+        this.memberEntity = memberEntity;
+    }
+
+    public void update(ReplyCommentReqDto requestDto) {
+        this.content = requestDto.getContent();
     }
 
 }
