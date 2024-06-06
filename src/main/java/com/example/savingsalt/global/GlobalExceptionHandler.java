@@ -6,6 +6,7 @@ import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChal
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.CommentException;
+import com.example.savingsalt.community.poll.exception.PollException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -143,5 +144,31 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleValidateAuthorForDelete(
         CommentException.ValidateAuthorForDelete ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    // 투표 관련 예외 처리
+    @ExceptionHandler(PollException.PollNotFoundException.class)
+    public ResponseEntity<String> handlePollNotFoundException(PollException.PollNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PollException.ChoiceNotFoundException.class)
+    public ResponseEntity<String> handleChoiceNotFoundException(PollException.ChoiceNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PollException.UnauthorizedPollAccessException.class)
+    public ResponseEntity<String> handleUnauthorizedPollAccessException(PollException.UnauthorizedPollAccessException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(PollException.PollCreationException.class)
+    public ResponseEntity<String> handlePollCreationException(PollException.PollCreationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PollException.PollParticipationException.class)
+    public ResponseEntity<String> handlePollParticipationException(PollException.PollParticipationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
