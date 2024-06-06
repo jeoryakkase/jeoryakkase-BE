@@ -8,6 +8,7 @@ import com.example.savingsalt.challenge.service.ChallengeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +36,10 @@ public class ChallengeServiceController {
     }
 
     // 챌린지 상세 정보 조회
-    @Operation(summary = "Get a Challenge", description = "Gets an existing Challenge information by ID")
+    @Operation(summary = "챌린지 상세 정보 조회", description = "해당 챌린지의 챌린지 상세 정보를 조회하는 API")
     @GetMapping("/challenges/{challengeId}")
     public ResponseEntity<ChallengeDto> getChallenge(
-        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId) {
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
         ChallengeDto challengeDto = challengeService.getChallenge(challengeId);
 
         return (challengeDto == null) ? ResponseEntity.status(HttpStatus.NO_CONTENT)
@@ -46,11 +47,11 @@ public class ChallengeServiceController {
     }
 
     // 챌린지 전체 목록 조회
-    @Operation(summary = "Get Challenges", description = "Gets all existing Challenge information")
+    @Operation(summary = "챌린지 목록 조회", description = "모든 챌린지 목록을 조회하는 API")
     @GetMapping("/challenges")
     public ResponseEntity<Page<ChallengeReadResDto>> getAllChallenges(
-        @Parameter(description = "Page number to challenge") @RequestParam(name = "page", defaultValue = "1") int page,
-        @Parameter(description = "Number of challenges per page") @RequestParam(name = "size", defaultValue = "10") int size) {
+        @Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
+        @Parameter(description = "페이지당 챌린지 수") @RequestParam(name = "size", defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<ChallengeReadResDto> challengesReadResDto =
             challengeService.getAllChallenges(pageable);
@@ -61,12 +62,12 @@ public class ChallengeServiceController {
 
 
     // 챌린지 키워드 검색
-    @Operation(summary = "Get Challenges", description = "Gets all existing Challenge information by keyword")
+    @Operation(summary = "챌린지 키워드 검색", description = "키워드별로 모든 챌린지 목록을 조회하는 API")
     @GetMapping("/challenges/search")
     public ResponseEntity<Page<ChallengeReadResDto>> getAllChallenges(
-        @Parameter(description = "Challenge search keyword") @RequestParam(name = "keyword", defaultValue = "") String keyword,
-        @Parameter(description = "Page number to challenge") @RequestParam(name = "page", defaultValue = "1") int page,
-        @Parameter(description = "Number of challenges per page") @RequestParam(name = "size", defaultValue = "10") int size) {
+        @Parameter(description = "검색할 키워드(챌린지 유형)") @RequestParam(name = "keyword", defaultValue = "") String keyword,
+        @Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
+        @Parameter(description = "페이지당 챌린지 수") @RequestParam(name = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<ChallengeReadResDto> challengesReadResDto =
             challengeService.searchChallengesByKeyword(keyword, pageable);
@@ -76,10 +77,10 @@ public class ChallengeServiceController {
     }
 
     // 챌린지 생성
-    @Operation(summary = "Create challenge", description = "Create a challenge")
+    @Operation(summary = "챌린지 생성", description = "챌린지를 생성하는 API")
     @PostMapping("/challenges")
     public ResponseEntity<ChallengeDto> createChallenge(
-        @Parameter(description = "Information about the challenge to be created") @RequestBody ChallengeCreateReqDto challengeCreateDto) {
+        @Parameter(description = "생성할 챌린지의 정보") @Valid @RequestBody ChallengeCreateReqDto challengeCreateDto) {
         ChallengeDto createdChallengeDto = challengeService.createChallenge(challengeCreateDto);
 
         return (createdChallengeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
@@ -87,11 +88,11 @@ public class ChallengeServiceController {
     }
 
     // 챌린지 수정
-    @Operation(summary = "Update challenge", description = "Update a challenge")
+    @Operation(summary = "챌린지 수정", description = "해당 챌린지의 챌린지 정보를 수정하는 API")
     @PutMapping("/challenges/{challengeId}")
     public ResponseEntity<ChallengeDto> updateChallenge(
-        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId,
-        @Parameter(description = "Information about the challenge to be updated") @RequestBody ChallengeUpdateReqDto challengeUpdateReqDto) {
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId,
+        @Parameter(description = "수정할 챌린지의 정보") @RequestBody ChallengeUpdateReqDto challengeUpdateReqDto) {
         ChallengeDto updatedChallengeDto = challengeService.updateChallenge(challengeId,
             challengeUpdateReqDto);
 
@@ -100,10 +101,10 @@ public class ChallengeServiceController {
     }
 
     // 챌린지 삭제
-    @Operation(summary = "Delete challenge", description = "Delete a challenge")
+    @Operation(summary = "챌린지 삭제", description = "해당 챌린지의 챌린지 정보를 삭제하는 API")
     @DeleteMapping("/challenges/{challengeId}")
     public ResponseEntity<Void> deleteChallenge(
-        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId) {
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
         challengeService.deleteChallenge(challengeId);
 
         return ResponseEntity.ok().build();

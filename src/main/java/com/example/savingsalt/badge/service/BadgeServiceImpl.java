@@ -5,19 +5,18 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
-import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
-import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
 import com.example.savingsalt.badge.mapper.BadgeMainMapper;
 import com.example.savingsalt.badge.repository.BadgeRepository;
-import com.example.savingsalt.badge.repository.MemberGoalBadgeRepository;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class BadgeServiceImpl implements BadgeService {
 
     private final BadgeRepository badgeRepository;
-    private final MemberGoalBadgeRepository memberGoalBadgeRepository;
     private final MemberRepository memberRepository;
     private final MemberChallengeRepository memberChallengeRepository;
     private final BadgeMainMapper badgeMainMapper;
 
-    public BadgeServiceImpl(BadgeRepository badgeRepository,
-        MemberGoalBadgeRepository memberGoalBadgeRepository, MemberRepository memberRepository,
+    public BadgeServiceImpl(BadgeRepository badgeRepository, MemberRepository memberRepository,
         MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper) {
         this.badgeRepository = badgeRepository;
-        this.memberGoalBadgeRepository = memberGoalBadgeRepository;
         this.memberRepository = memberRepository;
         this.memberChallengeRepository = memberChallengeRepository;
         this.badgeMainMapper = badgeMainMapper;
@@ -60,25 +56,11 @@ public class BadgeServiceImpl implements BadgeService {
         return allBadgeResDto;
     }
 
-    // 회원 목표 달성 뱃지 정보 조회
-    @Transactional(readOnly = true)
-    public List<MemberGoalBadgeResDto> getMemberGoalBadges(Long memberId) {
-        MemberEntity member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-        List<MemberGoalBadgeEntity> memberGoalBadges = memberGoalBadgeRepository.findALlByMemberEntity(
-            member);
-
-        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeMainMapper.toMemberGoalBadgeResDto(
-            memberGoalBadges);
-
-        return memberGoalBadgesResDto;
-    }
-
     // 회원 챌린지 달성 뱃지 정보 조회
     @Transactional(readOnly = true)
     public List<MemberChallengeBadgeResDto> getMemberChallengeBadges(Long memberId) {
         MemberEntity member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+            .orElseThrow(MemberNotFoundException::new);
         List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
             member);
         if (memberChallengeEntity.size() == 0) {
@@ -110,35 +92,18 @@ public class BadgeServiceImpl implements BadgeService {
         return createdBadgeDto;
     }
 
-    // 회원 목표 달성 뱃지 생성
-    public BadgeDto createMemberGoalBadge(Long badgeId, Long memberId) {
-        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
-            .orElseThrow(BadgeNotFoundException::new);
-        MemberEntity memberEntity = memberRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-
-        MemberGoalBadgeEntity memberGoalBadgeEntity = MemberGoalBadgeEntity.builder()
-            .badgeEntity(badgeEntity)
-            .memberEntity(memberEntity)
-            .build();
-
-        MemberGoalBadgeEntity createdMemberGoalBadgeEntity = memberGoalBadgeRepository.save(
-            memberGoalBadgeEntity);
-        BadgeDto createdMemberGoalBadgeDto = badgeMainMapper.toDto(
-            createdMemberGoalBadgeEntity.getBadgeEntity());
-
-        return createdMemberGoalBadgeDto;
-    }
-
     // 뱃지 정보 수정
     public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
         BadgeEntity updateBadgeEntity = badgeEntity.toBuilder()
-            .name(badgeUpdateReqDto.getName())
-            .badgeDesc(badgeUpdateReqDto.getBadgeDesc())
-            .badgeImage(badgeUpdateReqDto.getBadgeImage())
-            .badgeType(badgeUpdateReqDto.getBadgeType())
+            .name(Optional.ofNullable(badgeUpdateReqDto.getName()).orElse(badgeEntity.getName()))
+            .badgeDesc(Optional.ofNullable(badgeUpdateReqDto.getBadgeDesc())
+                .orElse(badgeEntity.getBadgeDesc()))
+            .badgeImage(Optional.ofNullable(badgeUpdateReqDto.getBadgeImage())
+                .orElse(badgeEntity.getBadgeImage()))
+            .badgeType(Optional.ofNullable(badgeUpdateReqDto.getBadgeType()).orElse(
+                badgeEntity.getBadgeType()))
             .build();
 
         BadgeEntity updatedBadge = badgeRepository.save(updateBadgeEntity);
