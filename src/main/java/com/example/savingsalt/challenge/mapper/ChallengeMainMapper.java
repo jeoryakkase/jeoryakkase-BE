@@ -6,8 +6,10 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
@@ -44,16 +46,38 @@ public interface ChallengeMainMapper {
     interface MemberChallengeMapper extends
         EntityMapper<MemberChallengeEntity, MemberChallengeDto> {
 
+        MemberChallengeEntity toEntity(MemberChallengeEntity MemberChallengeDto);
+
+        MemberChallengeCreateReqDto toMemberChallengeCreateReqDto(
+            MemberChallengeEntity memberChallengeEntity);
+
         MemberChallengeEntity toEntity(MemberChallengeCreateReqDto memberChallengeCreateReqDto);
 
-        MemberChallengeCreateReqDto toMemberChallengeCreateReqDto(MemberChallengeEntity memberChallenge);
+        MemberChallengeCompleteReqDto toMemberChallengeCompleteReqDto(
+            MemberChallengeEntity memberChallengeEntity);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
     interface CertificationChallengeMapper extends
         EntityMapper<CertificationChallengeEntity, CertificationChallengeDto> {
 
-        CertificationChallengeEntity toEntity(CertificationChallengeReqDto certificationChallengeReqDto);
+        CertificationChallengeEntity toEntity(
+            CertificationChallengeReqDto certificationChallengeReqDto);
+    }
+
+    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
+    interface MemberChallengeWithCertifyAndChallengeMapper extends
+        EntityMapper<MemberChallengeEntity, MemberChallengeWithCertifyAndChallengeResDto> {
+
+        @Mapping(source = "certificationChallengeEntities", target = "certificationChallengeDtos")
+        @Mapping(source = "challengeEntity", target = "challengeDto")
+        MemberChallengeWithCertifyAndChallengeResDto toDto(
+            MemberChallengeEntity memberChallengeEntity);
+
+        @Mapping(source = "certificationChallengeDtos", target = "certificationChallengeEntities")
+        @Mapping(source = "challengeDto", target = "challengeEntity")
+        MemberChallengeEntity toEntity(
+            MemberChallengeWithCertifyAndChallengeResDto memberChallengeWithCertifyAndChallengeResDto);
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.savingsalt.challenge.domain.dto;
 
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class MemberChallengeDto {
+public class MemberChallengeWithCertifyAndChallengeResDto {
 
     private LocalDateTime startDate;
 
@@ -31,5 +32,9 @@ public class MemberChallengeDto {
     private String challengeComment;
 
     private Integer totalSaveMoney;
+
+    private List<CertificationChallengeDto> certificationChallengeDtos;
+
+    private ChallengeDto challengeDto;
 
 }

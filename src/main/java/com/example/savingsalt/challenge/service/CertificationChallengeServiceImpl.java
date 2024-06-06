@@ -33,9 +33,9 @@ public class CertificationChallengeServiceImpl {
             CertificationChallengeEntity certificationChallengeEntity = certificationChallengeMapper.toEntity(
                 certificationChallengeReqDto);
 
-            certificationChallengeEntity.toBuilder()
+            certificationChallengeEntity = certificationChallengeEntity.toBuilder()
                 .memberChallengeEntity(memberChallengeEntity)
-                .certificationDate(currentDateTime);
+                .certificationDate(currentDateTime).build();
 
             certificationChallengeRepository.save(certificationChallengeEntity);
     }
