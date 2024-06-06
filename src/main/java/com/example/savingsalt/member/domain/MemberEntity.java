@@ -1,6 +1,5 @@
 package com.example.savingsalt.member.domain;
 
-import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.enums.Role;
@@ -71,9 +70,6 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity", cascade = CascadeType.ALL)
-    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity", cascade = CascadeType.ALL)
     private List<MemberChallengeEntity> memberChallengeEntities;

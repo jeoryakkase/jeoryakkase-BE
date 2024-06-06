@@ -4,7 +4,6 @@ import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
-import com.example.savingsalt.badge.domain.dto.MemberGoalBadgeResDto;
 import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,18 +42,6 @@ public class BadgeController {
             : ResponseEntity.ok(badges);
     }
 
-    // 회원 목표 달성 뱃지 정보 조회
-    @Operation(summary = "회원 목표 달성 뱃지 목록 조회", description = "해당 회원의 모든 목표 달성 뱃지 목록을 조회하는 API")
-    @GetMapping("/members/{memberId}/goals/badges")
-    public ResponseEntity<List<MemberGoalBadgeResDto>> getMemberGoalBadges(
-        @Parameter(description = "회원 ID") @PathVariable Long memberId) {
-        List<MemberGoalBadgeResDto> memberGoalBadgesResDto = badgeService.getMemberGoalBadges(
-            memberId);
-
-        return memberGoalBadgesResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .build() : ResponseEntity.ok(memberGoalBadgesResDto);
-    }
-
     // 회원 챌린지 달성 뱃지 정보 조회
     @Operation(summary = "회원 챌린지 달성 뱃지 목록 조회", description = "해당 회원의 모든 회원 챌린지 달성 뱃지 목록을 조회하는 API")
     @GetMapping("/members/{memberId}/challenges/badges")
@@ -76,18 +63,6 @@ public class BadgeController {
 
         return (createdBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             : ResponseEntity.status(HttpStatus.CREATED).body(createdBadgeDto);
-    }
-
-    // 회원 목표 달성 뱃지 생성
-    @Operation(summary = "회원 목표 달성 뱃지 생성", description = "해당 회원의 회원 목표 달성 뱃지를 생성하는 API")
-    @PostMapping("/members/{memberId}/goals/badges/{badgeId}")
-    public ResponseEntity<BadgeDto> createMemberGoalBadge(
-        @Parameter(description = "뱃지 ID") @PathVariable Long badgeId,
-        @Parameter(description = "회원 ID") @PathVariable Long memberId) {
-        BadgeDto createdMemberGoalBadgeDto = badgeService.createMemberGoalBadge(badgeId, memberId);
-
-        return (createdMemberGoalBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .build() : ResponseEntity.status(HttpStatus.CREATED).body(createdMemberGoalBadgeDto);
     }
 
     // 뱃지 정보 수정
