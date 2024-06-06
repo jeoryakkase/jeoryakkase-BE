@@ -56,23 +56,10 @@ public class PollServiceImpl implements PollService {
 
     @Override
     @Transactional
-    public PollDto createPoll(Long voteId, PollCreateReqDto pollCreateReqDto) {
-        BoardEntity board = boardRepository.findById(pollCreateReqDto.getBoardId())
-            .orElseThrow(() -> new RuntimeException("Board not found"));
+    public PollDto createPoll(PollCreateReqDto pollCreateReqDto) {
+        BoardEntity board = pollCreateReqDto.getBoard();
 
-        PollEntity poll = PollEntity.builder()
-            .board(board)
-            .build();
-
-        List<PollChoiceEntity> choices = pollCreateReqDto.getChoices().stream()
-            .map(choiceDto -> PollChoiceEntity.builder()
-                .answer(choiceDto.getAnswer())
-                .count(choiceDto.getCount())
-                .pollEntity(poll)
-                .build())
-            .collect(Collectors.toList());
-
-        poll.addChoices(choices);
+        PollEntity poll = pollCreateReqDto.toEntity(board);
 
         PollEntity savedPoll = pollRepository.save(poll);
 
