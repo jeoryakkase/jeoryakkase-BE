@@ -71,7 +71,7 @@ public class BadgeServiceImpl implements BadgeService {
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
             if ((memberChallengeEntity.get(i).getChallengeStatus()
                 == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessConut()
-                == 0)) {
+                == 1)) {
                 BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                     .getBadgeEntity();
                 memberChallengeBadgeResDto.add(
