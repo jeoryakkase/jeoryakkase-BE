@@ -105,7 +105,7 @@ public class MemberService {
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, String gender,
-        int income, String savePurpose, String profileImage, List<String> interests) {
+        int income, String savePurpose, String profileImage, List<Long> interests) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
