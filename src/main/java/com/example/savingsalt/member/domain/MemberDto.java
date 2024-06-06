@@ -23,5 +23,5 @@ public class MemberDto {
     private String gender;
     private int income;
     private String savePurpose;
-    private List<String> interests;
+    private List<Long> interests;
 }
