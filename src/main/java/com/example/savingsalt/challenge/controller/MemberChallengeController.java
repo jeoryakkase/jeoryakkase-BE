@@ -1,7 +1,7 @@
 package com.example.savingsalt.challenge.controller;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteResDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
@@ -85,16 +85,16 @@ public class MemberChallengeController {
     // 회원 챌린지 성공
     @Operation(summary = "회원 챌린지 성공", description = "회원 챌린지 목표 금액 달성 및 목표 횟수 달성 시 회원 챌린지가 성공하는 API")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/complete")
-    public ResponseEntity<MemberChallengeCompleteResDto> completeMemberChallenge(
+    public ResponseEntity<MemberChallengeCompleteReqDto> completeMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
 
-        MemberChallengeCompleteResDto memberChallengeCompleteResDto = memberChallengeService.completeMemberChallenge(
+        MemberChallengeCompleteReqDto memberChallengeCompleteReqDto = memberChallengeService.completeMemberChallenge(
             memberId, memberChallengeId);
 
-        if (memberChallengeCompleteResDto != null) {
+        if (memberChallengeCompleteReqDto != null) {
             return ResponseEntity.status(HttpStatus.OK)
-                .body(memberChallengeCompleteResDto);
+                .body(memberChallengeCompleteReqDto);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

@@ -1,7 +1,7 @@
 package com.example.savingsalt.challenge.service;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteResDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
@@ -97,7 +97,7 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 성공
-    public MemberChallengeCompleteResDto completeMemberChallenge(Long memberId,
+    public MemberChallengeCompleteReqDto completeMemberChallenge(Long memberId,
         Long memberChallengeId) {
 
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
@@ -129,7 +129,7 @@ public class MemberChallengeServiceImpl implements
                         .certifyDate(currentDate)
                         .build();
 
-                    return memberChallengeMapper.toMemberChallengeCompleteResDto(
+                    return memberChallengeMapper.toMemberChallengeCompleteReqDto(
                         memberChallengeRepository.save(foundMemberChallengeEntity));
                 }
             }
@@ -145,7 +145,7 @@ public class MemberChallengeServiceImpl implements
                         .successConut(foundMemberChallengeEntity.getSuccessConut() + 1)
                         .build();
 
-                    return memberChallengeMapper.toMemberChallengeCompleteResDto(
+                    return memberChallengeMapper.toMemberChallengeCompleteReqDto(
                         memberChallengeRepository.save(foundMemberChallengeEntity));
                 } else {
                     throw new MemberChallengeFailureException();
