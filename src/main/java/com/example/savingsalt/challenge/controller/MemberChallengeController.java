@@ -1,7 +1,9 @@
 package com.example.savingsalt.challenge.controller;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.service.MemberChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +38,8 @@ public class MemberChallengeController {
         List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtos = memberChallengeService.getMemberChallenges(
             memberId);
 
-        return memberChallengeWithCertifyAndChallengeResDtos.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return memberChallengeWithCertifyAndChallengeResDtos.isEmpty() ? ResponseEntity.status(
+            HttpStatus.NO_CONTENT).build()
             : ResponseEntity.ok(memberChallengeWithCertifyAndChallengeResDtos);
     }
 
@@ -62,25 +65,39 @@ public class MemberChallengeController {
     // 회원 챌린지 일일 인증 생성
     @Operation(summary = "회원 챌린지 일일 인증 생성", description = "회원 챌린지를 인증 상태로 바꾸고 챌린지 인증 컬럼을 DTO에 맞게 생성하는 API")
     @PostMapping("/members/{memberId}/challenges/{memberChallengeId}/certify")
-    public ResponseEntity<Void> certifyDailyMemberChallenge(
+    public ResponseEntity<MemberChallengeDto> certifyDailyMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
         @RequestBody CertificationChallengeReqDto certificationChallengeReqDto) {
-        memberChallengeService.certifyDailyMemberChallenge(memberId, memberChallengeId,
+
+        MemberChallengeDto memberChallengeDto = memberChallengeService.certifyDailyMemberChallenge(
+            memberId, memberChallengeId,
             certificationChallengeReqDto);
 
-        return ResponseEntity.ok().build();
+        if (memberChallengeDto != null) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(memberChallengeDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     // 회원 챌린지 성공
     @Operation(summary = "회원 챌린지 성공", description = "회원 챌린지 목표 금액 달성 및 목표 횟수 달성 시 회원 챌린지가 성공하는 API")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/complete")
-    public ResponseEntity<Void> completeMemberChallenge(
+    public ResponseEntity<MemberChallengeCompleteResDto> completeMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
-        memberChallengeService.completeMemberChallenge(memberId, memberChallengeId);
 
-        return ResponseEntity.ok().build();
+        MemberChallengeCompleteResDto memberChallengeCompleteResDto = memberChallengeService.completeMemberChallenge(
+            memberId, memberChallengeId);
+
+        if (memberChallengeCompleteResDto != null) {
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(memberChallengeCompleteResDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     // 회원 챌린지 포기
