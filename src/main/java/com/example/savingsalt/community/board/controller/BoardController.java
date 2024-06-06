@@ -4,6 +4,8 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDt
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
+import com.example.savingsalt.community.board.exception.BoardException.UnauthorizedCreateException;
 import com.example.savingsalt.community.board.service.BoardService;
 import com.example.savingsalt.member.domain.MemberEntity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,9 +18,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,22 +36,16 @@ public class BoardController {
     // 절약팁 게시글 생성
     @Operation(summary = "Create a new TipBoard", description = "create a new post in the Tip Board")
     @PostMapping("/tips")
-    public ResponseEntity<?> createTipBoard(
+    public ResponseEntity<BoardTypeTipReadResDto> createTipBoard(
         @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @AuthenticationPrincipal MemberEntity member) {
 
-        if (userDetails == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
+        if (member == null) {
+            throw new UnauthorizedCreateException();
         }
 
-        MemberEntity member = (MemberEntity) userDetails;
-
-        try {
-            BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
-            return ResponseEntity.ok(responseDto);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
+        return ResponseEntity.ok(responseDto);
     }
 
     // 절약팁 게시글 목록 조회
@@ -57,7 +53,9 @@ public class BoardController {
     @GetMapping("/tips")
     public ResponseEntity<List<BoardTypeTipReadResDto>> getTipBoards() {
         List<BoardTypeTipReadResDto> allTipBoard = boardService.findAllTipBoard();
-
+        if (allTipBoard.isEmpty()) {
+            throw new BoardNotFoundException();
+        }
         return ResponseEntity.ok(allTipBoard);
     }
 
@@ -66,12 +64,13 @@ public class BoardController {
     @GetMapping("/tips/{boardId}")
     public ResponseEntity<BoardTypeTipReadResDto> getTipBoardById(@PathVariable Long boardId) {
         BoardTypeTipReadResDto tipBoardById = boardService.findTipBoardById(boardId);
+
         return ResponseEntity.ok(tipBoardById);
     }
 
     // 절약팁 게시글 수정
     @Operation(summary = "update a Tip Board", description = "Modify the title, contents, and images of a specific post in the Tip Board by its ID.")
-    @PutMapping("/tips/{boardId}")
+    @PatchMapping("/tips/{boardId}")
     public ResponseEntity<?> updateTipBoard(@PathVariable Long boardId,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails) {
@@ -150,7 +149,7 @@ public class BoardController {
 
     // 투표 게시글 수정
     @Operation(summary = "update a Vote Board", description = "Modify the title, contents, and images of a specific post in the Vote Board by its ID.")
-    @PutMapping("/votes/{boardId}")
+    @PatchMapping("/votes/{boardId}")
     public ResponseEntity<?> updateVoteBoard(@PathVariable Long boardId,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails) {
@@ -184,7 +183,6 @@ public class BoardController {
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
     }
-
 
 
 }
