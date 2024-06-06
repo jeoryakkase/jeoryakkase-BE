@@ -3,9 +3,13 @@ package com.example.savingsalt.global;
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
+import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -61,6 +65,29 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ChallengeNotFoundException.class)
     public ResponseEntity<String> handleChallengeNotFoundException(ChallengeNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidChallengeGoalAndCountException.class)
+    public ResponseEntity<String> handleInvalidChallengeGoalAndCountException(
+        InvalidChallengeGoalAndCountException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleMethodArgumentNotValidException(
+        MethodArgumentNotValidException ex) {
+        BindingResult bindingResult = ex.getBindingResult();
+
+        StringBuilder builder = new StringBuilder();
+        for (FieldError fieldError : bindingResult.getFieldErrors()) {
+            builder.append(fieldError.getDefaultMessage());
+            builder.append(" 입력된 값: [");
+            builder.append(fieldError.getRejectedValue());
+            builder.append("]");
+            builder.append("\n");
+        }
+
+        return new ResponseEntity<>(builder.toString(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MemberChallengeFailureException.class)
