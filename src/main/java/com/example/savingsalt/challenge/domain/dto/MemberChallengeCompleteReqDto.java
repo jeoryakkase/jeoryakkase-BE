@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MemberChallengeCompleteResDto {
+public class MemberChallengeCompleteReqDto {
 
     private LocalDateTime startDate;
 
