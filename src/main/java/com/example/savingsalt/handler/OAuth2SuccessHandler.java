@@ -4,6 +4,7 @@ import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.RefreshToken;
 import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import com.example.savingsalt.member.service.MemberService;
@@ -32,12 +33,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
     private final MemberService memberService;
+    private final MemberMapper memberMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        MemberEntity memberEntity = memberService.findMemberByEmail((String) oAuth2User.getAttributes().get("email")).toEntity();
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail((String) oAuth2User.getAttributes().get("email")));
 
         // JWT 토큰 생성
         TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
