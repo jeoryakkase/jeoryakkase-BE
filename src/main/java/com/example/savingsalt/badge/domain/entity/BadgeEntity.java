@@ -41,7 +41,4 @@ public class BadgeEntity {
 
     @Column(name = "badge_type", nullable = false)
     private String badgeType;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "badgeEntity", cascade = CascadeType.ALL)
-    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
 }
