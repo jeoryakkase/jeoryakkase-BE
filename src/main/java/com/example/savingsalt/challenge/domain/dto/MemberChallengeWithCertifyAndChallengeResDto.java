@@ -25,9 +25,9 @@ public class MemberChallengeWithCertifyAndChallengeResDto {
 
     private Boolean isTodayCertification;
 
-    private Integer challengeConut;
+    private Integer challengeCount;
 
-    private Integer successConut;
+    private Integer successCount;
 
     private String challengeComment;
 
