@@ -1,9 +1,11 @@
 package com.example.savingsalt.challenge.controller;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.service.MemberChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -103,12 +105,19 @@ public class MemberChallengeController {
     // 회원 챌린지 포기
     @Operation(summary = "회원 챌린지 포기", description = "회원 챌린지를 포기 상태로 바꾸는 API")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/abandon")
-    public ResponseEntity<Void> abandonMemberChallenge(
+    public ResponseEntity<MemberChallengeAbandonResDto> abandonMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
-        memberChallengeService.abandonMemberChallenge(memberId, memberChallengeId);
 
-        return ResponseEntity.ok().build();
+        MemberChallengeAbandonResDto memberChallengeAbandonResDto = memberChallengeService.abandonMemberChallenge(
+            memberId, memberChallengeId);
+
+        if (memberChallengeAbandonResDto != null) {
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(memberChallengeAbandonResDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     // 모든 회원 챌린지 일일 인증 초기화
@@ -118,5 +127,20 @@ public class MemberChallengeController {
         memberChallengeService.resetDailyMemberChallengeAuthentication();
 
         return ResponseEntity.ok().build();
+    }
+
+    // 참여 중인 챌린지 목록 조회
+    @Operation(summary = "참여 중인 회원 챌린지 목록 조회", description = "참여 중인 회원 챌린지의 정보를 리스트로 응답 받는 API")
+    @GetMapping("/members/{memberId}/challenges/join")
+    public ResponseEntity<List<MemberChallengeJoinResDto>> getjoinMemberChallenge(
+        @PathVariable Long memberId) {
+        List<MemberChallengeJoinResDto> memberChallengeJoinResDtos = memberChallengeService.getJoiningMemberChallenge(
+            memberId);
+
+        if (!memberChallengeJoinResDtos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(memberChallengeJoinResDtos);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 }

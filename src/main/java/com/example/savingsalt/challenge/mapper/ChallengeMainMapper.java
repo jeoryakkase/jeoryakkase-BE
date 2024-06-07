@@ -6,6 +6,7 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
@@ -56,6 +57,9 @@ public interface ChallengeMainMapper {
         MemberChallengeEntity toEntity(MemberChallengeCreateReqDto memberChallengeCreateReqDto);
 
         MemberChallengeCompleteReqDto toMemberChallengeCompleteReqDto(
+            MemberChallengeEntity memberChallengeEntity);
+
+        MemberChallengeAbandonResDto toMemberChallengeAbandonResDto(
             MemberChallengeEntity memberChallengeEntity);
     }
 
