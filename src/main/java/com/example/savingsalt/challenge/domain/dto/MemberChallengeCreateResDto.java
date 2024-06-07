@@ -21,9 +21,9 @@ public class MemberChallengeCreateResDto {
 
     private LocalDateTime endDate;
 
-    private Integer successConut;
+    private Integer successCount;
 
-    private Integer challengeConut;
+    private Integer challengeCount;
 
     private Integer totalSaveMoney;
 }
