@@ -1,20 +1,26 @@
 package com.example.savingsalt.challenge.service;
 
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
+import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
-import com.example.savingsalt.global.ChallengeException.MemberChallengeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,147 +34,224 @@ public class MemberChallengeServiceImpl implements
     private final MemberChallengeMapper memberChallengeMapper;
     private final MemberRepository memberRepository;
     private final ChallengeRepository challengeRepository;
+    private final CertificationChallengeServiceImpl certificationChallengeServiceImpl;
+    private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
 
     public MemberChallengeServiceImpl(MemberChallengeRepository memberChallengeRepository,
         MemberChallengeMapper memberChallengeMapper
-        , MemberRepository memberRepository, ChallengeRepository challengeRepository) {
+        , MemberRepository memberRepository, ChallengeRepository challengeRepository,
+        CertificationChallengeServiceImpl certificationChallengeServiceImpl,
+        MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
         this.memberRepository = memberRepository;
         this.challengeRepository = challengeRepository;
+        this.certificationChallengeServiceImpl = certificationChallengeServiceImpl;
+        this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
     }
 
     // 회원 챌린지 목록 조회
-    public List<MemberChallengeDto> getMemberChallenges(Long memberId) {
+    public List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId) {
 
-        MemberEntity foundMember = memberRepository.findById(memberId).orElseThrow(
-            MemberChallengeNotFoundException::new);
+        Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
 
-        return memberChallengeMapper.toDto(
-            memberChallengeRepository.findAllByMemberEntity(foundMember));
+        if (MemberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = MemberEntityOpt.get();
+
+            return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
+                memberChallengeRepository.findAllByMemberEntity(memberEntity));
+        } else {
+            throw new MemberNotFoundException();
+        }
     }
 
     // 회원 챌린지 생성
-    public void createMemberChallenge(
-        Long ChallengeId, MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
-        ChallengeEntity challengeEntity = challengeRepository.findById(ChallengeId).orElseThrow(
-            ChallengeNotFoundException::new);
+    public MemberChallengeCreateReqDto createMemberChallenge(
+        Long memberId, Long ChallengeId, MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
 
-        MemberChallengeEntity memberChallengeEntity = memberChallengeMapper.toEntity(
-            memberChallengeCreateReqDto);
+        Optional<ChallengeEntity> challengeEntityOpt = challengeRepository.findById(ChallengeId);
+        Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
-        memberChallengeEntity.toBuilder().challengeEntity(challengeEntity);
+        if (challengeEntityOpt.isPresent()) {
+            ChallengeEntity challengeEntity = challengeEntityOpt.get();
+            if (memberEntityOpt.isPresent()) {
+                MemberEntity memberEntity = memberEntityOpt.get();
 
-        memberChallengeRepository.save(memberChallengeEntity);
+                MemberChallengeEntity memberChallengeEntity = memberChallengeMapper.toEntity(
+                    memberChallengeCreateReqDto);
+
+                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .challengeEntity(challengeEntity)
+                    .memberEntity(memberEntity).build();
+
+                return memberChallengeMapper.toMemberChallengeCreateReqDto(
+                    memberChallengeRepository.save(memberChallengeEntity));
+
+            } else {
+                throw new MemberNotFoundException();
+            }
+        } else {
+            throw new ChallengeNotFoundException();
+        }
     }
 
     // 회원 챌린지 성공
-    public void authenticateFinalChallenge(Long memberId, Long memberChallengeId) {
-        MemberEntity foundMemberEntity = memberRepository.findById(memberId).orElseThrow(
-            MemberChallengeNotFoundException::new);
-        MemberChallengeEntity foundMemberChallengeEntity = null;
+    public MemberChallengeCompleteReqDto completeMemberChallenge(Long memberId,
+        Long memberChallengeId) {
 
-        List<MemberChallengeEntity> memberChallengeEntities = foundMemberEntity.getMemberChallengeEntities();
+        Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
-        for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-            if (memberChallengeEntity.getId().equals(memberChallengeId)) {
-                foundMemberChallengeEntity = memberChallengeEntity;
-            }
-        }
+        if (memberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = memberEntityOpt.get();
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
+            LocalDateTime currentDate = LocalDateTime.now();
 
-        // 회원 챌린지 성공 시간 저장
-        LocalDateTime currentDate = LocalDateTime.now();
+            ChallengeEntity challengeEntity = null;
+            MemberChallengeEntity foundMemberChallengeEntity = null;
 
-        switch (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeEntity()
-            .getChallengeType()) {
-
-            // 챌린지 종류(목표 금액 달성) > 챌린지 목표 금액과 회원 챌린지 목표 달성 금액이 같으면 챌린지 성공
-            case "Goal":
-                if (Objects.requireNonNull(foundMemberChallengeEntity).getSaveMoney()
-                    == foundMemberChallengeEntity.getChallengeEntity().getChallengeGoal()) {
-
-                    Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-                        .challengeStatus(ChallengeStatus.COMPLETED)
-                        .certifyDate(currentDate)
-                        .build();
-
-                    memberChallengeRepository.save(foundMemberChallengeEntity);
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                if (memberChallengeEntity.getId().equals(memberChallengeId)) {
+                    foundMemberChallengeEntity = memberChallengeEntity;
+                    challengeEntity = foundMemberChallengeEntity.getChallengeEntity();
                 }
-                break;
+            }
 
             // 챌린지 종류(횟수 달성) > 챌린지 목표 횟수와 회원 챌린지 목표 달성 횟수가 같으면 챌린지 성공
-            case "Conut":
-                if (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeConut()
-                    == foundMemberChallengeEntity.getChallengeEntity().getChallengeCount()) {
+            if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+                if (Objects.equals(foundMemberChallengeEntity.getChallengeConut(),
+                    challengeEntity.getChallengeCount())) {
 
-                    Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
+                    foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                        .toBuilder()
                         .challengeStatus(ChallengeStatus.COMPLETED)
+                        .successConut(foundMemberChallengeEntity.getSuccessConut() + 1)
                         .certifyDate(currentDate)
                         .build();
 
-                    memberChallengeRepository.save(foundMemberChallengeEntity);
+                    return memberChallengeMapper.toMemberChallengeCompleteReqDto(
+                        memberChallengeRepository.save(foundMemberChallengeEntity));
+                } else {
+                    throw new MemberChallengeFailureException();
                 }
-                break;
+            }
+            // 챌린지 종류(목표 금액 달성) > 챌린지 목표 금액과 회원 챌린지 목표 달성 금액이 같으면 챌린지 성공
+            else if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+                if (foundMemberChallengeEntity.getTotalSaveMoney()
+                    >= challengeEntity.getChallengeGoal()) {
+
+                    foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                        .toBuilder()
+                        .challengeStatus(ChallengeStatus.COMPLETED)
+                        .certifyDate(currentDate)
+                        .successConut(foundMemberChallengeEntity.getSuccessConut() + 1)
+                        .build();
+
+                    return memberChallengeMapper.toMemberChallengeCompleteReqDto(
+                        memberChallengeRepository.save(foundMemberChallengeEntity));
+                } else {
+                    throw new MemberChallengeFailureException();
+                }
+            }
+        } else {
+            throw new MemberNotFoundException();
         }
+
+        return null;
     }
 
     // 회원 챌린지 포기
-    public void abandonMemberChallenge(Long memberChallengeId) {
-        MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
-            memberChallengeId).orElseThrow(
-            MemberChallengeNotFoundException::new);
+    public void abandonMemberChallenge(Long memberId, Long memberChallengeId) {
+        Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
-        Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-            .challengeStatus(ChallengeStatus.CANCELLED)
-            .build();
+        if (memberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = memberEntityOpt.get();
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
 
-        memberChallengeRepository.save(foundMemberChallengeEntity);
+            MemberChallengeEntity foundMemberChallengeEntity = null;
+
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                if (memberChallengeEntity.getId().equals(memberChallengeId)) {
+                    foundMemberChallengeEntity = memberChallengeEntity;
+                }
+            }
+
+            foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                .toBuilder()
+                .challengeStatus(ChallengeStatus.CANCELLED)
+                .build();
+
+            memberChallengeRepository.save(foundMemberChallengeEntity);
+        } else {
+            throw new MemberNotFoundException();
+        }
     }
 
     // 회원 챌린지 일일 인증
-    public void submitDailyMemberChallenge(Long memberChallengeId,
-        MemberChallengeDto memberChallengeDto) {
+    public MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
+        CertificationChallengeReqDto certificationChallengeReqDto) {
 
-        MemberChallengeEntity foundMemberChallengeEntity = memberChallengeRepository.findById(
-            memberChallengeId).orElseThrow(
-            MemberChallengeNotFoundException::new);
+        Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
-        switch (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeEntity()
-            .getChallengeType()) {
+        if (memberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = memberEntityOpt.get();
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
 
-            // 챌린지 종류(목표 금액 달성) > 기입한 금액만큼 저장
-            case "Goal":
-                Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-                    .saveMoney(memberChallengeDto.getSaveMoney())
+            MemberChallengeEntity foundMemberChallengeEntity = null;
+            ChallengeEntity challengeEntity = null;
+
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                if (memberChallengeEntity.getId().equals(memberChallengeId)) {
+                    foundMemberChallengeEntity = memberChallengeEntity;
+                    challengeEntity = memberChallengeEntity.getChallengeEntity();
+                }
+            }
+
+            certificationChallengeServiceImpl.createCertificationChallenge(
+                foundMemberChallengeEntity,
+                certificationChallengeReqDto);
+
+            // 일일 인증 상태 True + 총 절약 금액 저장
+            if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+                foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                    .toBuilder()
+                    .totalSaveMoney(foundMemberChallengeEntity.getTotalSaveMoney()
+                        + certificationChallengeReqDto.getSaveMoney())
                     .isTodayCertification(true)
                     .build();
 
-                memberChallengeRepository.save(foundMemberChallengeEntity);
-                break;
-
-            // 챌린지 종류(횟수 달성) > 기입한 금액만큼 저장 + 달성 횟수 + 1
-            case "Conut":
-                Objects.requireNonNull(foundMemberChallengeEntity).toBuilder()
-                    .saveMoney(memberChallengeDto.getSaveMoney())
+                return memberChallengeMapper.toDto(
+                    memberChallengeRepository.save(foundMemberChallengeEntity));
+            }
+            // 일일 인증 상태 True + 달성 횟수 1 증가
+            else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+                foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                    .toBuilder()
+                    .challengeConut(foundMemberChallengeEntity.getChallengeConut() + 1)
                     .isTodayCertification(true)
                     .build();
 
-                memberChallengeRepository.save(foundMemberChallengeEntity);
-                break;
+                return memberChallengeMapper.toDto(
+                    memberChallengeRepository.save(foundMemberChallengeEntity));
+            }
         }
+        return null;
     }
 
     // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
     public void resetDailyMemberChallengeAuthentication() {
-        List<MemberChallengeEntity> memberChallengeEntities = memberChallengeRepository.findAll();
+        List<MemberEntity> memberEntityList = memberRepository.findAll();
+        for (MemberEntity memberEntity : memberEntityList) {
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
 
-        for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-            memberChallengeEntity.toBuilder()
-                .isTodayCertification(false)
-                .build();
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .isTodayCertification(false)
+                    .build();
 
-            memberChallengeRepository.save(memberChallengeEntity);
+                memberChallengeRepository.save(memberChallengeEntity);
+            }
         }
     }
+
 }
