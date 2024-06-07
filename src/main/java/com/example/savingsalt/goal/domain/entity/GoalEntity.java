@@ -32,6 +32,9 @@ public class GoalEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
+    @Column(name = "goal_title")
+    private String goalTitle;
+
     @Column(name = "goal_amount")
     private Long goalAmount;
 

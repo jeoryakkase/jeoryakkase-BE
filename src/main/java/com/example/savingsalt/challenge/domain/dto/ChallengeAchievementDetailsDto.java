@@ -1,6 +1,5 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,9 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ChallengeAchievementDetailsDto {
 
-    private String challengeTitle;
-    private LocalDateTime certifyDate;
-    private String challengeComment;
     private Integer challengeConut;
     private Integer saveMoney;
 
