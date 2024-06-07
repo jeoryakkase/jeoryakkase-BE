@@ -85,7 +85,12 @@ public class MemberChallengeServiceImpl implements
                 MemberChallengeEntity memberChallengeEntity = memberChallengeMapper.toEntity(
                     memberChallengeCreateReqDto);
 
+                LocalDateTime startDate = LocalDateTime.now();
+                LocalDateTime endDate = getLocalEndDateTime(memberChallengeEntity, startDate);
+
                 memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .startDate(startDate)
+                    .endDate(endDate)
                     .challengeEntity(challengeEntity)
                     .memberEntity(memberEntity).build();
 
@@ -273,7 +278,8 @@ public class MemberChallengeServiceImpl implements
                 throw new MemberChallengeNotFoundException();
             } else {
                 for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-                    if (memberChallengeEntity.getId().equals(memberId)) {
+                    if (memberChallengeEntity.getChallengeStatus()
+                        .equals(ChallengeStatus.IN_PROGRESS)) {
                         MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
                             .challengeTtile(
                                 memberChallengeEntity.getChallengeEntity().getChallengeTitle())
@@ -286,6 +292,7 @@ public class MemberChallengeServiceImpl implements
 
                         memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
                     }
+
                 }
                 return memberChallengeJoinResDtoList;
             }
@@ -293,5 +300,21 @@ public class MemberChallengeServiceImpl implements
         } else {
             throw new MemberNotFoundException();
         }
+    }
+
+    private static LocalDateTime getLocalEndDateTime(MemberChallengeEntity memberChallengeEntity,
+        LocalDateTime startDate) {
+
+        return switch (memberChallengeEntity.getChallengeEntity()
+            .getChallengeTerm()) {
+            case "1일" -> startDate.plusDays(1);
+            case "3일" -> startDate.plusDays(3);
+            case "5일" -> startDate.plusDays(5);
+            case "1주" -> startDate.plusDays(7);
+            case "2주" -> startDate.plusDays(14);
+            case "3주" -> startDate.plusDays(21);
+            case "한 달" -> startDate.plusDays(30);
+            default -> null;
+        };
     }
 }

@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.domain.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +23,8 @@ public class MemberChallengeJoinResDto {
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    private LocalDate effectiveDate;
+
+    private List<String> certificationImageUrlList;
 }

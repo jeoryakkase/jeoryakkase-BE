@@ -15,10 +15,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MemberChallengeCreateReqDto {
 
-    private LocalDateTime startDate;
-
-    private LocalDateTime endDate;
-
     private LocalDateTime certifyDate;
 
     private ChallengeStatus challengeStatus;
