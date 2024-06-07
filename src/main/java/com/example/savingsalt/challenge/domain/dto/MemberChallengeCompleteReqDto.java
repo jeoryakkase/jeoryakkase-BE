@@ -28,5 +28,5 @@ public class MemberChallengeCompleteReqDto {
 
     private String badgeImage;
 
-    private Integer successConut;
+    private Integer successCount;
 }
