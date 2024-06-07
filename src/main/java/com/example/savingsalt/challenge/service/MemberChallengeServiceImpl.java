@@ -2,7 +2,6 @@ package com.example.savingsalt.challenge.service;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
@@ -111,70 +110,6 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
-    // 회원 챌린지 성공
-    public MemberChallengeCompleteReqDto completeMemberChallenge(Long memberId,
-        Long memberChallengeId) {
-
-        Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
-
-        if (memberEntityOpt.isPresent()) {
-            MemberEntity memberEntity = memberEntityOpt.get();
-            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
-            LocalDateTime currentDate = LocalDateTime.now();
-
-            ChallengeEntity challengeEntity = null;
-            MemberChallengeEntity foundMemberChallengeEntity = null;
-
-            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-                if (memberChallengeEntity.getId().equals(memberChallengeId)) {
-                    foundMemberChallengeEntity = memberChallengeEntity;
-                    challengeEntity = foundMemberChallengeEntity.getChallengeEntity();
-                }
-            }
-
-            // 챌린지 종류(횟수 달성) > 챌린지 목표 횟수와 회원 챌린지 목표 달성 횟수가 같으면 챌린지 성공
-            if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
-                if (Objects.equals(foundMemberChallengeEntity.getChallengeCount(),
-                    challengeEntity.getChallengeCount())) {
-
-                    foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
-                        .toBuilder()
-                        .challengeStatus(ChallengeStatus.COMPLETED)
-                        .successCount(foundMemberChallengeEntity.getSuccessCount() + 1)
-                        .certifyDate(currentDate)
-                        .build();
-
-                    return memberChallengeMapper.toMemberChallengeCompleteReqDto(
-                        memberChallengeRepository.save(foundMemberChallengeEntity));
-                } else {
-                    throw new MemberChallengeFailureException();
-                }
-            }
-            // 챌린지 종류(목표 금액 달성) > 챌린지 목표 금액과 회원 챌린지 목표 달성 금액이 같으면 챌린지 성공
-            else if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
-                if (foundMemberChallengeEntity.getTotalSaveMoney()
-                    >= challengeEntity.getChallengeGoal()) {
-
-                    foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
-                        .toBuilder()
-                        .challengeStatus(ChallengeStatus.COMPLETED)
-                        .certifyDate(currentDate)
-                        .successCount(foundMemberChallengeEntity.getSuccessCount() + 1)
-                        .build();
-
-                    return memberChallengeMapper.toMemberChallengeCompleteReqDto(
-                        memberChallengeRepository.save(foundMemberChallengeEntity));
-                } else {
-                    throw new MemberChallengeFailureException();
-                }
-            }
-        } else {
-            throw new MemberNotFoundException();
-        }
-
-        return null;
-    }
-
     // 회원 챌린지 포기
     public MemberChallengeAbandonResDto abandonMemberChallenge(Long memberId,
         Long memberChallengeId) {
@@ -204,7 +139,7 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
-    // 회원 챌린지 일일 인증
+    // 회원 챌린지 인증
     public MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
         CertificationChallengeReqDto certificationChallengeReqDto) {
 
@@ -212,6 +147,7 @@ public class MemberChallengeServiceImpl implements
 
         if (memberEntityOpt.isPresent()) {
             MemberEntity memberEntity = memberEntityOpt.get();
+            LocalDateTime currentDate = LocalDateTime.now();
             List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
 
             MemberChallengeEntity foundMemberChallengeEntity = null;
@@ -224,11 +160,12 @@ public class MemberChallengeServiceImpl implements
                 }
             }
 
+            // 챌린지 일일 인증 DTO -> 챌린지 일일 인증 DB로 저장
             certificationChallengeServiceImpl.createCertificationChallenge(
                 foundMemberChallengeEntity,
                 certificationChallengeReqDto);
 
-            // 일일 인증 상태 True + 총 절약 금액 저장
+            // 챌린지 종류 'Goal' > 기존 금액 + 기입한 금액
             if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -237,10 +174,24 @@ public class MemberChallengeServiceImpl implements
                     .isTodayCertification(true)
                     .build();
 
-                return memberChallengeMapper.toDto(
-                    memberChallengeRepository.save(foundMemberChallengeEntity));
+                if (challengeEntity.getChallengeGoal()
+                    <= foundMemberChallengeEntity.getTotalSaveMoney()) {
+
+                    foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                        .toBuilder()
+                        .challengeStatus(ChallengeStatus.COMPLETED)
+                        .certifyDate(currentDate)
+                        .successCount(foundMemberChallengeEntity.getSuccessCount() + 1)
+                        .build();
+
+                    return memberChallengeMapper.toDto(
+                        memberChallengeRepository.save(foundMemberChallengeEntity));
+                } else {
+                    throw new MemberChallengeFailureException();
+                }
+
             }
-            // 일일 인증 상태 True + 달성 횟수 1 증가
+            // 챌린지 종류 'Count' > 인증 횟수 + 1
             else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -248,8 +199,21 @@ public class MemberChallengeServiceImpl implements
                     .isTodayCertification(true)
                     .build();
 
-                return memberChallengeMapper.toDto(
-                    memberChallengeRepository.save(foundMemberChallengeEntity));
+                if (Objects.equals(foundMemberChallengeEntity.getChallengeCount(),
+                    challengeEntity.getChallengeCount())) {
+
+                    foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                        .toBuilder()
+                        .challengeStatus(ChallengeStatus.COMPLETED)
+                        .successCount(foundMemberChallengeEntity.getSuccessCount() + 1)
+                        .certifyDate(currentDate)
+                        .build();
+
+                    return memberChallengeMapper.toDto(
+                        memberChallengeRepository.save(foundMemberChallengeEntity));
+                } else {
+                    throw new MemberChallengeFailureException();
+                }
             }
         }
         return null;
@@ -262,7 +226,6 @@ public class MemberChallengeServiceImpl implements
         List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
             memberChallengeEntities = memberChallengeRepository.findAllByMemberEntity(memberEntity);
@@ -273,7 +236,8 @@ public class MemberChallengeServiceImpl implements
                     if (memberChallengeEntity.getChallengeStatus()
                         .equals(ChallengeStatus.IN_PROGRESS)) {
 
-                        Long effectiveDate = ChronoUnit.DAYS.between(now, memberChallengeEntity.getStartDate());
+                        Long effectiveDate = ChronoUnit.DAYS.between(now,
+                            memberChallengeEntity.getStartDate());
 
                         MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
                             .challengeTtile(
