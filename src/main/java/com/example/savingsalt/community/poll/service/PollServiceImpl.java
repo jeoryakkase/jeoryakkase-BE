@@ -58,11 +58,8 @@ public class PollServiceImpl implements PollService {
     @Override
     @Transactional
     public PollDto createPoll(PollCreateReqDto pollCreateReqDto) {
-        BoardEntity board = pollCreateReqDto.getBoard();
-
-        if (board == null) {
-            throw new PollException.PollCreationException("투표 생성에 실패하였습니다.");
-        }
+        BoardEntity board = boardRepository.findById(pollCreateReqDto.getBoardId())
+            .orElseThrow(() -> new PollException.PollCreationException("투표 생성에 실패하였습니다."));
 
         PollEntity poll = pollCreateReqDto.toEntity(board);
 
