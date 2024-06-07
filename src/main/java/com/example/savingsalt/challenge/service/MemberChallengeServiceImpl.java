@@ -91,8 +91,8 @@ public class MemberChallengeServiceImpl implements
                     .endDate(endDate)
                     .certifyDate(LocalDateTime.now())
                     .challengeEntity(challengeEntity)
-                    .challengeConut(0)
-                    .successConut(0)
+                    .challengeCount(0)
+                    .successCount(0)
                     .totalSaveMoney(0)
                     .isTodayCertification(false)
                     .challengeComment("")
@@ -133,13 +133,13 @@ public class MemberChallengeServiceImpl implements
 
             // 챌린지 종류(횟수 달성) > 챌린지 목표 횟수와 회원 챌린지 목표 달성 횟수가 같으면 챌린지 성공
             if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
-                if (Objects.equals(foundMemberChallengeEntity.getChallengeConut(),
+                if (Objects.equals(foundMemberChallengeEntity.getChallengeCount(),
                     challengeEntity.getChallengeCount())) {
 
                     foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                         .toBuilder()
                         .challengeStatus(ChallengeStatus.COMPLETED)
-                        .successConut(foundMemberChallengeEntity.getSuccessConut() + 1)
+                        .successCount(foundMemberChallengeEntity.getSuccessCount() + 1)
                         .certifyDate(currentDate)
                         .build();
 
@@ -158,7 +158,7 @@ public class MemberChallengeServiceImpl implements
                         .toBuilder()
                         .challengeStatus(ChallengeStatus.COMPLETED)
                         .certifyDate(currentDate)
-                        .successConut(foundMemberChallengeEntity.getSuccessConut() + 1)
+                        .successCount(foundMemberChallengeEntity.getSuccessCount() + 1)
                         .build();
 
                     return memberChallengeMapper.toMemberChallengeCompleteReqDto(
@@ -243,7 +243,7 @@ public class MemberChallengeServiceImpl implements
             else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
-                    .challengeConut(foundMemberChallengeEntity.getChallengeConut() + 1)
+                    .challengeCount(foundMemberChallengeEntity.getChallengeCount() + 1)
                     .isTodayCertification(true)
                     .build();
 
