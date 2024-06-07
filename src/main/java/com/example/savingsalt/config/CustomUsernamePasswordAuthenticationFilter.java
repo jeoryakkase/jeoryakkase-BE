@@ -50,6 +50,9 @@ public class CustomUsernamePasswordAuthenticationFilter extends
             }
 
             String username = credentials.get("username");
+            if (username == null) {
+                username = credentials.get("email");
+            }
             String password = credentials.get("password");
 
             if (username == null || password == null) {
