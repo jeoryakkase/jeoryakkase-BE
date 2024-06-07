@@ -46,31 +46,16 @@ public class ChallengeServiceController {
             .build() : ResponseEntity.ok(challengeDto);
     }
 
-    // 챌린지 전체 목록 조회
+    // 챌린지 전체 목록 및 키워드 검색
     @Operation(summary = "챌린지 목록 조회", description = "모든 챌린지 목록을 조회하는 API")
     @GetMapping("/challenges")
     public ResponseEntity<Page<ChallengeReadResDto>> getAllChallenges(
+        @Parameter(description = "검색할 키워드(챌린지 유형)") @RequestParam(name = "keyword", defaultValue = "") String keyword,
         @Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
         @Parameter(description = "페이지당 챌린지 수") @RequestParam(name = "size", defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<ChallengeReadResDto> challengesReadResDto =
-            challengeService.getAllChallenges(pageable);
-
-        return challengesReadResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .build() : ResponseEntity.ok(challengesReadResDto);
-    }
-
-
-    // 챌린지 키워드 검색
-    @Operation(summary = "챌린지 키워드 검색", description = "키워드별로 모든 챌린지 목록을 조회하는 API")
-    @GetMapping("/challenges/search")
-    public ResponseEntity<Page<ChallengeReadResDto>> getAllChallenges(
-        @Parameter(description = "검색할 키워드(챌린지 유형)") @RequestParam(name = "keyword", defaultValue = "") String keyword,
-        @Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
-        @Parameter(description = "페이지당 챌린지 수") @RequestParam(name = "size", defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<ChallengeReadResDto> challengesReadResDto =
-            challengeService.searchChallengesByKeyword(keyword, pageable);
+            challengeService.getAllChallenges(keyword, pageable);
 
         return challengesReadResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build() : ResponseEntity.ok(challengesReadResDto);
@@ -113,7 +98,8 @@ public class ChallengeServiceController {
     // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: HARD(상), 60%: NORMAL(중), 나머지: EASY(하))
     @Operation(summary = "챌린지 난이도 설정", description = "해당 챌린지의 난이도 설정(챌린지별 달성률 기준 30%: HARD(상), 60%: NORMAL(중), 나머지: EASY(하)")
     @PutMapping("/challenges/{challengeId}/difficulty")
-    public ResponseEntity<Void> setChallengeDifficulty(@Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
+    public ResponseEntity<Void> setChallengeDifficulty(
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
         challengeService.setChallengeDifficulty(challengeId);
 
         return ResponseEntity.ok().build();

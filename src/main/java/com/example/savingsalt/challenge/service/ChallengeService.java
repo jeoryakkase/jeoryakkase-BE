@@ -4,6 +4,7 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,10 +14,7 @@ public interface ChallengeService {
     ChallengeDto getChallenge(Long challengeId);
 
     // 챌린지 목록 조회
-    Page<ChallengeReadResDto> getAllChallenges(Pageable pageable);
-
-    // 챌린지 키워드 검색
-    Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable);
+    Page<ChallengeReadResDto> getAllChallenges(String keyword, Pageable pageable);
 
     // 챌린지 생성
     ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto);

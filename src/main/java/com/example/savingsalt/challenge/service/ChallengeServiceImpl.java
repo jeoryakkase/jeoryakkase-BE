@@ -51,20 +51,9 @@ public class ChallengeServiceImpl implements ChallengeService {
         return challengeDto;
     }
 
-    // 챌린지 목록 조회
+    //  챌린지 목록 및 키워드 조회
     @Transactional(readOnly = true)
-    public Page<ChallengeReadResDto> getAllChallenges(Pageable pageable) {
-        Page<ChallengeEntity> challengeEntities = challengeRepository.findAll(pageable);
-
-        Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(
-            challengeMapper::toChallengesReadResDto);
-
-        return challengesReadResDto;
-    }
-
-    // 챌린지 키워드 검색
-    @Transactional(readOnly = true)
-    public Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable) {
+    public Page<ChallengeReadResDto> getAllChallenges(String keyword, Pageable pageable) {
         Page<ChallengeEntity> challengeEntities;
         if (keyword != null && !keyword.isEmpty()) {
             challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,

@@ -21,5 +21,7 @@ public class ChallengeReadResDto {
 
     private int challengeCount;
 
+    private String authContent;
+
     private BadgeDto badgeDto;
 }
