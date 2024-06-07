@@ -201,7 +201,7 @@ public class MemberChallengeServiceImpl implements
 
                 // 챌린지 성공 확인 (목표 횟수가 챌린지 목표 횟수를 넘으면 성공)
                 if (challengeEntity.getChallengeCount()
-                    <= foundMemberChallengeEntity.getAuthCount() - 1) {
+                    <= foundMemberChallengeEntity.getAuthCount()) {
 
                     foundMemberChallengeEntity = foundMemberChallengeEntity
                         .toBuilder()
