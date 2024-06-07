@@ -127,7 +127,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
             .csrf(AbstractHttpConfigurer::disable) // csrf 비활성화
             .sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAt(customFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(tokenAuthenticationFilter(),
                 UsernamePasswordAuthenticationFilter.class)
             .build();
