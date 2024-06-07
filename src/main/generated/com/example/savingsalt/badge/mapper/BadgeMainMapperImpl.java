@@ -11,36 +11,36 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-06-01T01:38:42+0900",
+    date = "2024-06-07T16:50:17+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.10 (Amazon.com Inc.)"
 )
 @Component
 public class BadgeMainMapperImpl implements BadgeMainMapper {
 
     @Override
-    public BadgeEntity toEntity(BadgeDto dto) {
-        if ( dto == null ) {
+    public BadgeEntity toEntity(BadgeDto arg0) {
+        if ( arg0 == null ) {
             return null;
         }
 
         BadgeEntity.BadgeEntityBuilder badgeEntity = BadgeEntity.builder();
 
-        badgeEntity.name( dto.getName() );
-        badgeEntity.badgeImage( dto.getBadgeImage() );
-        badgeEntity.badgeDesc( dto.getBadgeDesc() );
-        badgeEntity.badgeType( dto.getBadgeType() );
+        badgeEntity.name( arg0.getName() );
+        badgeEntity.badgeImage( arg0.getBadgeImage() );
+        badgeEntity.badgeDesc( arg0.getBadgeDesc() );
+        badgeEntity.badgeType( arg0.getBadgeType() );
 
         return badgeEntity.build();
     }
 
     @Override
-    public List<BadgeEntity> toEntity(List<BadgeDto> dtos) {
-        if ( dtos == null ) {
+    public List<BadgeEntity> toEntity(List<BadgeDto> arg0) {
+        if ( arg0 == null ) {
             return null;
         }
 
-        List<BadgeEntity> list = new ArrayList<BadgeEntity>( dtos.size() );
-        for ( BadgeDto badgeDto : dtos ) {
+        List<BadgeEntity> list = new ArrayList<BadgeEntity>( arg0.size() );
+        for ( BadgeDto badgeDto : arg0 ) {
             list.add( toEntity( badgeDto ) );
         }
 
@@ -48,29 +48,29 @@ public class BadgeMainMapperImpl implements BadgeMainMapper {
     }
 
     @Override
-    public BadgeDto toDto(BadgeEntity entity) {
-        if ( entity == null ) {
+    public BadgeDto toDto(BadgeEntity arg0) {
+        if ( arg0 == null ) {
             return null;
         }
 
         BadgeDto.BadgeDtoBuilder badgeDto = BadgeDto.builder();
 
-        badgeDto.name( entity.getName() );
-        badgeDto.badgeImage( entity.getBadgeImage() );
-        badgeDto.badgeDesc( entity.getBadgeDesc() );
-        badgeDto.badgeType( entity.getBadgeType() );
+        badgeDto.name( arg0.getName() );
+        badgeDto.badgeImage( arg0.getBadgeImage() );
+        badgeDto.badgeDesc( arg0.getBadgeDesc() );
+        badgeDto.badgeType( arg0.getBadgeType() );
 
         return badgeDto.build();
     }
 
     @Override
-    public List<BadgeDto> toDto(List<BadgeEntity> entities) {
-        if ( entities == null ) {
+    public List<BadgeDto> toDto(List<BadgeEntity> arg0) {
+        if ( arg0 == null ) {
             return null;
         }
 
-        List<BadgeDto> list = new ArrayList<BadgeDto>( entities.size() );
-        for ( BadgeEntity badgeEntity : entities ) {
+        List<BadgeDto> list = new ArrayList<BadgeDto>( arg0.size() );
+        for ( BadgeEntity badgeEntity : arg0 ) {
             list.add( toDto( badgeEntity ) );
         }
 
@@ -106,40 +106,5 @@ public class BadgeMainMapperImpl implements BadgeMainMapper {
         memberChallengeBadgeResDto.badgeImage( entity.getBadgeImage() );
 
         return memberChallengeBadgeResDto.build();
-    }
-
-    @Override
-    public List<MemberGoalBadgeResDto> toMemberGoalBadgeResDto(List<MemberGoalBadgeEntity> entities) {
-        if ( entities == null ) {
-            return null;
-        }
-
-        List<MemberGoalBadgeResDto> list = new ArrayList<MemberGoalBadgeResDto>( entities.size() );
-        for ( MemberGoalBadgeEntity memberGoalBadgeEntity : entities ) {
-            list.add( memberGoalBadgeEntityToMemberGoalBadgeResDto( memberGoalBadgeEntity ) );
-        }
-
-        return list;
-    }
-
-    @Override
-    public BadgeDto toDto(MemberGoalBadgeEntity entity) {
-        if ( entity == null ) {
-            return null;
-        }
-
-        BadgeDto.BadgeDtoBuilder badgeDto = BadgeDto.builder();
-
-        return badgeDto.build();
-    }
-
-    protected MemberGoalBadgeResDto memberGoalBadgeEntityToMemberGoalBadgeResDto(MemberGoalBadgeEntity memberGoalBadgeEntity) {
-        if ( memberGoalBadgeEntity == null ) {
-            return null;
-        }
-
-        MemberGoalBadgeResDto.MemberGoalBadgeResDtoBuilder memberGoalBadgeResDto = MemberGoalBadgeResDto.builder();
-
-        return memberGoalBadgeResDto.build();
     }
 }
