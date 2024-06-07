@@ -117,9 +117,11 @@ public class MemberController {
     })
     public ResponseEntity<?> updateMember(@PathVariable Long memberId,
         @RequestBody MemberUpdateRequestDto dto) {
-        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(), dto.getPassword(),
+        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
+            dto.getPassword(),
             dto.getNickname(), dto.getAge(),
-            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(), dto.getInterests());
+            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
+            dto.getInterests());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
@@ -133,7 +135,7 @@ public class MemberController {
     })
     public ResponseEntity<?> checkEmail(@RequestParam String email) {
         memberService.checkEmail(email);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("This email is available");
     }
 
     @GetMapping("/check-nickname")
@@ -145,7 +147,7 @@ public class MemberController {
     })
     public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
         memberService.checkNickname(nickname);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("This nickname is available.");
     }
 
     @DeleteMapping("/signout")
