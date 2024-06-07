@@ -10,6 +10,7 @@ import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
@@ -157,6 +158,10 @@ public class MemberChallengeServiceImpl implements
                     foundMemberChallengeEntity = memberChallengeEntity;
                     challengeEntity = memberChallengeEntity.getChallengeEntity();
                 }
+            }
+
+            if (foundMemberChallengeEntity.getChallengeStatus() == ChallengeStatus.COMPLETED) {
+                throw new MemberChallengeAlreadySucceededException();
             }
 
             // 챌린지 인증 DTO -> 챌린지 일일 인증 DB로 저장

@@ -2,8 +2,8 @@ package com.example.savingsalt.global;
 
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
-import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
+import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,8 +90,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(builder.toString(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MemberChallengeFailureException.class)
-    public ResponseEntity<String> handleMemberChallengeFailureException(MemberChallengeFailureException ex) {
+    @ExceptionHandler(MemberChallengeAlreadySucceededException.class)
+    public ResponseEntity<String> handleMemberChallengeAlreadySucceededException(
+        MemberChallengeAlreadySucceededException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
