@@ -6,6 +6,10 @@ import com.example.savingsalt.community.poll.domain.PollDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.service.PollService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,10 +49,15 @@ public class PollController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get a Poll", description = "Gets an existing Poll by ID")
+    @Operation(summary = "Get a Poll", description = "Gets an existing Poll by ID",
+        parameters = {
+            @Parameter(name = "voteId", in = ParameterIn.PATH, description = "ID of the vote", required = true),
+            @Parameter(name = "pollId", in = ParameterIn.PATH, description = "ID of the poll", required = true)
+        })
     @GetMapping("/{voteId}/poll/{pollId}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Poll retrieved successfully"),
+        @ApiResponse(responseCode = "200", description = "Poll retrieved successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = PollDto.class))),
         @ApiResponse(responseCode = "404", description = "Poll not found")
     })
     public ResponseEntity<PollDto> getPoll(@PathVariable Long voteId, @PathVariable Long pollId) {
