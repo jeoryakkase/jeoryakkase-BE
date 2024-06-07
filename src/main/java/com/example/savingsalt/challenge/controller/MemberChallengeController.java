@@ -119,15 +119,6 @@ public class MemberChallengeController {
         }
     }
 
-    // 모든 회원 챌린지 일일 인증 초기화
-    @Operation(summary = "모든 회원 챌린지 일일 인증 초기화", description = "오전 12시마다 모든 회원의 회원 챌린지가 미인증 상태로 초기화 하는 API")
-    @PutMapping("/members")
-    public ResponseEntity<Void> resetMemberChallengeCertification() {
-        memberChallengeService.resetDailyMemberChallengeAuthentication();
-
-        return ResponseEntity.ok().build();
-    }
-
     // 참여 중인 챌린지 목록 조회
     @Operation(summary = "참여 중인 회원 챌린지 목록 조회", description = "참여 중인 회원 챌린지의 정보를 리스트로 응답 받는 API")
     @GetMapping("/members/{memberId}/challenges/join")

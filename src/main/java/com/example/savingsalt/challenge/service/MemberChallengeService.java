@@ -27,9 +27,6 @@ public interface MemberChallengeService {
     MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
         CertificationChallengeReqDto certificationChallengeReqDto);
 
-    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
-    void resetDailyMemberChallengeAuthentication();
-
     // 참여 중인 챌린지 목록 조회
     List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId);
 }
