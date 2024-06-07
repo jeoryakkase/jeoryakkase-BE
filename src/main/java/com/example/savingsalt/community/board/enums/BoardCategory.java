@@ -1,4 +1,4 @@
-package com.example.savingsalt.community.board.domain;
+package com.example.savingsalt.community.board.enums;
 
 public enum BoardCategory {
     TIPS,
