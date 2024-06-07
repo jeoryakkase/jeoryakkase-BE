@@ -2,7 +2,6 @@ package com.example.savingsalt.challenge.domain.dto;
 
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,14 +26,10 @@ public class MemberChallengeDto {
 
     private Integer challengeConut;
 
-    private Integer challengeTry;
+    private Integer successConut;
 
     private String challengeComment;
 
-    private Integer saveMoney;
-
-    private List<CertificationChallengeDto> certificationChallengeDtos;
-
-    private ChallengeDto challengeDto;
+    private Integer totalSaveMoney;
 
 }
