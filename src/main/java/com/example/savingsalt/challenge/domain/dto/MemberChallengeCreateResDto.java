@@ -13,11 +13,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MemberChallengeCreateReqDto {
-
-    private LocalDateTime certifyDate;
+public class MemberChallengeCreateResDto {
 
     private ChallengeStatus challengeStatus;
+
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
 
     private Integer successConut;
 

@@ -3,7 +3,7 @@ package com.example.savingsalt.challenge.service;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
@@ -15,8 +15,7 @@ public interface MemberChallengeService {
     List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId);
 
     // 회원 챌린지 생성
-    MemberChallengeCreateReqDto createMemberChallenge(Long memberId, Long ChallengeId,
-        MemberChallengeCreateReqDto memberChallengeCreateReqDto);
+    MemberChallengeCreateResDto createMemberChallenge(Long memberId, Long ChallengeId);
 
     // 회원 챌린지 최종 성공 인증
     MemberChallengeCompleteReqDto completeMemberChallenge(Long memberId, Long memberChallengeId);

@@ -3,7 +3,7 @@ package com.example.savingsalt.challenge.service;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
@@ -71,30 +71,35 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 생성
-    public MemberChallengeCreateReqDto createMemberChallenge(
-        Long memberId, Long ChallengeId, MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
+    public MemberChallengeCreateResDto createMemberChallenge(
+        Long memberId, Long ChallengeId) {
 
         Optional<ChallengeEntity> challengeEntityOpt = challengeRepository.findById(ChallengeId);
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
         if (challengeEntityOpt.isPresent()) {
             ChallengeEntity challengeEntity = challengeEntityOpt.get();
+
             if (memberEntityOpt.isPresent()) {
                 MemberEntity memberEntity = memberEntityOpt.get();
 
-                MemberChallengeEntity memberChallengeEntity = memberChallengeMapper.toEntity(
-                    memberChallengeCreateReqDto);
-
                 LocalDateTime startDate = LocalDateTime.now();
-                LocalDateTime endDate = getLocalEndDateTime(memberChallengeEntity, startDate);
+                LocalDateTime endDate = getLocalEndDateTime(challengeEntity, startDate);
 
-                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                MemberChallengeEntity memberChallengeEntity = MemberChallengeEntity.builder()
                     .startDate(startDate)
                     .endDate(endDate)
+                    .certifyDate(LocalDateTime.now())
                     .challengeEntity(challengeEntity)
+                    .challengeConut(0)
+                    .successConut(0)
+                    .totalSaveMoney(0)
+                    .isTodayCertification(false)
+                    .challengeComment("")
+                    .challengeStatus(ChallengeStatus.IN_PROGRESS)
                     .memberEntity(memberEntity).build();
 
-                return memberChallengeMapper.toMemberChallengeCreateReqDto(
+                return memberChallengeMapper.toMemberChallengeCreateResDto(
                     memberChallengeRepository.save(memberChallengeEntity));
 
             } else {
@@ -302,10 +307,10 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
-    private static LocalDateTime getLocalEndDateTime(MemberChallengeEntity memberChallengeEntity,
+    private static LocalDateTime getLocalEndDateTime(ChallengeEntity challengeEntity,
         LocalDateTime startDate) {
 
-        return switch (memberChallengeEntity.getChallengeEntity()
+        return switch (challengeEntity
             .getChallengeTerm()) {
             case "1일" -> startDate.plusDays(1);
             case "3일" -> startDate.plusDays(3);

@@ -3,7 +3,7 @@ package com.example.savingsalt.challenge.controller;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
@@ -48,17 +48,16 @@ public class MemberChallengeController {
     // 회원 챌린지 생성
     @Operation(summary = "회원 챌린지 생성", description = "회원 아이디, 챌린지 아이디를 이용해서 회원 챌린지 생성하는 API")
     @PostMapping("/members/{memberId}/challenges/{challengeId}")
-    public ResponseEntity<MemberChallengeCreateReqDto> createMemberChallenge(
+    public ResponseEntity<MemberChallengeCreateResDto> createMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
-        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId,
-        @RequestBody MemberChallengeCreateReqDto memberChallengeCreateReqDto) {
+        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId) {
 
-        MemberChallengeCreateReqDto createdMemberChallengeCreateReqDto = memberChallengeService.createMemberChallenge(
-            memberId, challengeId, memberChallengeCreateReqDto);
+        MemberChallengeCreateResDto createdMemberChallengeCreateResDto = memberChallengeService.createMemberChallenge(
+            memberId, challengeId);
 
-        if (createdMemberChallengeCreateReqDto != null) {
+        if (createdMemberChallengeCreateResDto != null) {
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(createdMemberChallengeCreateReqDto);
+                .body(createdMemberChallengeCreateResDto);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
