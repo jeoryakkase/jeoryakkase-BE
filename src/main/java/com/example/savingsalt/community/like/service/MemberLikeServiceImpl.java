@@ -2,6 +2,8 @@ package com.example.savingsalt.community.like.service;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.repository.BoardRepository;
+import com.example.savingsalt.community.like.LikeException.BoardNotFoundException;
+import com.example.savingsalt.community.like.LikeException.MemberNotFoundException;
 import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.domain.MemberLikeEntity;
 import com.example.savingsalt.community.like.repository.MemberLikeRepository;
@@ -32,7 +34,8 @@ public class MemberLikeServiceImpl implements MemberLikeService{
 
         Optional<MemberLikeEntity> likeOpt = memberLikeRepository.findByMemberEntityIdAndBoardEntityId(memberId, boardId);
 
-        BoardEntity boardEntity = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+        BoardEntity boardEntity = boardRepository.findById(boardId).orElseThrow(
+            BoardNotFoundException::new);
 
         if (likeOpt.isPresent()) {
             memberLikeRepository.delete(likeOpt.get());
@@ -40,7 +43,8 @@ public class MemberLikeServiceImpl implements MemberLikeService{
             boardRepository.save(boardEntity);
             return "좋아요 취소";
         } else {
-            MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
+            MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
+                MemberNotFoundException::new);
             MemberLikeEntity like = new MemberLikeEntity(boardEntity, memberEntity);
             memberLikeRepository.save(like);
             boardEntity.incrementLikes(); // 좋아요 수 증가
