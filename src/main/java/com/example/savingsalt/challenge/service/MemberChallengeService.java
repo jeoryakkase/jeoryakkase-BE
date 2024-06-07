@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.service;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
@@ -20,7 +21,7 @@ public interface MemberChallengeService {
     MemberChallengeCompleteReqDto completeMemberChallenge(Long memberId, Long memberChallengeId);
 
     // 회원 챌린지 포기
-    void abandonMemberChallenge(Long memberId, Long memberChallengeId);
+    MemberChallengeAbandonResDto abandonMemberChallenge(Long memberId, Long memberChallengeId);
 
     // 회원 챌린지 일일 인증
     MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,

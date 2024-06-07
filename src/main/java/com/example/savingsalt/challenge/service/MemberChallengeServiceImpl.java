@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.service;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
@@ -161,7 +162,8 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 포기
-    public void abandonMemberChallenge(Long memberId, Long memberChallengeId) {
+    public MemberChallengeAbandonResDto abandonMemberChallenge(Long memberId,
+        Long memberChallengeId) {
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
         if (memberEntityOpt.isPresent()) {
@@ -181,7 +183,8 @@ public class MemberChallengeServiceImpl implements
                 .challengeStatus(ChallengeStatus.CANCELLED)
                 .build();
 
-            memberChallengeRepository.save(foundMemberChallengeEntity);
+            return memberChallengeMapper.toMemberChallengeAbandonResDto(
+                memberChallengeRepository.save(foundMemberChallengeEntity));
         } else {
             throw new MemberNotFoundException();
         }

@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.controller;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
@@ -103,12 +104,19 @@ public class MemberChallengeController {
     // 회원 챌린지 포기
     @Operation(summary = "회원 챌린지 포기", description = "회원 챌린지를 포기 상태로 바꾸는 API")
     @PutMapping("/members/{memberId}/challenges/{memberChallengeId}/abandon")
-    public ResponseEntity<Void> abandonMemberChallenge(
+    public ResponseEntity<MemberChallengeAbandonResDto> abandonMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId) {
-        memberChallengeService.abandonMemberChallenge(memberId, memberChallengeId);
 
-        return ResponseEntity.ok().build();
+        MemberChallengeAbandonResDto memberChallengeAbandonResDto = memberChallengeService.abandonMemberChallenge(
+            memberId, memberChallengeId);
+
+        if (memberChallengeAbandonResDto != null) {
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(memberChallengeAbandonResDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     // 모든 회원 챌린지 일일 인증 초기화
