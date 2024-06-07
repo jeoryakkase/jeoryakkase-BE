@@ -1,25 +1,23 @@
-package com.example.savingsalt.community.board.domain.dto;
+package com.example.savingsalt.community.comment.domain.dto;
 
 import com.example.savingsalt.global.BaseEntity;
-import java.time.LocalDateTime;
+import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 public class CommentResDto extends BaseEntity implements Comparable<CommentResDto> {
 
     private Long id;
-    private String comment;
+    private String content;
     private String nickname;
+    private List<ReplyCommentResDto> replyComments;
 
-    // 작성일자만 사용하도록 설정
-    public LocalDateTime getCreatedAt() {
-        return this.getCreatedAt();
-    }
 
+    // id를 기준으로 내림차순 정렬
     @Override
     public int compareTo(CommentResDto other) {
         return other.getCreatedAt().compareTo(this.getCreatedAt());
     }
-
-
 }
