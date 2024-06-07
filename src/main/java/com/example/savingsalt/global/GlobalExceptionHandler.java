@@ -7,6 +7,7 @@ import com.example.savingsalt.challenge.exception.ChallengeException.MemberChall
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
 import com.example.savingsalt.community.comment.exception.CommentException;
+import com.example.savingsalt.community.like.LikeException;
 import com.example.savingsalt.community.poll.exception.PollException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.goal.exception.GoalNotFoundException;
@@ -193,5 +194,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PollException.PollParticipationException.class)
     public ResponseEntity<String> handlePollParticipationException(PollException.PollParticipationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // 좋아요 예외 처리
+    @ExceptionHandler(LikeException.MemberNotFoundException.class)
+    public ResponseEntity<String> handleMemberNotFoundException(LikeException.MemberNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LikeException.BoardNotFoundException.class)
+    public ResponseEntity<String> handleBoardNotFoundException(LikeException.BoardNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
