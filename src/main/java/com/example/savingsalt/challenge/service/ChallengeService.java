@@ -13,7 +13,7 @@ public interface ChallengeService {
     ChallengeDto getChallenge(Long challengeId);
 
     // 챌린지 목록 조회
-    Page<ChallengeReadResDto> getAllChallenges(int page, int size);
+    Page<ChallengeReadResDto> getAllChallenges(Pageable pageable);
 
     // 챌린지 키워드 검색
     Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable);

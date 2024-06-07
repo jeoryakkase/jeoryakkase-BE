@@ -32,8 +32,14 @@ public class CertificationChallengeEntity {
     @Column(name = "certification_date", nullable = false)
     private LocalDateTime certificationDate;
 
-    @Column(name = "challenge_img", nullable = false)
-    private String challengeImg;
+    @Column(name = "img_url", nullable = false)
+    private String imgUrl;
+
+    @Column(name = "content", nullable = false, length = 200)
+    private String content;
+
+    @Column(name = "save_money", nullable = false)
+    private Integer saveMoney;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
