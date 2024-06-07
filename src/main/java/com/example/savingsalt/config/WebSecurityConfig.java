@@ -1,41 +1,48 @@
 package com.example.savingsalt.config;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.handler.CustomAuthenticationFailureHandler;
 import com.example.savingsalt.handler.CustomAuthenticationSuccessHandler;
 import com.example.savingsalt.handler.OAuth2SuccessHandler;
 import com.example.savingsalt.member.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import com.example.savingsalt.member.service.LoginService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
 
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
@@ -46,11 +53,29 @@ public class WebSecurityConfig {
     @Autowired
     private OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    @Autowired
+    private ClientRegistrationRepository clientRegistrationRepository;
+
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
             .requestMatchers(toH2Console())
             .requestMatchers("/static/**");
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                    .allowedOriginPatterns("*")
+                    .allowedHeaders("*")
+                    .allowedMethods("*")
+                    .exposedHeaders("Authorization", "RefreshToken")
+                    .allowCredentials(true);
+            }
+        };
     }
 
     @Bean
@@ -62,8 +87,9 @@ public class WebSecurityConfig {
         customFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
 
         return http
+            .cors(withDefaults())
             .authorizeRequests(authorizeRequests -> authorizeRequests
-//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/signup",
+//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/api/login/oauth2/kakao", "/signup",
 //                    "/api/signup", "/api/token")
 //                .permitAll()
 //                // swagger 관련 경로 허용
@@ -82,7 +108,10 @@ public class WebSecurityConfig {
             .oauth2Login(oauth2Login -> oauth2Login
                 .loginPage("/login")
                 .authorizationEndpoint(authorizationEndpoint ->
-                    authorizationEndpoint.authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                    authorizationEndpoint
+                        .authorizationRequestResolver(customAuthorizationRequestResolver())
+                        .authorizationRequestRepository(
+                            oAuth2AuthorizationRequestBasedOnCookieRepository()))
                 .successHandler(oAuth2SuccessHandler))
             // 로그아웃
             .logout(logout -> logout
@@ -108,6 +137,12 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManager(
         AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public OAuth2AuthorizationRequestResolver customAuthorizationRequestResolver() {
+        return new CustomAuthorizationRequestResolver(clientRegistrationRepository,
+            "/api/login/oauth2/authorization");
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package com.example.savingsalt.member.domain;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +11,9 @@ public class OAuth2SignupRequestDto {
     private String email;
     private String nickname;
     private int age;
-    private int gender;
+    private String gender;
     private int income;
-    private int savingGoal;
+    private String savePurpose;
     private String profileImage;
+    private List<Long> interests;
 }
