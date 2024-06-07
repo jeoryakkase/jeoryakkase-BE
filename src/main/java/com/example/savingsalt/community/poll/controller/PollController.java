@@ -3,6 +3,8 @@ package com.example.savingsalt.community.poll.controller;
 import com.example.savingsalt.community.poll.domain.PollChoiceDto;
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.community.poll.domain.PollDto;
+import com.example.savingsalt.community.poll.domain.PollParticipateReqDto;
+import com.example.savingsalt.community.poll.domain.PollReadReqDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.service.PollService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,41 +41,37 @@ public class PollController {
     }
 
     @Operation(summary = "Delete a Poll", description = "Deletes an existing Poll by ID")
-    @DeleteMapping("/{voteId}/poll/{pollId}")
+    @DeleteMapping("/{boardId}/poll/{pollId}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Poll deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Poll not found")
     })
-    public ResponseEntity<Void> deletePoll(@PathVariable Long voteId, @PathVariable Long pollId) {
-        pollService.deletePoll(voteId, pollId);
+    public ResponseEntity<Void> deletePoll(@PathVariable Long boardId, @PathVariable Long pollId) {
+        pollService.deletePoll(boardId, pollId);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get a Poll", description = "Gets an existing Poll by ID",
-        parameters = {
-            @Parameter(name = "voteId", in = ParameterIn.PATH, description = "ID of the vote", required = true),
-            @Parameter(name = "pollId", in = ParameterIn.PATH, description = "ID of the poll", required = true)
-        })
-    @GetMapping("/{voteId}/poll/{pollId}")
+    @Operation(summary = "Get a Poll", description = "Gets an existing Poll by ID")
+    @GetMapping("/{boardId}/poll/{pollId}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Poll retrieved successfully",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = PollDto.class))),
+        @ApiResponse(responseCode = "200", description = "Poll retrieved successfully"),
         @ApiResponse(responseCode = "404", description = "Poll not found")
     })
-    public ResponseEntity<PollDto> getPoll(@PathVariable Long voteId, @PathVariable Long pollId) {
-        PollDto response = pollService.getPoll(voteId, pollId);
+    public ResponseEntity<PollDto> getPoll(@RequestBody PollReadReqDto pollReadReqDto) {
+        PollDto response = pollService.getPoll(pollReadReqDto.getBoardId(),
+            pollReadReqDto.getPollId());
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Participate in a Poll", description = "Participate in an existing Poll by choosing an option")
-    @PostMapping("/{voteId}/poll/{pollId}/participate")
+    @PostMapping("/{boardId}/poll/{pollId}/participate")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Participation successful"),
         @ApiResponse(responseCode = "404", description = "Poll or choice not found"),
         @ApiResponse(responseCode = "401", description = "Unauthorized access")
     })
-    public ResponseEntity<PollResultDto> participateInPoll(@PathVariable Long voteId, @PathVariable Long pollId, @RequestBody PollChoiceDto choiceDto) {
-        PollResultDto response = pollService.participateInPoll(voteId, pollId, choiceDto);
+    public ResponseEntity<PollResultDto> participateInPoll(@RequestBody PollParticipateReqDto pollParticipateReqDto) {
+        PollResultDto response = pollService.participateInPoll(pollParticipateReqDto.getBoardId(), pollParticipateReqDto.getPollId(), pollParticipateReqDto.getChoice());
         return ResponseEntity.ok(response);
     }
 
