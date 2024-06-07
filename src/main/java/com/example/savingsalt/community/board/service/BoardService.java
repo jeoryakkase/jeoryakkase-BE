@@ -41,12 +41,12 @@ public interface BoardService {
     BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteCreateReqDto boardDto, MemberEntity member);
 
     // 투표 게시글 삭제
-    void deleteVoteBoard(Long id);
+    void deleteVoteBoard(Long id, MemberEntity member);
 
     // 소금모아태산 게시판 (챌린지 달성 정보 작성 게시판)
 
     // 달성 정보 게시글 작성
-    BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto);
+    BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto, MemberEntity member);
 
     // 달성 정보 게시글 조회
     List<BoardTypeHofReadResDto> findAllHofBoard();
