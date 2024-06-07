@@ -65,21 +65,26 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(BoardException.UnauthorizedCreateException.class)
-    public ResponseEntity<String> handleUnauthorizedCreateException(
-        BoardException.UnauthorizedCreateException ex) {
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(BoardException.UnauthorizedUpdateException.class)
-    public ResponseEntity<String> handleUnauthorizedUpdateException(
-        BoardException.UnauthorizedUpdateException ex) {
+    @ExceptionHandler(BoardException.UnauthorizedPostCreateException.class)
+    public ResponseEntity<String> handleUnauthorizedPostCreateException(
+        BoardException.UnauthorizedPostCreateException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(BoardException.UnauthorizedDeleteException.class)
-    public ResponseEntity<String> handleUnauthorizedDeleteException(
-        BoardException.UnauthorizedDeleteException ex) {
+    @ExceptionHandler(BoardException.UnauthorizedPostUpdateException.class)
+    public ResponseEntity<String> handleUnauthorizedPostUpdateException(
+        BoardException.UnauthorizedPostUpdateException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BoardException.UnauthorizedPostDeleteException.class)
+    public ResponseEntity<String> handleUnauthorizedPostDeleteException(
+        BoardException.UnauthorizedPostDeleteException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
