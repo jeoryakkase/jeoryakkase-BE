@@ -1,6 +1,7 @@
 package com.example.savingsalt.member.controller;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberUpdateRequestDto;
@@ -146,6 +147,24 @@ public class MemberController {
     })
     public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
         memberService.checkNickname(nickname);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/signout")
+    @Operation(summary = "signout", description = "Member signout")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Signout success"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized member"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<Void> signout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("User is not authenticated");
+        }
+
+        String email = authentication.getName();
+        memberService.signOut(email);
         return ResponseEntity.ok().build();
     }
 
