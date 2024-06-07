@@ -1,10 +1,10 @@
 package com.example.savingsalt.member.domain;
 
-import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -72,16 +72,13 @@ public class MemberEntity extends BaseEntity implements UserDetails {
 
     @Column(name = "interests", nullable = true)
     @ElementCollection
-    private List<String> interests;
+    private List<Long> interests;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity")
-    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity", cascade = CascadeType.ALL)
     private List<MemberChallengeEntity> memberChallengeEntities;
 
     @Override

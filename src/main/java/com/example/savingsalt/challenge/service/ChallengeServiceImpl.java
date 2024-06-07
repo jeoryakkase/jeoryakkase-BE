@@ -10,19 +10,21 @@ import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.ChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.global.ChallengeException.BadgeNotFoundException;
-import com.example.savingsalt.global.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ChallengeServiceImpl implements ChallengeService {
 
     private final ChallengeRepository challengeRepository;
@@ -45,14 +47,13 @@ public class ChallengeServiceImpl implements ChallengeService {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
         ChallengeDto challengeDto = challengeMapper.toDto(challengeEntity);
-        // Todo: challengeDto가 null이면 예외발생
+
         return challengeDto;
     }
 
     // 챌린지 목록 조회
     @Transactional(readOnly = true)
-    public Page<ChallengeReadResDto> getAllChallenges(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ChallengeReadResDto> getAllChallenges(Pageable pageable) {
         Page<ChallengeEntity> challengeEntities = challengeRepository.findAll(pageable);
 
         Page<ChallengeReadResDto> challengesReadResDto = challengeEntities.map(
@@ -66,7 +67,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Page<ChallengeReadResDto> searchChallengesByKeyword(String keyword, Pageable pageable) {
         Page<ChallengeEntity> challengeEntities;
         if (keyword != null && !keyword.isEmpty()) {
-            challengeEntities = challengeRepository.findAllByChallengeTitleContaining(keyword,
+            challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,
                 pageable);
         } else {
             challengeEntities = challengeRepository.findAllByOrderByCreatedAtDesc(pageable);
@@ -79,45 +80,89 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     // 챌린지 생성
-    @Transactional
     public ChallengeDto createChallenge(ChallengeCreateReqDto challengeCreateDto) {
+        BadgeEntity badgeEntity = badgeRepository.findById(challengeCreateDto.getBadgeId())
+            .orElseThrow(BadgeNotFoundException::new);
+
+        // 챌린지 생성시 챌린지 목표 금액, 챌린지 목표 횟수가 하나만 입력 됐는지 검증
+        if (!validChallengeGoalAndCountException(challengeCreateDto.getChallengeGoal(),
+            challengeCreateDto.getChallengeCount())) {
+            throw new InvalidChallengeGoalAndCountException();
+        }
+
         ChallengeEntity challengeEntity = challengeMapper.toEntity(challengeCreateDto);
-        ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeEntity);
+        ChallengeEntity challengeAndBadgeEntity = challengeEntity.toBuilder()
+            .badgeEntity(badgeEntity)
+            .build();
+
+        ChallengeEntity createdChallengeEntity = challengeRepository.save(challengeAndBadgeEntity);
         ChallengeDto createdChallengeDto = challengeMapper.toDto(createdChallengeEntity);
-        // Todo: challengeEntity, createdChallengeEntity, createdChallengeDto가 null이면 예외발생 ("챌린지 정보를 저장하는데 실패했습니다.");
+
         return createdChallengeDto;
     }
 
     // 챌린지 수정
-    @Transactional
     public ChallengeDto updateChallenge(Long challengeId,
         ChallengeUpdateReqDto updatedChallengeDto) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
 
-        BadgeEntity badgeEntity = badgeRepository.findById(updatedChallengeDto.getBadgeId())
-            .orElseThrow(BadgeNotFoundException::new);
+        BadgeEntity badgeEntity = null;
+        if (updatedChallengeDto.getBadgeId() != null) {
+            badgeEntity = badgeRepository.findById(updatedChallengeDto.getBadgeId())
+                .orElseThrow(BadgeNotFoundException::new);
+        }
+
+        // 챌린지 수정할시 챌린지 목표 금액, 챌린지 목표 횟수가 하나만 입력 되어 있는지 검증
+        if ((updatedChallengeDto.getChallengeGoal() != null) && (
+            updatedChallengeDto.getChallengeCount() != null)) {
+            if (!validChallengeGoalAndCountException(updatedChallengeDto.getChallengeGoal(),
+                updatedChallengeDto.getChallengeCount())) {
+                throw new InvalidChallengeGoalAndCountException();
+            }
+        } else if ((updatedChallengeDto.getChallengeGoal() != null) && (
+            updatedChallengeDto.getChallengeCount() == null)) {
+            if (challengeEntity.getChallengeCount() != 0) {
+                throw new InvalidChallengeGoalAndCountException();
+            } else if (updatedChallengeDto.getChallengeGoal() == 0) {
+                throw new InvalidChallengeGoalAndCountException();
+            }
+        } else if ((updatedChallengeDto.getChallengeGoal() == null) && (
+            updatedChallengeDto.getChallengeCount() != null)) {
+            if (challengeEntity.getChallengeGoal() != 0) {
+                throw new InvalidChallengeGoalAndCountException();
+            } else if (updatedChallengeDto.getChallengeCount() == 0) {
+                throw new InvalidChallengeGoalAndCountException();
+            }
+        }
 
         ChallengeEntity updateChallengeEntity = challengeEntity.toBuilder()
-            .challengeTitle(updatedChallengeDto.getChallengeTitle())
-            .challengeDesc(updatedChallengeDto.getChallengeDesc())
-            .challengeGoal(updatedChallengeDto.getChallengeGoal())
-            .challengeCount(updatedChallengeDto.getChallengeCount())
-            .challengeType(updatedChallengeDto.getChallengeType())
-            .challengeTerm(updatedChallengeDto.getChallengeTerm())
-            .challengeDifficulty(updatedChallengeDto.getChallengeDifficulty())
-            .authContent(updatedChallengeDto.getAuthContent())
-            .badgeEntity(badgeEntity)
+            .challengeTitle(Optional.ofNullable(updatedChallengeDto.getChallengeTitle())
+                .orElse(challengeEntity.getChallengeTitle()))
+            .challengeDesc(Optional.ofNullable(updatedChallengeDto.getChallengeDesc())
+                .orElse(challengeEntity.getChallengeDesc()))
+            .challengeGoal(Optional.ofNullable(updatedChallengeDto.getChallengeGoal())
+                .orElse(challengeEntity.getChallengeGoal()))
+            .challengeCount(Optional.ofNullable(updatedChallengeDto.getChallengeCount())
+                .orElse(challengeEntity.getChallengeCount()))
+            .challengeType(Optional.ofNullable(updatedChallengeDto.getChallengeType())
+                .orElse(challengeEntity.getChallengeType()))
+            .challengeTerm(Optional.ofNullable(updatedChallengeDto.getChallengeTerm())
+                .orElse(challengeEntity.getChallengeTerm()))
+            .challengeDifficulty(Optional.ofNullable(updatedChallengeDto.getChallengeDifficulty())
+                .orElse(challengeEntity.getChallengeDifficulty()))
+            .authContent(Optional.ofNullable(updatedChallengeDto.getAuthContent())
+                .orElse(challengeEntity.getAuthContent()))
+            .badgeEntity(Optional.ofNullable(badgeEntity).orElse(challengeEntity.getBadgeEntity()))
             .build();
 
         ChallengeEntity updatedChallengeEntity = challengeRepository.save(updateChallengeEntity);
         ChallengeDto challengeDto = challengeMapper.toDto(updatedChallengeEntity);
-        // Todo: updatedChallengeEntity, challengeDto가 null이면 예외발생 ("챌린지 정보를 수정하는데 실패했습니다.");
+
         return challengeDto;
     }
 
-    // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: 상, 60%: 중, 나머지: 하)
-    @Transactional
+    // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: HARD(상), 60%: NORMAL(중), 나머지: EASY(하))
     public void setChallengeDifficulty(Long challengeId) {
         ChallengeEntity challengeEntity = challengeRepository.findById(challengeId)
             .orElseThrow(ChallengeNotFoundException::new);
@@ -130,41 +175,50 @@ public class ChallengeServiceImpl implements ChallengeService {
             return;
         }
 
-        //회원 챌린지에서 각각 처음 완료한 챌린지의 수
+        // 회원 챌린지에서 각각 처음 완료한 챌린지의 수
         long successMemberChallengeSize = 0;
 
         for (int i = 0; i < memberChallengeEntity.size(); i++) {
             if ((memberChallengeEntity.get(i).getChallengeStatus()
                 == ChallengeStatus.COMPLETED) && (
-                memberChallengeEntity.get(i).getChallengeTry() == 0)) {
+                memberChallengeEntity.get(i).getSuccessConut() == 0)) {
                 successMemberChallengeSize++;
             }
         }
 
-        ChallengeEntity updatedChallengeEntity;
+        // 챈린지 난이도 계산
+        ChallengeDifficulty difficulty;
         double successPercent =
             (double) totalMemberChallengeSize / (double) successMemberChallengeSize * 100;
         if (successPercent <= 30) {
-            updatedChallengeEntity = challengeEntity.toBuilder()
-                .challengeDifficulty(ChallengeDifficulty.HARD)
-                .build();
+            difficulty = ChallengeEntity.ChallengeDifficulty.HARD;
         } else if (successPercent <= 60) {
-            updatedChallengeEntity = challengeEntity.toBuilder()
-                .challengeDifficulty(ChallengeDifficulty.NORMAL)
-                .build();
+            difficulty = ChallengeEntity.ChallengeDifficulty.NORMAL;
         } else {
-            updatedChallengeEntity = challengeEntity.toBuilder()
-                .challengeDifficulty(ChallengeDifficulty.EASY)
-                .build();
+            difficulty = ChallengeEntity.ChallengeDifficulty.EASY;
         }
 
+        // 계산한 난이도 해당 챌린지에 적용
+        ChallengeEntity updatedChallengeEntity = challengeEntity.toBuilder()
+            .challengeDifficulty(difficulty)
+            .build();
         challengeRepository.save(updatedChallengeEntity);
     }
 
     // 챌린지 삭제
-    @Transactional
     public void deleteChallenge(Long challengeId) {
+        challengeRepository.findById(challengeId)
+            .orElseThrow(ChallengeNotFoundException::new);
+
         challengeRepository.deleteById(challengeId);
     }
 
+    // 챌린지 목표 금액, 챌린지 목표 횟수가 하나만 입력 됐는지 검증(둘중 하나만 0인지)
+    public boolean validChallengeGoalAndCountException(int challengeGoal, int challengeCount) {
+        if ((challengeGoal == 0 && challengeCount == 0) || (challengeGoal != 0
+            && challengeCount != 0)) {
+            return false;
+        }
+        return true;
+    }
 }

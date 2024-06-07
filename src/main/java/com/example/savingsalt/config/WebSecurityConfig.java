@@ -36,11 +36,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
 
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
@@ -62,16 +64,18 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*"); // 모든 도메인 허용
-        config.addAllowedHeader("*"); // 모든 헤더 허용
-        config.addAllowedMethod("*"); // 모든 메서드 허용
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                    .allowedOriginPatterns("*")
+                    .allowedHeaders("*")
+                    .allowedMethods("*")
+                    .exposedHeaders("Authorization", "RefreshToken")
+                    .allowCredentials(true);
+            }
+        };
     }
 
     @Bean
@@ -83,7 +87,7 @@ public class WebSecurityConfig {
         customFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
 
         return http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(withDefaults())
             .authorizeRequests(authorizeRequests -> authorizeRequests
 //                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/api/login/oauth2/kakao", "/signup",
 //                    "/api/signup", "/api/token")
