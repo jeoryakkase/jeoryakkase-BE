@@ -77,7 +77,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedUpdateException();
+            throw new BoardException.UnauthorizedPostUpdateException();
         }
 
         board.updateTipBoard(requestDto);
@@ -95,7 +95,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedDeleteException();
+            throw new BoardException.UnauthorizedPostDeleteException();
         }
         boardRepository.delete(board);
     }
@@ -146,7 +146,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedUpdateException();
+            throw new BoardException.UnauthorizedPostUpdateException();
         }
 
         board.updateVoteBoard(requestDto);
@@ -164,7 +164,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedDeleteException();
+            throw new BoardException.UnauthorizedPostDeleteException();
         }
 
         boardRepository.delete(board);
