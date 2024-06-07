@@ -13,4 +13,6 @@ public class LoginRequestDto {
 
     private String email;
     private String password;
+    private String accessToken;
+    private String refreshToken;
 }
