@@ -279,7 +279,7 @@ public class MemberChallengeServiceImpl implements
             case "1주" -> startDate.plusDays(7);
             case "2주" -> startDate.plusDays(14);
             case "3주" -> startDate.plusDays(21);
-            case "한 달" -> startDate.plusDays(30);
+            case "30일" -> startDate.plusDays(30);
             default -> null;
         };
     }
