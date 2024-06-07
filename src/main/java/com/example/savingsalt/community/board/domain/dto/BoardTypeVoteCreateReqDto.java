@@ -6,10 +6,14 @@ import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Builder
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class BoardTypeVoteCreateReqDto {
 
     private String title;
