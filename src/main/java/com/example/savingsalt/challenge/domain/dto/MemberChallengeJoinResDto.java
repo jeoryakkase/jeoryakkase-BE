@@ -24,7 +24,7 @@ public class MemberChallengeJoinResDto {
 
     private LocalDate endDate;
 
-    private LocalDate effectiveDate;
+    private Long effectiveDate;
 
     private List<String> certificationImageUrlList;
 }

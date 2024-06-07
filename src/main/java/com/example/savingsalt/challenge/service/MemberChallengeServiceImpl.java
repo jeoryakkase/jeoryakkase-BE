@@ -21,6 +21,7 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -259,6 +260,8 @@ public class MemberChallengeServiceImpl implements
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
         List<MemberChallengeEntity> memberChallengeEntities;
         List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
@@ -269,6 +272,9 @@ public class MemberChallengeServiceImpl implements
                 for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
                     if (memberChallengeEntity.getChallengeStatus()
                         .equals(ChallengeStatus.IN_PROGRESS)) {
+
+                        Long effectiveDate = ChronoUnit.DAYS.between(now, memberChallengeEntity.getStartDate());
+
                         MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
                             .challengeTtile(
                                 memberChallengeEntity.getChallengeEntity().getChallengeTitle())
@@ -277,6 +283,7 @@ public class MemberChallengeServiceImpl implements
                             .isTodayCertification(memberChallengeEntity.getIsTodayCertification())
                             .startDate(memberChallengeEntity.getStartDate().toLocalDate())
                             .endDate(memberChallengeEntity.getEndDate().toLocalDate())
+                            .effectiveDate(effectiveDate)
                             .build();
 
                         memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
