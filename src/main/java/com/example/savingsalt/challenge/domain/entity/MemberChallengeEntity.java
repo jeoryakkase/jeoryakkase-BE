@@ -42,7 +42,7 @@ public class MemberChallengeEntity {
     private LocalDateTime endDate;
 
     @Column(name = "certify_date")
-    private LocalDateTime certifyDate;
+    private LocalDateTime successDate;
 
     @Column(name = "challenge_status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -52,7 +52,7 @@ public class MemberChallengeEntity {
     private Boolean isTodayCertification;
 
     @Column(name = "challenge_conut", nullable = false)
-    private Integer challengeCount;
+    private Integer authCount;
 
     @Column(name = "success_count", nullable = false)
     private Integer successCount;

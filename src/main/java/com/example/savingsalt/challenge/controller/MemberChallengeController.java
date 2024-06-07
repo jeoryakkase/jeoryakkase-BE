@@ -63,7 +63,7 @@ public class MemberChallengeController {
     }
 
     // 회원 챌린지 인증
-    @Operation(summary = "회원 챌린지 인증", description = "회원 챌린지를 인증 상태로 바꾸고 챌린지 인증 컬럼을 DTO에 맞게 생성하는 API")
+    @Operation(summary = "회원 챌린지 인증", description = "챌린지 인증 컬럼 생성/회원 챌린지 상태 변화")
     @PostMapping("/members/{memberId}/challenges/{memberChallengeId}/certify")
     public ResponseEntity<MemberChallengeDto> certifyDailyMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,

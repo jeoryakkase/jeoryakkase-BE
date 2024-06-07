@@ -23,7 +23,7 @@ public class MemberChallengeCreateResDto {
 
     private Integer successCount;
 
-    private Integer challengeCount;
+    private Integer authCount;
 
     private Integer totalSaveMoney;
 }

@@ -18,13 +18,13 @@ public class MemberChallengeDto {
 
     private LocalDateTime endDate;
 
-    private LocalDateTime certifyDate;
+    private LocalDateTime successDate;
 
     private ChallengeStatus challengeStatus;
 
     private Boolean isTodayCertification;
 
-    private Integer challengeCount;
+    private Integer authCount;
 
     private Integer successCount;
 
