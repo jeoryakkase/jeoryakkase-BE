@@ -10,19 +10,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "goals")
-@Getter
-@NoArgsConstructor
+@Table(name = "goal_category")
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
 @Builder
 @Entity
-public class GoalEntity {
+public class GoalCategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,27 +31,6 @@ public class GoalEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    @Column(name = "goal_title")
-    private String goalTitle;
-
-    @Column(name = "goal_amount")
-    private Long goalAmount;
-
-    @Column(name = "goal_image")
-    private String goalImage;
-
-    @Column(name = "goal_desc")
-    private String goalDesc;
-
-    @Column(name = "goal_start_date")
-    private LocalDateTime goalStartDate;
-
-    @Column(name = "goal_end_date")
-    private LocalDateTime goalEndDate;
-
-    @Column(name = "current_amount")
-    private Long currentAmount;
-
-    @Column(name = "goal_status")
-    private String goalStatus;
+    @Column(name = "certification_details")
+    private String certificationDetails;
 }
