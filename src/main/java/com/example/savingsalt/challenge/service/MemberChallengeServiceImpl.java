@@ -5,12 +5,14 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
+import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -19,6 +21,7 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -257,4 +260,38 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
+    // 참여 중인 챌린지 목록 조회
+    public List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId) {
+        Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+        List<MemberChallengeEntity> memberChallengeEntities;
+        List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
+
+        if (MemberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = MemberEntityOpt.get();
+            memberChallengeEntities = memberChallengeRepository.findAllByMemberEntity(memberEntity);
+            if (memberChallengeEntities.isEmpty()) {
+                throw new MemberChallengeNotFoundException();
+            } else {
+                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                    if (memberChallengeEntity.getId().equals(memberId)) {
+                        MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
+                            .challengeTtile(
+                                memberChallengeEntity.getChallengeEntity().getChallengeTitle())
+                            .challengeTerm(
+                                memberChallengeEntity.getChallengeEntity().getChallengeTerm())
+                            .isTodayCertification(memberChallengeEntity.getIsTodayCertification())
+                            .startDate(memberChallengeEntity.getStartDate().toLocalDate())
+                            .endDate(memberChallengeEntity.getEndDate().toLocalDate())
+                            .build();
+
+                        memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
+                    }
+                }
+                return memberChallengeJoinResDtoList;
+            }
+
+        } else {
+            throw new MemberNotFoundException();
+        }
+    }
 }

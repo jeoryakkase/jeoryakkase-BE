@@ -5,6 +5,7 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import java.util.List;
 
@@ -29,4 +30,7 @@ public interface MemberChallengeService {
 
     // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
     void resetDailyMemberChallengeAuthentication();
+
+    // 참여 중인 챌린지 목록 조회
+    List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId);
 }
