@@ -5,7 +5,8 @@ import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNo
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.community.board.exception.BoardException;
-import com.example.savingsalt.community.board.exception.CommentException;
+import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
+import com.example.savingsalt.community.comment.exception.CommentException;
 import com.example.savingsalt.community.poll.exception.PollException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
@@ -98,21 +99,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BoardException.UnauthorizedPostCreateException.class)
+    public ResponseEntity<String> handleUnauthorizedPostCreateException(
+        BoardException.UnauthorizedPostCreateException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
-    // 게시판 관련 예외처리
-    @ExceptionHandler(BoardException.UnauthorizedCreateException.class)
-    public ResponseEntity<String> handleUnauthorizedCreateException(
-        BoardException.UnauthorizedCreateException ex) {
+    @ExceptionHandler(BoardException.UnauthorizedPostUpdateException.class)
+    public ResponseEntity<String> handleUnauthorizedPostUpdateException(
+        BoardException.UnauthorizedPostUpdateException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
-    @ExceptionHandler(BoardException.UnauthorizedUpdateException.class)
-    public ResponseEntity<String> handleUnauthorizedUpdateException(
-        BoardException.UnauthorizedUpdateException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
-    @ExceptionHandler(BoardException.UnauthorizedDeleteException.class)
-    public ResponseEntity<String> handleUnauthorizedDeleteException(
-        BoardException.UnauthorizedDeleteException ex) {
+
+    @ExceptionHandler(BoardException.UnauthorizedPostDeleteException.class)
+    public ResponseEntity<String> handleUnauthorizedPostDeleteException(
+        BoardException.UnauthorizedPostDeleteException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
@@ -121,6 +122,12 @@ public class GlobalExceptionHandler {
         BoardException.EmptyBoardException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(BoardNotFoundException.class)
+    public ResponseEntity<String> handleBoardNotFoundException(BoardNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(BoardException.InternalServerErrorException.class)
     public ResponseEntity<String> handleInternalServerErrorException(
         BoardException.InternalServerErrorException ex) {
@@ -145,6 +152,19 @@ public class GlobalExceptionHandler {
         CommentException.ValidateAuthorForDelete ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(CommentException.CannotUpdateCommentWithReplies.class)
+    public ResponseEntity<String> handleCannotUpdateCommentWithReplies(
+        CommentException.CannotUpdateCommentWithReplies ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CommentException.NotFoundParentComment.class)
+    public ResponseEntity<String> handleNotFoundParentComment(
+        CommentException.NotFoundParentComment ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 
     // 투표 관련 예외 처리
     @ExceptionHandler(PollException.PollNotFoundException.class)

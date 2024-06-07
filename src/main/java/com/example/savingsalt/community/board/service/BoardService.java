@@ -1,7 +1,5 @@
 package com.example.savingsalt.community.board.service;
 
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -42,19 +40,5 @@ public interface BoardService {
 
     // 투표 게시글 삭제
     void deleteVoteBoard(Long id, MemberEntity member);
-
-    // 소금모아태산 게시판 (챌린지 달성 정보 작성 게시판)
-
-    // 달성 정보 게시글 작성
-    BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto, MemberEntity member);
-
-    // 달성 정보 게시글 조회
-    List<BoardTypeHofReadResDto> findAllHofBoard();
-
-    // 달성 정보 게시글 삭제
-    void deleteHofBoard(Long id);
-
-
-
 
 }
