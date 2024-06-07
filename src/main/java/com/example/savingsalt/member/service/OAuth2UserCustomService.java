@@ -25,15 +25,27 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User user = super.loadUser(userRequest);
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
+        String email = null;
+        if(registrationId.equals("google")) {
+            email = (String) user.getAttributes().get("email");
+        } else if (registrationId.equals("kakao")) {
+            Map<String, Object> kakaoAccount = (Map<String, Object>) user.getAttributes().get("kakao_account");
+            email = kakaoAccount.get("email").toString();
+        }
+
+        if (email == null) {
+            throw new OAuth2AuthenticationException("Email not found from OAuth2 provider.");
+        }
 
         // 일반 회원가입으로 가입했던 이메일인지 확인
-        String email = (String) user.getAttributes().get("email");
         if (memberRepository.existsByEmail(email)) {
             throw new MemberException.EmailAlreadyExistsException("This email is registered with normal login.");
         }
 
         // 새로운 회원인지 확인
-        boolean isNewUser = saveOrUpdate(user);
+        boolean isNewUser = saveOrUpdate(user, email);
 
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         if (isNewUser) {
@@ -43,10 +55,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         return user;
     }
 
-    private boolean saveOrUpdate(OAuth2User oAuth2User) {
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        String email = (String) attributes.get("email");
-
+    private boolean saveOrUpdate(OAuth2User oAuth2User, String email) {
         MemberEntity memberEntity = memberRepository.findByEmail(email).orElse(null);
         if (memberEntity == null) {
             memberEntity = MemberEntity.builder()

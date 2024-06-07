@@ -1,10 +1,7 @@
 package com.example.savingsalt.member.controller;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.TokenResponseDto;
-import com.example.savingsalt.member.enums.Role;
-import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
