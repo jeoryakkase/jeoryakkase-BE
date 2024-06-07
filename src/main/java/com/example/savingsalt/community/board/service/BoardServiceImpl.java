@@ -1,15 +1,11 @@
 package com.example.savingsalt.community.board.service;
 
-import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
-import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.community.board.enums.BoardCategory;
-import com.example.savingsalt.community.board.domain.entity.BoardEntity;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.poll.domain.PollEntity;
@@ -81,7 +77,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedUpdateException();
+            throw new BoardException.UnauthorizedPostUpdateException();
         }
 
         board.updateTipBoard(requestDto);
@@ -99,7 +95,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedDeleteException();
+            throw new BoardException.UnauthorizedPostDeleteException();
         }
         boardRepository.delete(board);
     }
@@ -150,7 +146,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedUpdateException();
+            throw new BoardException.UnauthorizedPostUpdateException();
         }
 
         board.updateVoteBoard(requestDto);
@@ -168,45 +164,11 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new BoardException.UnauthorizedDeleteException();
+            throw new BoardException.UnauthorizedPostDeleteException();
         }
 
         boardRepository.delete(board);
     }
-
-    // 소금모아태산 게시판 (챌린지 달성 정보 작성 게시판)
-
-    // 달성 정보 게시글 작성
-    @Override
-    public BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto,
-        MemberEntity member) {
-
-        BoardEntity board = requestDto.toEntity(member);
-
-        boardRepository.save(board);
-
-        return convertToBoardTypeHofReadResDto(board);
-    }
-
-    // 달성 정보 게시글 목록 조회
-    @Override
-    public List<BoardTypeHofReadResDto> findAllHofBoard() {
-        List<BoardEntity> boards = boardRepository.findAllHofBoards(BoardCategory.HALL_OF_FAME);
-        return boards.stream()
-            .map(this::convertToBoardTypeHofReadResDto)
-            .collect(Collectors.toList());
-    }
-
-
-    // 달성 정보 게시글 삭제
-    @Override
-    public void deleteHofBoard(Long id) {
-        BoardCategory boardCategory = BoardCategory.HALL_OF_FAME;
-        BoardEntity board = findBoard(id, boardCategory);
-
-        boardRepository.delete(board);
-    }
-
 
     // BoardEntity를 BoardTypeTipReadResDto로 변환
     private BoardTypeTipReadResDto convertToBoardTypeTipReadResDto(BoardEntity boardEntity) {
@@ -225,21 +187,11 @@ public class BoardServiceImpl implements BoardService {
 
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
-            .nickname(boardEntity.getNickname())
+            .nickname(boardEntity.getMemberEntity().getNickname())
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .boardHits(boardEntity.getBoardHits())
             .pollResDto(pollResDto)
-            .build();
-    }
-
-    private BoardTypeHofReadResDto convertToBoardTypeHofReadResDto(BoardEntity boardEntity) {
-
-        return BoardTypeHofReadResDto.builder()
-            .id(boardEntity.getId())
-            .nickname(boardEntity.getNickname())
-            .contents(boardEntity.getContents())
-            .totalLike(boardEntity.getTotalLike())
             .build();
     }
 

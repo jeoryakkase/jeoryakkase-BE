@@ -1,7 +1,5 @@
 package com.example.savingsalt.community.board.mapper;
 
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -16,11 +14,9 @@ public interface BoardMainMapper {
     interface BoardMapper {
         BoardEntity toEntity(BoardTypeTipCreateReqDto dto);
         BoardEntity toEntity(BoardTypeVoteCreateReqDto dto);
-        BoardEntity toEntity(BoardTypeHofCreateReqDto dto);
 
         BoardTypeTipReadResDto toTipReadDto(BoardEntity entity);
         BoardTypeVoteReadResDto toVoteReadDto(BoardEntity entity);
-        BoardTypeHofReadResDto toHofReadDto(BoardEntity entity);
 
 
 

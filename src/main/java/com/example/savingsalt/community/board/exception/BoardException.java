@@ -6,9 +6,9 @@ public class BoardException extends RuntimeException {
         super(message);
     }
 
-    public static class UnauthorizedCreateException extends BoardException {
-        public UnauthorizedCreateException() {
-            super("게시글 작성 권한이 없습니다. 로그인해주세요.");
+    public static class UnauthorizedPostCreateException extends BoardException {
+        public UnauthorizedPostCreateException() {
+            super("게시글 작성 권한이 없습니다.");
         }
     }
 
@@ -32,14 +32,14 @@ public class BoardException extends RuntimeException {
         }
     }
 
-    public static class UnauthorizedUpdateException extends BoardException {
-        public UnauthorizedUpdateException() {
+    public static class UnauthorizedPostUpdateException extends BoardException {
+        public UnauthorizedPostUpdateException() {
             super("게시글 수정 권한이 없습니다.");
         }
     }
 
-    public static class UnauthorizedDeleteException extends BoardException {
-        public UnauthorizedDeleteException() {
+    public static class UnauthorizedPostDeleteException extends BoardException {
+        public UnauthorizedPostDeleteException() {
             super("게시글 삭제 권한이 없습니다.");
         }
     }
