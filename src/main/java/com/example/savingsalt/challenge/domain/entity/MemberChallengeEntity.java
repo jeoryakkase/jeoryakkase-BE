@@ -52,10 +52,10 @@ public class MemberChallengeEntity {
     private Boolean isTodayCertification;
 
     @Column(name = "challenge_conut", nullable = false)
-    private Integer challengeConut;
+    private Integer challengeCount;
 
     @Column(name = "success_count", nullable = false)
-    private Integer successConut;
+    private Integer successCount;
 
     @Column(name = "challenge_comment", length = 50)
     private String challengeComment;
