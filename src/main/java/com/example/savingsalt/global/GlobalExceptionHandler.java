@@ -2,8 +2,10 @@ package com.example.savingsalt.global;
 
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
-import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
+import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
+import com.example.savingsalt.goal.exception.GoalNotFoundException;
+import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +67,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ChallengeNotFoundException.class)
     public ResponseEntity<String> handleChallengeNotFoundException(ChallengeNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GoalNotFoundException.class)
+    public ResponseEntity<String> handleGoalNotFoundException(GoalNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidGoalRequestException.class)
+    public ResponseEntity<String> handleInvalidGoalRequestException(
+        InvalidGoalRequestException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidChallengeGoalAndCountException.class)
