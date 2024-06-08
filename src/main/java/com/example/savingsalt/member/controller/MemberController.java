@@ -1,6 +1,7 @@
 package com.example.savingsalt.member.controller;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberUpdateRequestDto;
@@ -64,17 +65,17 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/signup/additional-info")
-    @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Save success"),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
-        @ApiResponse(responseCode = "500", description = "Server error")
-    })
-    public ResponseEntity<?> saveAdditionalInfo(@RequestBody OAuth2SignupRequestDto dto) {
-        MemberEntity updatedMember = memberService.saveAdditionalInfo(dto);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
-    }
+//    @PostMapping("/signup/additional-info")
+//    @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "201", description = "Save success"),
+//        @ApiResponse(responseCode = "400", description = "Bad request"),
+//        @ApiResponse(responseCode = "500", description = "Server error")
+//    })
+//    public ResponseEntity<?> saveAdditionalInfo(@RequestBody OAuth2SignupRequestDto dto) {
+//        MemberEntity updatedMember = memberService.saveAdditionalInfo(dto);
+//        return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
+//    }
 
     @PostMapping("/login")
     @Operation(summary = "login", description = "Member login")
@@ -118,9 +119,11 @@ public class MemberController {
     })
     public ResponseEntity<?> updateMember(@PathVariable Long memberId,
         @RequestBody MemberUpdateRequestDto dto) {
-        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(), dto.getPassword(),
+        MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
+            dto.getPassword(),
             dto.getNickname(), dto.getAge(),
-            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(), dto.getInterests());
+            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
+            dto.getInterests());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
@@ -130,11 +133,16 @@ public class MemberController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "409", description = "This email already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> checkEmail(@RequestParam String email) {
-        memberService.checkEmail(email);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        try {
+            boolean isAvailable = memberService.checkEmail(email);
+            return ResponseEntity.ok().body(isAvailable);
+        } catch (MemberException.EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
+        }
     }
 
     @GetMapping("/check-nickname")
@@ -142,10 +150,33 @@ public class MemberController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "409", description = "This nickname already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
-        memberService.checkNickname(nickname);
+        try {
+            boolean isAvailable = memberService.checkNickname(nickname);
+            return ResponseEntity.ok().body(isAvailable);
+        } catch (MemberException.EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
+        }
+    }
+
+    @DeleteMapping("/signout")
+    @Operation(summary = "signout", description = "Member signout")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Signout success"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized member"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<Void> signout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("User is not authenticated");
+        }
+
+        String email = authentication.getName();
+        memberService.signOut(email);
         return ResponseEntity.ok().build();
     }
 
