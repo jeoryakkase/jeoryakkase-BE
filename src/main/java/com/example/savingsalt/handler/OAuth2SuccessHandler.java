@@ -42,53 +42,54 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = (String) oAuth2User.getAttributes().get("email");
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
 
-        // 클라이언트에서 토큰 받아오기
-        String accessToken = request.getParameter("access_token");
-        String refreshToken = request.getHeader("refresh_token");
-
-        if(!jwtTokenProvider.validateToken(accessToken)) {
-            throw new InvalidTokenException();
-        }
-
-        // 토큰에서 사용자 정보 추출
-        Authentication auth = jwtTokenProvider.getAuthentication(accessToken);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail((String) oAuth2User.getAttributes().get("email")));
-
-        // 리프레시 토큰 저장
-        saveRefreshToken(memberEntity.getId(), refreshToken);
-        addRefreshTokenToCookie(request, response, refreshToken);
-
-        response.setHeader("Authorization", "Bearer " + accessToken);
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter writer = response.getWriter();
-        writer.write("{\"refreshToken\": \"" + refreshToken + "\"}");
-        writer.flush();
-
-//        // JWT 토큰 생성
-//        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
-//        saveRefreshToken(memberEntity.getId(), tokenResponseDto.getRefreshToken());
-//        addRefreshTokenToCookie(request, response, tokenResponseDto.getRefreshToken());
+//        // 클라이언트에서 토큰 받아오기
+//        String accessToken = request.getParameter("access_token");
+//        String refreshToken = request.getHeader("refresh_token");
 //
-//        // 새로운 회원 여부를 쿠키에서 확인
-//        Cookie newUserCookie = WebUtils.getCookie(request, "newUser");
-//        boolean isNewUser = newUserCookie != null && "true".equals(newUserCookie.getValue());
-//
-//        if (isNewUser) {
-//            // 새로운 회원 -> 추가 정보 입력 페이지로 리디렉션
-//            CookieUtil.deleteCookie(request, response, "newUser"); // 쿠키를 제거하여 상태를 초기화
-//            REDIRECT_PATH = "/additional-info";
+//        if(!jwtTokenProvider.validateToken(accessToken)) {
+//            throw new InvalidTokenException();
 //        }
 //
-//        // 패스에 액세스 토큰 추가
-//        String targetUrl = getTargetUrl(tokenResponseDto.getAccessToken());
+//        // 토큰에서 사용자 정보 추출
+//        Authentication auth = jwtTokenProvider.getAuthentication(accessToken);
+//        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail((String) oAuth2User.getAttributes().get("email")));
 //
-//        // 인증 관련 설정값, 쿠키 제거
-//        clearAuthenticationAttributes(request, response);
+//        // 리프레시 토큰 저장
+//        saveRefreshToken(memberEntity.getId(), refreshToken);
+//        addRefreshTokenToCookie(request, response, refreshToken);
 //
-//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+//        response.setHeader("Authorization", "Bearer " + accessToken);
+//
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        PrintWriter writer = response.getWriter();
+//        writer.write("{\"refreshToken\": \"" + refreshToken + "\"}");
+//        writer.flush();
+
+        // JWT 토큰 생성
+        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
+        saveRefreshToken(memberEntity.getId(), tokenResponseDto.getRefreshToken());
+        addRefreshTokenToCookie(request, response, tokenResponseDto.getRefreshToken());
+
+        // 새로운 회원 여부를 쿠키에서 확인
+        Cookie newUserCookie = WebUtils.getCookie(request, "newUser");
+        boolean isNewUser = newUserCookie != null && "true".equals(newUserCookie.getValue());
+
+        if (isNewUser) {
+            // 새로운 회원 -> 추가 정보 입력 페이지로 리디렉션
+            CookieUtil.deleteCookie(request, response, "newUser"); // 쿠키를 제거하여 상태를 초기화
+            REDIRECT_PATH = "/additional-info";
+        }
+
+        // 패스에 액세스 토큰 추가
+        String targetUrl = getTargetUrl(tokenResponseDto.getAccessToken());
+
+        // 인증 관련 설정값, 쿠키 제거
+        clearAuthenticationAttributes(request, response);
+
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     // 리프레시 토큰을 데이터베이스에 저장
@@ -101,7 +102,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     // 리프레시 토큰을 쿠키에 저장
-    private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
+    private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response,
+        String refreshToken) {
         int cookieMaxAge = (int) Duration.ofDays(14).toSeconds();
         CookieUtil.deleteCookie(request, response, "refresh_token");
         CookieUtil.addCookie(response, "refresh_token", refreshToken, cookieMaxAge);
@@ -114,7 +116,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             .toUriString();
     }
 
-    private void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
+    private void clearAuthenticationAttributes(HttpServletRequest request,
+        HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
     }

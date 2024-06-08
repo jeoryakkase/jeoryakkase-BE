@@ -75,17 +75,17 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-//    @PostMapping("/signup/additional-info")
-//    @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
-//    @ApiResponses({
-//        @ApiResponse(responseCode = "201", description = "Save success"),
-//        @ApiResponse(responseCode = "400", description = "Bad request"),
-//        @ApiResponse(responseCode = "500", description = "Server error")
-//    })
-//    public ResponseEntity<?> saveAdditionalInfo(@RequestBody OAuth2SignupRequestDto dto) {
-//        MemberEntity updatedMember = memberService.saveAdditionalInfo(dto);
-//        return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
-//    }
+    @PostMapping("/signup/additional-info")
+    @Operation(summary = "additional information for OAuth2 signup", description = "Save additional information after new OAuth2 login")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Save success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<?> saveAdditionalInfo(@RequestBody OAuth2SignupRequestDto dto) {
+        MemberEntity updatedMember = memberService.saveAdditionalInfo(dto);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
+    }
 
     @PostMapping("/login")
     @Operation(summary = "login", description = "Member login")
