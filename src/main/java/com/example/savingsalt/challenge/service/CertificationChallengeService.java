@@ -6,7 +6,7 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 
 public interface CertificationChallengeService {
 
-    // 회원 챌린지 일일 인증 생성
+    // 챌린지 일일 인증
     public CertificationChallengeDto createCertificationChallenge(
         MemberChallengeEntity memberChallengeEntity,
         CertificationChallengeReqDto certificationChallengeReqDto);

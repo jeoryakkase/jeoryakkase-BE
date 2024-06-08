@@ -7,6 +7,7 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
+import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
@@ -66,6 +67,25 @@ public class MemberChallengeServiceImpl implements
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
+
+            List<MemberChallengeEntity> memberChallengeEntityList =
+                memberChallengeRepository.findAllByMemberEntity(memberEntity);
+
+            List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtoList
+                = memberChallengeWithCertifyAndChallengeMapper.toDtoList(memberChallengeEntityList);
+
+            List<CertificationChallengeEntity> certificationChallengeEntityList;
+
+//            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntityList) {
+//
+//                // 챌린지 인증 이미지 가져오기
+//                certificationChallengeEntityList = memberChallengeEntity.getCertificationChallengeEntities();
+//                List<CertificationChallengeDto> certificationChallengeDtos = certifiCationChallengeMapper.toDto(certificationChallengeEntityList);
+//                certificationChallengeEntityList = certifiCationChallengeMapper.toEntity(certificationChallengeDtos);
+//
+//
+//            }
+
 
             return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
                 memberChallengeRepository.findAllByMemberEntity(memberEntity));

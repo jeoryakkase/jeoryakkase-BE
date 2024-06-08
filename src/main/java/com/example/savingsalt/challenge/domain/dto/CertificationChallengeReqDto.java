@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class CertificationChallengeReqDto {
 
-    private List<String> imageUrls;
-
     private String content;
+
+    private List<String> imageUrls;
 
     private Integer saveMoney;
 }

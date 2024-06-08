@@ -93,4 +93,11 @@ public interface ChallengeMainMapper {
     interface CertificationChallengeImageMapper extends EntityMapper<CertificationChallengeImageEntity, CertificationChallengeImageDto> {
     }
 
+//    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
+//    interface CertifiCationChallengeMapper extends EntityMapper<CertificationChallengeEntity, CertificationChallengeDto> {
+//        @Mapping(source = "certificationChallengeImageEntities", target = "certificationChallengeImageDtos")
+//        List<CertificationChallengeDto> toDto(List<CertificationChallengeEntity> certificationChallengeEntities);
+//        List<CertificationChallengeEntity> toEntity(List<CertificationChallengeDto> certificationChallengeDtos);
+//    }
+
 }

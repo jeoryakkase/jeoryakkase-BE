@@ -28,8 +28,17 @@ public class CertificationChallengeServiceImpl {
         this.certificationChallengeImageService = certificationChallengeImageService;
     }
 
-    // 회원 챌린지 일일 인증 생성
-    public CertificationChallengeDto createCertificationChallenge(MemberChallengeEntity memberChallengeEntity,
+    // 챌린지 인증 내용 조회
+    public CertificationChallengeDto getCertifiCationChallenge(
+        MemberChallengeEntity memberChallengeEntity) {
+
+        return certificationChallengeMapper.toDto(
+            certificationChallengeRepository.findByMemberChallengeEntity(memberChallengeEntity));
+    }
+
+    // 챌린지 인증 컬럼 생성
+    public CertificationChallengeDto createCertificationChallenge(
+        MemberChallengeEntity memberChallengeEntity,
         CertificationChallengeReqDto certificationChallengeReqDto) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -47,10 +56,12 @@ public class CertificationChallengeServiceImpl {
         CertificationChallengeDto certificationChallengeDto = certificationChallengeMapper.toDto(
             certificationChallengeEntity);
 
-        // 챌린지 인증 테이블에 이미지 저장
-        certificationChallengeDto = certificationChallengeDto.toBuilder().certificationChallengeImageDtos(
+        // 챌린지 인증 이미지 컬럼 생성
+        certificationChallengeDto = certificationChallengeDto.toBuilder()
+            .certificationChallengeImageDtos(
                 certificationChallengeImageService.createCertificationChallengeImage(
-                    certificationChallengeReqDto.getImageUrls(), certificationChallengeEntity.getId()))
+                    certificationChallengeReqDto.getImageUrls(),
+                    certificationChallengeEntity.getId()))
             .build();
 
         return certificationChallengeDto;
