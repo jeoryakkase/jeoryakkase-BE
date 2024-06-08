@@ -5,6 +5,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
+import com.example.savingsalt.badge.exception.BadgeException.RepresentativeBadgeNotFoundException;
 import com.example.savingsalt.badge.mapper.BadgeMainMapper;
 import com.example.savingsalt.badge.repository.BadgeRepository;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
@@ -53,29 +54,49 @@ public class BadgeServiceImpl implements BadgeService {
         return allBadgeResDto;
     }
 
-    // 회원 챌린지 달성 뱃지 정보 조회
+    // 회원 챌린지 달성 뱃지 정보 조회(대표 뱃지 검색 포함)
     @Transactional(readOnly = true)
-    public List<MemberChallengeBadgeResDto> getMemberChallengeBadges(Long memberId) {
+    public List<MemberChallengeBadgeResDto> getMemberChallengeBadges(boolean isRepresentative,
+        Long memberId) {
         MemberEntity member = memberRepository.findById(memberId)
             .orElseThrow(MemberNotFoundException::new);
-        List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
-            member);
 
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = new ArrayList<>();
-        // 회원 챌린지에서 각각 처음 완료한 챌린지의 뱃지만 저장
-        for (int i = 0; i < memberChallengeEntity.size(); i++) {
-            if ((memberChallengeEntity.get(i).getChallengeStatus()
-                == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessConut()
-                == 1)) {
-                BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
-                    .getBadgeEntity();
+
+        // 대표 뱃지 검색 유무
+        if (isRepresentative) {
+            Optional<Long> representativebadgeEntity = Optional.ofNullable(
+                member.getRepresentativeBadgeId());
+            if (representativebadgeEntity.isPresent()) {
+                Long badgeId = representativebadgeEntity.get();
+                BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+                    .orElseThrow(BadgeNotFoundException::new);
+
                 memberChallengeBadgeResDto.add(
                     badgeMainMapper.toMemberChallengeBadgeResDto(badgeEntity));
+            } else {
+                throw new RepresentativeBadgeNotFoundException();
+            }
+        } else {
+            List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
+                member);
+
+            // 회원 챌린지에서 각각 처음 완료한 챌린지의 뱃지만 저장
+            for (int i = 0; i < memberChallengeEntity.size(); i++) {
+                if ((memberChallengeEntity.get(i).getChallengeStatus()
+                    == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessConut()
+                    == 1)) {
+                    BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
+                        .getBadgeEntity();
+                    memberChallengeBadgeResDto.add(
+                        badgeMainMapper.toMemberChallengeBadgeResDto(badgeEntity));
+                }
             }
         }
 
         return memberChallengeBadgeResDto;
     }
+
 
     // 뱃지 생성
     public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
