@@ -104,8 +104,9 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 회원 챌린지 대표 뱃지 등록
-    public RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, Long badgeId) {
-        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+    public RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId,
+        String badgeName) {
+        BadgeEntity badgeEntity = badgeRepository.findByName(badgeName)
             .orElseThrow(BadgeNotFoundException::new);
         MemberEntity member = memberRepository.findById(memberId)
             .orElseThrow(MemberNotFoundException::new);
@@ -121,14 +122,14 @@ public class BadgeServiceImpl implements BadgeService {
                 == 1)) {
                 BadgeEntity membeBadgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                     .getBadgeEntity();
-                if (membeBadgeEntity.getId() == badgeId) {
+                if (membeBadgeEntity.getId() == badgeEntity.getId()) {
                     checkBadge = true;
                 }
             }
         }
         RepresentativeBadgeSetResDto representativeBadgeSetResDto = null;
         if (checkBadge) {
-            member.setRepresentativeBadgeId(badgeId);
+            member.setRepresentativeBadgeId(badgeEntity.getId());
             representativeBadgeSetResDto = memberMapper.toRepresentativeBadgeSetResDto(member);
         } else {
             throw new InvalidRepresentativeBadgeException();
