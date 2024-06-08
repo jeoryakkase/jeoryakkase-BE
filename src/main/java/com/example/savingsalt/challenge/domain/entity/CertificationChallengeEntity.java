@@ -8,8 +8,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,9 +34,6 @@ public class CertificationChallengeEntity {
     @Column(name = "certification_date", nullable = false)
     private LocalDateTime certificationDate;
 
-    @Column(name = "img_url", nullable = false)
-    private String imgUrl;
-
     @Column(name = "content", nullable = false, length = 200)
     private String content;
 
@@ -44,5 +43,8 @@ public class CertificationChallengeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "certificationChallenge")
+    private List<CertificationChallengeImageEntity> certificationChallengeImageEntities;
 
 }
