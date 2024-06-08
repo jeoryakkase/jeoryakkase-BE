@@ -91,6 +91,8 @@ public class MemberChallengeController {
             PutObjectRequest putObjectRequest;
 
             String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
+            // test01.jpg/0043885293124
+            // https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/test01.jpg/0043885293124
 
             putObjectRequest = new PutObjectRequest(
                 "my.eliceproject.s3.bucket",

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
+@Builder(toBuilder = true)
 public class MemberChallengeDto {
 
     private LocalDateTime startDate;
@@ -32,4 +32,5 @@ public class MemberChallengeDto {
 
     private Integer totalSaveMoney;
 
+    private CertificationChallengeDto certificationChallengeDto;
 }
