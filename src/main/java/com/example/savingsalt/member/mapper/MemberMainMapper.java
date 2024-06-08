@@ -43,6 +43,8 @@ public interface MemberMainMapper {
                     throw new IllegalArgumentException("Unknown gender: " + gender);
             }
         }
+
+        RepresentativeBadgeSetResDto toRepresentativeBadgeSetResDto(MemberEntity member);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
@@ -107,6 +109,5 @@ public interface MemberMainMapper {
                     throw new IllegalArgumentException("Unknown gender: " + gender);
             }
         }
-        RepresentativeBadgeSetResDto toRepresentativeBadgeSetResDto(MemberEntity entity);
     }
 }
