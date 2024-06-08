@@ -92,15 +92,4 @@ public class ChallengeServiceController {
 
         return ResponseEntity.ok().build();
     }
-
-    // 챌린지 난이도 설정(챌린지별 달성률 기준 30%: HARD(상), 60%: NORMAL(중), 나머지: EASY(하))
-    @Operation(summary = "챌린지 난이도 설정", description = "해당 챌린지의 난이도 설정(챌린지별 달성률 기준 30%: HARD(상), 60%: NORMAL(중), 나머지: EASY(하)")
-    @PutMapping("/challenges/{challengeId}/difficulty")
-    public ResponseEntity<Void> setChallengeDifficulty(
-        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
-        challengeService.setChallengeDifficulty(challengeId);
-
-        return ResponseEntity.ok().build();
-    }
-
 }
