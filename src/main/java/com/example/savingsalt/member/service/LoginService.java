@@ -36,6 +36,7 @@ public class LoginService implements UserDetailsService {
             .role(memberEntity.getRole())
             .profileImage(memberEntity.getProfileImage())
             .interests(memberEntity.getInterests())
+            .about(memberEntity.getAbout())
             .build();
     }
 }

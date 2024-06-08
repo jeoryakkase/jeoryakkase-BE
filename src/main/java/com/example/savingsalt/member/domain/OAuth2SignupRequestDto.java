@@ -16,4 +16,5 @@ public class OAuth2SignupRequestDto {
     private String savePurpose;
     private String profileImage;
     private List<Long> interests;
+    private String about;
 }
