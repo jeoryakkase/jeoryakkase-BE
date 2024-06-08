@@ -68,6 +68,13 @@ public class BoardEntity extends BaseEntity {
         this.contents = requestDto.getContents();
     }
 
+    public void incrementLikes() {
+        this.totalLike++;
+    }
+
+    public void decrementLikes() {
+        this.totalLike--;
+    }
     public void incrementView() {
         this.view++;
     }
