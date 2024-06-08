@@ -2,8 +2,8 @@ package com.example.savingsalt.community.like.service;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.repository.BoardRepository;
-import com.example.savingsalt.community.like.LikeException.BoardNotFoundException;
-import com.example.savingsalt.community.like.LikeException.MemberNotFoundException;
+import com.example.savingsalt.community.like.exception.LikeException.BoardNotFoundException;
+import com.example.savingsalt.community.like.exception.LikeException.MemberNotFoundException;
 import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.domain.MemberLikeEntity;
 import com.example.savingsalt.community.like.repository.MemberLikeRepository;

@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.like.controller;
 
-import com.example.savingsalt.community.like.LikeException;
+import com.example.savingsalt.community.like.exception.LikeException;
 import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.service.MemberLikeService;
 import io.swagger.v3.oas.annotations.Operation;

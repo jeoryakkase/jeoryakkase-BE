@@ -7,11 +7,8 @@ import com.example.savingsalt.challenge.exception.ChallengeException.MemberChall
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
 import com.example.savingsalt.community.comment.exception.CommentException;
-import com.example.savingsalt.community.like.LikeException;
+import com.example.savingsalt.community.like.exception.LikeException;
 import com.example.savingsalt.community.poll.exception.PollException;
-import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
-import com.example.savingsalt.goal.exception.GoalNotFoundException;
-import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
