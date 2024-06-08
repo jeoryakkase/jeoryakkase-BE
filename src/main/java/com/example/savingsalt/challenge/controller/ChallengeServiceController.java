@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// Todo: member 시큐리티 검증 적용 및 그에 따른 API 수정
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Challenge", description = "Challenge API")
