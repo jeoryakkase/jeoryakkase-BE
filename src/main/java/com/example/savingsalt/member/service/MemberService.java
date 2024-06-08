@@ -56,6 +56,7 @@ public class MemberService {
         memberEntity.setSavePurpose(dto.getSavePurpose());
         memberEntity.setProfileImage(dto.getProfileImage());
         memberEntity.setInterests(dto.getInterests());
+        memberEntity.setAbout(dto.getAbout());
         memberEntity.setRole(Role.MEMBER);
 
         return memberRepository.save(memberEntity);
@@ -132,7 +133,7 @@ public class MemberService {
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, String gender,
-        int income, String savePurpose, String profileImage, List<Long> interests) {
+        int income, String savePurpose, String profileImage, List<Long> interests, String about) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
@@ -155,6 +156,7 @@ public class MemberService {
         memberEntity.setSavePurpose(savePurpose);
         memberEntity.setProfileImage(profileImage);
         memberEntity.setInterests(interests);
+        memberEntity.setAbout(about);
 
         return memberRepository.save(memberEntity);
     }
@@ -177,9 +179,9 @@ public class MemberService {
 
     // 회원 탈퇴
     @Transactional
-    public void signOut(String email) {
-        MemberEntity memberEntity = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+    public void signOut(Long memberId) {
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("Id", memberId));
 
         // 사용자 엔티티 삭제
         memberRepository.delete(memberEntity);

@@ -19,15 +19,15 @@ public class MemberChallengeWithCertifyAndChallengeResDto {
 
     private LocalDateTime endDate;
 
-    private LocalDateTime certifyDate;
+    private LocalDateTime successDate;
 
     private ChallengeStatus challengeStatus;
 
     private Boolean isTodayCertification;
 
-    private Integer challengeConut;
+    private Integer authCount;
 
-    private Integer successConut;
+    private Integer successCount;
 
     private String challengeComment;
 
