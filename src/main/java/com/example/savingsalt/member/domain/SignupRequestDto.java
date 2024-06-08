@@ -17,4 +17,5 @@ public class SignupRequestDto {
     private String savePurpose;
     private String profileImage;
     private List<Long> interests;
+    private String about;
 }

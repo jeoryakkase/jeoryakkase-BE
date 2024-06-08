@@ -45,9 +45,13 @@ public class BoardEntity extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String contents;
 
+    @NotNull
+    @Column(columnDefinition = "integer default 0")
     private int totalLike;
 
-    private int boardHits;
+    @NotNull
+    @Column(columnDefinition = "integer default 0")
+    private int view;
 
     @Enumerated(EnumType.STRING)
     private BoardCategory category;
@@ -71,4 +75,8 @@ public class BoardEntity extends BaseEntity {
     public void decrementLikes() {
         this.totalLike--;
     }
+    public void incrementView() {
+        this.view++;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.domain.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,12 +11,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
+@Builder(toBuilder = true)
 public class CertificationChallengeDto {
 
     private LocalDateTime certificationDate;
 
-    private String imgUrl;
+    private List<CertificationChallengeImageDto> certificationChallengeImageDtos;
 
     private String content;
 

@@ -1,4 +1,4 @@
-package com.example.savingsalt.challenge.domain.dto;
+package com.example.savingsalt.member.domain;
 
 import java.util.List;
 import lombok.AccessLevel;
@@ -10,12 +10,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder(toBuilder = true)
-public class CertificationChallengeReqDto {
+@Builder
+public class RepresentativeBadgeSetResDto {
 
-    private List<String> imageUrls;
-
-    private String content;
-
-    private Integer saveMoney;
+    private String nickname;
+    private Long representativeBadgeId;
 }
