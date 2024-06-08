@@ -16,4 +16,11 @@ public class BadgeException {
         }
     }
 
+    public static class InvalidRepresentativeBadgeException extends RuntimeException {
+
+        public InvalidRepresentativeBadgeException() {
+            super("해당 뱃지를 대표 뱃지로 등록 할 수 없습니다.");
+        }
+    }
+
 }
