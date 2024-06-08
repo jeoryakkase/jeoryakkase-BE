@@ -160,7 +160,7 @@ public class MemberChallengeServiceImpl implements
                 }
             }
 
-            if (foundMemberChallengeEntity.getChallengeStatus() == ChallengeStatus.COMPLETED) {
+            if (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeStatus().equals(ChallengeStatus.COMPLETED)) {
                 throw new MemberChallengeAlreadySucceededException();
             }
 
@@ -198,7 +198,7 @@ public class MemberChallengeServiceImpl implements
             // 챌린지 종류 'Count' > 목표 달성 방식
             else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
-                foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                foundMemberChallengeEntity = foundMemberChallengeEntity
                     .toBuilder()
                     .authCount(foundMemberChallengeEntity.getAuthCount() + 1)
                     .isTodayCertification(true)
