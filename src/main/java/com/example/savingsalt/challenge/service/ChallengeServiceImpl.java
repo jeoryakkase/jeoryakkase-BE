@@ -19,6 +19,7 @@ import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNo
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,13 +52,21 @@ public class ChallengeServiceImpl implements ChallengeService {
         return challengeDto;
     }
 
-    //  챌린지 목록 및 키워드 조회
+    //  챌린지 목록 및 키워드 조회(인기 챌린지 목록 조회 포함)
     @Transactional(readOnly = true)
-    public Page<ChallengeReadResDto> getAllChallenges(String keyword, Pageable pageable) {
+    public Page<ChallengeReadResDto> getAllChallenges(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
         Page<ChallengeEntity> challengeEntities;
+
         if (keyword != null && !keyword.isEmpty()) {
-            challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,
-                pageable);
+            // 인기 챌린지 목록 조회(회원 챌린지 수 기반)
+            if (keyword.equals("Popularity")) {
+                pageable = PageRequest.of(0, 8);
+                challengeEntities = challengeRepository.findChallengesWithMostMembers(pageable);
+            } else {
+                challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,
+                    pageable);
+            }
         } else {
             challengeEntities = challengeRepository.findAllByOrderByCreatedAtDesc(pageable);
         }
