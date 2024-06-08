@@ -83,7 +83,7 @@ public class MemberService {
 
     // 로그인
     @Transactional(readOnly = true)
-    public String login(LoginRequestDto dto) {
+    public TokenResponseDto login(LoginRequestDto dto) {
         // 클라이언트로부터 토큰 받아오기
         String clientAccessToken = dto.getAccessToken();
         String clientRefreshToken = dto.getRefreshToken();
@@ -102,7 +102,12 @@ public class MemberService {
             throw new MemberNotFoundException("email", memberEntity.getEmail());
         }
 
-        return memberEntity.getEmail();
+        TokenResponseDto tokenResponseDto = TokenResponseDto.builder()
+            .accessToken(clientAccessToken)
+            .refreshToken(clientRefreshToken)
+            .build();
+
+        return tokenResponseDto;
 
 //        if (!bCryptPasswordEncoder.matches(dto.getPassword(),
 //            memberEntity.getPassword())) { // 비밀번호 확인

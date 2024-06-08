@@ -85,8 +85,10 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
-        String email = memberService.login(dto);
-        return ResponseEntity.status(HttpStatus.OK).body(email + " login success");
+        TokenResponseDto tokenResponseDto = memberService.login(dto);
+        return ResponseEntity.status(HttpStatus.OK)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken())
+            .body(tokenResponseDto.getRefreshToken());
     }
 
     @PostMapping("/logout")
