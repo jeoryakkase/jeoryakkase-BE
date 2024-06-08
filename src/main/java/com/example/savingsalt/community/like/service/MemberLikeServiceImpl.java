@@ -2,14 +2,14 @@ package com.example.savingsalt.community.like.service;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.repository.BoardRepository;
-import com.example.savingsalt.community.like.domain.LikeReqDto;
-import com.example.savingsalt.community.like.domain.LikeResDto;
+import com.example.savingsalt.community.like.exception.LikeException.BoardNotFoundException;
+import com.example.savingsalt.community.like.exception.LikeException.MemberNotFoundException;
 import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.domain.MemberLikeEntity;
-import com.example.savingsalt.community.like.mapper.MemberLikeMainMapper.LikeMapper;
 import com.example.savingsalt.community.like.repository.MemberLikeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,33 +26,35 @@ public class MemberLikeServiceImpl implements MemberLikeService{
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
-    private LikeMapper likeMapper;
-
     @Override
     @Transactional
-    public MemberLikeDto likeBoard(LikeReqDto likeReqDto) {
-        BoardEntity board = boardRepository.findById(likeReqDto.getBoardId())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid board ID"));
+    public String likePost(MemberLikeDto memberLikeDto) {
+        Long memberId = memberLikeDto.getMemberId();
+        Long boardId = memberLikeDto.getBoardId();
 
-        MemberEntity member = memberRepository.findById(likeReqDto.getMemberId())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+        Optional<MemberLikeEntity> likeOpt = memberLikeRepository.findByMemberEntityIdAndBoardEntityId(memberId, boardId);
 
-        if (memberLikeRepository.existsByBoardEntityAndMemberEntity(board, member)) {
-            memberLikeRepository.deleteByBoardEntityAndMemberEntity(board, member);
-            return new MemberLikeDto(null, board.getId(), member.getId());
+        BoardEntity boardEntity = boardRepository.findById(boardId).orElseThrow(
+            BoardNotFoundException::new);
+
+        if (likeOpt.isPresent()) {
+            memberLikeRepository.delete(likeOpt.get());
+            boardEntity.decrementLikes(); // 좋아요 수 감소
+            boardRepository.save(boardEntity);
+            return "좋아요 취소";
         } else {
-            MemberLikeEntity likeEntity = new MemberLikeEntity(board, member);
-            MemberLikeEntity savedLikeEntity = memberLikeRepository.save(likeEntity);
-            return likeMapper.toDto(savedLikeEntity);
+            MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
+                MemberNotFoundException::new);
+            MemberLikeEntity like = new MemberLikeEntity(boardEntity, memberEntity);
+            memberLikeRepository.save(like);
+            boardEntity.incrementLikes(); // 좋아요 수 증가
+            boardRepository.save(boardEntity);
+            return "좋아요 완료";
         }
     }
 
     @Override
-    public LikeResDto countLikes(Long boardId) {
-        BoardEntity board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid board ID"));
-        long count = memberLikeRepository.countByBoardEntity(board);
-        return new LikeResDto(count);
+    public int countLikes(Long boardId) {
+        return memberLikeRepository.countByBoardEntityId(boardId);
     }
 }
