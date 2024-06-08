@@ -56,4 +56,8 @@ public class GoalEntity {
     @Enumerated(EnumType.STRING) // Enum을 String 형태로 저장
     @Column(name = "goal_status")
     private GoalStatus goalStatus;
+
+    public void updateGoalStatus(GoalStatus goalStatus) {
+        this.goalStatus = goalStatus;
+    }
 }

@@ -8,6 +8,7 @@ import com.example.savingsalt.goal.enums.GoalStatus;
 import com.example.savingsalt.goal.exception.GoalNotFoundException;
 import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
 import com.example.savingsalt.goal.exception.MaxProceedingGoalsExceededException;
+import com.example.savingsalt.goal.exception.PermissionDeniedException;
 import com.example.savingsalt.goal.repository.GoalRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
@@ -56,19 +57,22 @@ public class GoalService {
             .collect(Collectors.toList());
     }
 
-    // 진행중인 목표 수정
-//    public GoalResponseDto updateGoal(Long id, GoalUpdateReqDto goalUpdateReqDto) {
-//        Optional<GoalEntity> optionalGoalEntity = goalRepository.findById(id);
-//
-//        if (optionalGoalEntity.isEmpty()) {
-//            throw new GoalNotFoundException("해당하는 목표를 찾을 수 없습니다.");
-//        }
-//
-//        GoalEntity existingGoalEntity = optionalGoalEntity.get();
-//        GoalEntity updatedGoalEntity = goalUpdateReqDto.toEntity(id, existingGoalEntity);
-//
-//        GoalEntity savedGoal = goalRepository.save(updatedGoalEntity);
-//        return GoalResponseDto.fromEntity(savedGoal);
-//
-//    }
+    // 진행중인 목표 포기
+    public GoalResponseDto giveUpGoal(Long id, UserDetails userDetails) {
+        MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(MemberNotFoundException::new);
+
+        GoalEntity goalEntity = goalRepository.findById(id)
+            .orElseThrow(GoalNotFoundException::new);
+
+        // 사용자가 목표의 소유자인지 확인
+        if (!goalEntity.getMemberEntity().getId().equals(memberEntity.getId())) {
+            throw new PermissionDeniedException();
+        }
+
+        goalEntity.updateGoalStatus(GoalStatus.GIVE_UP);
+        goalRepository.save(goalEntity);
+
+        return GoalResponseDto.fromEntity(goalEntity, memberEntity);
+    }
 }

@@ -14,6 +14,7 @@ import com.example.savingsalt.community.comment.exception.CommentException;
 import com.example.savingsalt.community.like.exception.LikeException;
 import com.example.savingsalt.community.poll.exception.PollException;
 import com.example.savingsalt.goal.exception.MaxProceedingGoalsExceededException;
+import com.example.savingsalt.goal.exception.PermissionDeniedException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -238,5 +239,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BookmarkException.BoardNotFoundException.class)
     public ResponseEntity<String> handleBoardNotFoundException(BookmarkException.BoardNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<String> handlePermissionDenied(PermissionDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 }
