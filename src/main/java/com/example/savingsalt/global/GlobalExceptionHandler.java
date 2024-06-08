@@ -1,6 +1,7 @@
 package com.example.savingsalt.global;
 
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
+import com.example.savingsalt.badge.exception.BadgeException.RepresentativeBadgeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
@@ -91,8 +92,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MemberChallengeFailureException.class)
-    public ResponseEntity<String> handleMemberChallengeFailureException(MemberChallengeFailureException ex) {
+    public ResponseEntity<String> handleMemberChallengeFailureException(
+        MemberChallengeFailureException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RepresentativeBadgeNotFoundException.class)
+    public ResponseEntity<String> handleRepresentativeBadgeNotFoundException(
+        RepresentativeBadgeNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
     }
 
 }
