@@ -76,16 +76,6 @@ public class MemberChallengeServiceImpl implements
 
             List<CertificationChallengeEntity> certificationChallengeEntityList;
 
-//            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntityList) {
-//
-//                // 챌린지 인증 이미지 가져오기
-//                certificationChallengeEntityList = memberChallengeEntity.getCertificationChallengeEntities();
-//                List<CertificationChallengeDto> certificationChallengeDtos = certifiCationChallengeMapper.toDto(certificationChallengeEntityList);
-//                certificationChallengeEntityList = certifiCationChallengeMapper.toEntity(certificationChallengeDtos);
-//
-//
-//            }
-
 
             return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
                 memberChallengeRepository.findAllByMemberEntity(memberEntity));

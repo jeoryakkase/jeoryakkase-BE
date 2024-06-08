@@ -4,7 +4,7 @@ import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
-import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeMapper;
+import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCationChallengeMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -15,12 +15,12 @@ import org.springframework.stereotype.Service;
 public class CertificationChallengeServiceImpl {
 
     private final CertificationChallengeRepository certificationChallengeRepository;
-    private final CertificationChallengeMapper certificationChallengeMapper;
+    private final CertifiCationChallengeMapper certificationChallengeMapper;
     private final CertificationChallengeImageServiceImpl certificationChallengeImageService;
 
     public CertificationChallengeServiceImpl(
         CertificationChallengeRepository certificationChallengeRepository,
-        CertificationChallengeMapper certificationChallengeMapper,
+        CertifiCationChallengeMapper certificationChallengeMapper,
         CertificationChallengeImageServiceImpl certificationChallengeImageService) {
 
         this.certificationChallengeRepository = certificationChallengeRepository;
@@ -43,7 +43,8 @@ public class CertificationChallengeServiceImpl {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-        CertificationChallengeEntity certificationChallengeEntity = certificationChallengeMapper.toEntity(
+        CertificationChallengeEntity certificationChallengeEntity =
+            certificationChallengeMapper.certificationChallengeDtoToCertificationChallengeEntity(
             certificationChallengeReqDto);
 
         certificationChallengeEntity = certificationChallengeEntity.toBuilder()
