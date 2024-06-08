@@ -89,7 +89,7 @@ public class MemberChallengeServiceImpl implements
                 MemberChallengeEntity memberChallengeEntity = MemberChallengeEntity.builder()
                     .startDate(startDate)
                     .endDate(endDate)
-                    .successDate(LocalDateTime.now())
+                    .successDate(null)
                     .challengeEntity(challengeEntity)
                     .authCount(0)
                     .successCount(0)
