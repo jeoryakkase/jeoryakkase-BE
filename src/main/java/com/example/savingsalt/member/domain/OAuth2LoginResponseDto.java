@@ -15,5 +15,5 @@ public class OAuth2LoginResponseDto {
     String email;
     String accessToken;
     String refreshToken;
-    String redirectUrl;
+//    String redirectUrl;
 }

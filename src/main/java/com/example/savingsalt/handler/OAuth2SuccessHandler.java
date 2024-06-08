@@ -5,7 +5,6 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.OAuth2LoginResponseDto;
 import com.example.savingsalt.member.domain.RefreshToken;
 import com.example.savingsalt.member.domain.TokenResponseDto;
-import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
@@ -23,14 +22,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.WebUtils;
 
 @RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private String REDIRECT_PATH = "/";
+//    private String REDIRECT_PATH = "/";
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -75,21 +72,21 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         addRefreshTokenToCookie(request, response, tokenResponseDto.getRefreshToken());
 
         // 새로운 회원 여부를 쿠키에서 확인
-        Cookie newUserCookie = WebUtils.getCookie(request, "newUser");
-        boolean isNewUser = newUserCookie != null && "true".equals(newUserCookie.getValue());
-
-        if (isNewUser) {
-            // 새로운 회원 -> 추가 정보 입력 페이지로 리디렉션
-            CookieUtil.deleteCookie(request, response, "newUser"); // 쿠키를 제거하여 상태를 초기화
-            REDIRECT_PATH = "/userinfo/edit";
-        }
+//        Cookie newUserCookie = WebUtils.getCookie(request, "newUser");
+//        boolean isNewUser = newUserCookie != null && "true".equals(newUserCookie.getValue());
+//
+//        if (isNewUser) {
+//            // 새로운 회원 -> 추가 정보 입력 페이지로 리디렉션
+//            CookieUtil.deleteCookie(request, response, "newUser"); // 쿠키를 제거하여 상태를 초기화
+//            REDIRECT_PATH = "/userinfo/edit";
+//        }
 
         // 응답 바디에 이메일, 토큰, 리디렉션 url 담아 전송
         OAuth2LoginResponseDto loginResponseDto = OAuth2LoginResponseDto.builder()
             .email(email)
             .accessToken(tokenResponseDto.getAccessToken())
             .refreshToken(tokenResponseDto.getRefreshToken())
-            .redirectUrl(REDIRECT_PATH)
+//            .redirectUrl(REDIRECT_PATH)
             .build();
 
         response.setContentType("application/json;charset=UTF-8");
@@ -112,13 +109,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         int cookieMaxAge = (int) Duration.ofDays(14).toSeconds();
         CookieUtil.deleteCookie(request, response, "refresh_token");
         CookieUtil.addCookie(response, "refresh_token", refreshToken, cookieMaxAge);
-    }
-
-    private String getTargetUrl(String token) {
-        return UriComponentsBuilder.fromUriString(REDIRECT_PATH)
-            .queryParam("token", token)
-            .build()
-            .toUriString();
     }
 
     private void clearAuthenticationAttributes(HttpServletRequest request,
