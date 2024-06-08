@@ -9,6 +9,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Base64;
@@ -68,6 +69,25 @@ public class JwtTokenProvider {
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();
+    }
+
+    // 토큰에서 memberId 추출
+    public Long getMemberIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtProperties.getSecretKey())
+            .parseClaimsJws(token)
+            .getBody();
+
+        return Long.valueOf(claims.getSubject());
+    }
+
+    // 요청 헤더에서 JWT 토큰 추출
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
