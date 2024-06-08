@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.mapper;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeImageDto;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
@@ -11,6 +12,7 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.CertificationChallengeImageEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.EntityMapper;
@@ -85,6 +87,10 @@ public interface ChallengeMainMapper {
         List<MemberChallengeWithCertifyAndChallengeResDto> toDtoList(
             List<MemberChallengeEntity> memberChallengeEntities);
 
+    }
+
+    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
+    interface CertificationChallengeImageMapper extends EntityMapper<CertificationChallengeImageEntity, CertificationChallengeImageDto> {
     }
 
 }

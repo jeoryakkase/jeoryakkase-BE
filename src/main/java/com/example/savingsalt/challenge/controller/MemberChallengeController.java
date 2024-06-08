@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -71,13 +72,16 @@ public class MemberChallengeController {
 
     // 회원 챌린지 인증
     @Operation(summary = "회원 챌린지 인증", description = "챌린지 인증 컬럼 생성/회원 챌린지 상태 변화")
-    @PostMapping(value =  "/members/{memberId}/challenges/{memberChallengeId}/certify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/members/{memberId}/challenges/{memberChallengeId}/certify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MemberChallengeDto> certifyDailyMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
         @RequestPart CertificationChallengeReqDto certificationChallengeReqDto,
         @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
         throws IOException {
+
+        List<String> imageUrls = new ArrayList<>();
+        String timestamp = String.valueOf(System.currentTimeMillis());
 
         for (MultipartFile file : multipartFiles) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -86,15 +90,29 @@ public class MemberChallengeController {
 
             PutObjectRequest putObjectRequest;
 
-                putObjectRequest = new PutObjectRequest(
-                    "my.eliceproject.s3.bucket",
-                    "objectKey",
-                    file.getInputStream(),
-                    objectMetadata
-                );
+            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
+            // test01.jpg/0043885293124
+            // https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/test01.jpg/0043885293124
+
+            putObjectRequest = new PutObjectRequest(
+                "my.eliceproject.s3.bucket",
+                uploadFileName,
+                file.getInputStream(),
+                objectMetadata
+            );
 
             amazonS3Client.putObject(putObjectRequest);
+
+            String imageUrl = String.format(
+                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
+                    + uploadFileName);
+
+            imageUrls.add(imageUrl);
         }
+
+        certificationChallengeReqDto = certificationChallengeReqDto.toBuilder()
+            .imageUrls(imageUrls)
+            .build();
 
         MemberChallengeDto memberChallengeDto = memberChallengeService.certifyDailyMemberChallenge(
             memberId, memberChallengeId,
