@@ -5,6 +5,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.service.BadgeServiceImpl;
+import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// Todo: member 시큐리티 검증 적용 및 그에 따른 API 수정
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Badge", description = "Badge API")
@@ -54,6 +56,20 @@ public class BadgeController {
 
         return memberChallengeBadgeResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build() : ResponseEntity.ok(memberChallengeBadgeResDto);
+    }
+
+    // 회원 챌린지 대표 뱃지 등록
+    @Operation(summary = "회원 챌린지 대표 뱃지 등록", description = "해당 회원의 모든 챌린지 성공 뱃지중에 대표 뱃지를 등록하는 API")
+    @PutMapping("/members/{memberId}/challenges/badges")
+    public ResponseEntity<RepresentativeBadgeSetResDto> setMemberRepresentativeBadge(
+        @Parameter(description = "회원 ID") @PathVariable Long memberId,
+        @Parameter(description = "대표 뱃지로 지정할 뱃지 ID") @RequestParam Long badgeId) {
+        RepresentativeBadgeSetResDto memberRepresentativeBadge = badgeService.setMemberRepresentativeBadge(
+            memberId, badgeId);
+
+        return (memberRepresentativeBadge == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .build()
+            : ResponseEntity.ok(memberRepresentativeBadge);
     }
 
     // 뱃지 생성
