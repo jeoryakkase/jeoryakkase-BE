@@ -41,11 +41,13 @@ public class MemberChallengeServiceImpl implements
     private final CertificationChallengeServiceImpl certificationChallengeServiceImpl;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
 
+    private final ChallengeServiceImpl challengeService;
+
     public MemberChallengeServiceImpl(MemberChallengeRepository memberChallengeRepository,
         MemberChallengeMapper memberChallengeMapper
         , MemberRepository memberRepository, ChallengeRepository challengeRepository,
         CertificationChallengeServiceImpl certificationChallengeServiceImpl,
-        MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper) {
+        MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper, ChallengeServiceImpl challengeService) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
@@ -53,6 +55,7 @@ public class MemberChallengeServiceImpl implements
         this.challengeRepository = challengeRepository;
         this.certificationChallengeServiceImpl = certificationChallengeServiceImpl;
         this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
+        this.challengeService = challengeService;
     }
 
     // 회원 챌린지 목록 조회
@@ -133,6 +136,8 @@ public class MemberChallengeServiceImpl implements
                         .certifyDate(currentDate)
                         .build();
 
+                    challengeService.setChallengeDifficulty(challengeEntity.getId());
+
                     return memberChallengeMapper.toMemberChallengeCompleteReqDto(
                         memberChallengeRepository.save(foundMemberChallengeEntity));
                 } else {
@@ -150,6 +155,8 @@ public class MemberChallengeServiceImpl implements
                         .certifyDate(currentDate)
                         .successConut(foundMemberChallengeEntity.getSuccessConut() + 1)
                         .build();
+
+                    challengeService.setChallengeDifficulty(challengeEntity.getId());
 
                     return memberChallengeMapper.toMemberChallengeCompleteReqDto(
                         memberChallengeRepository.save(foundMemberChallengeEntity));

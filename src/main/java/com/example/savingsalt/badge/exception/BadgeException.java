@@ -5,7 +5,14 @@ public class BadgeException {
     public static class BadgeNotFoundException extends RuntimeException {
 
         public BadgeNotFoundException() {
-            super("해당 뱃지 찾을 수 없습니다.");
+            super("해당 뱃지를 찾을 수 없습니다.");
+        }
+    }
+
+    public static class RepresentativeBadgeNotFoundException extends RuntimeException {
+
+        public RepresentativeBadgeNotFoundException() {
+            super("대표 뱃지를 찾을 수 없습니다.");
         }
     }
 
