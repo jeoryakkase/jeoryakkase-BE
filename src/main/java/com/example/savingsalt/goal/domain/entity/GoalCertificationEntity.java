@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "goals")
+@Table(name = "goals_certification")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,7 +26,7 @@ public class GoalCertificationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "certification_id", nullable = false, updatable = false)
+    @Column(name = "certification_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
