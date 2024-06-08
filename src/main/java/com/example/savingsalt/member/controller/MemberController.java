@@ -82,8 +82,15 @@ public class MemberController {
 //        @ApiResponse(responseCode = "400", description = "Bad request"),
 //        @ApiResponse(responseCode = "500", description = "Server error")
 //    })
-//    public ResponseEntity<?> saveAdditionalInfo(@RequestBody OAuth2SignupRequestDto dto) {
-//        MemberEntity updatedMember = memberService.saveAdditionalInfo(dto);
+//    public ResponseEntity<?> saveAdditionalInfo(HttpServletRequest request, @RequestBody OAuth2SignupRequestDto dto) {
+//        String token = tokenProvider.resolveToken(request);
+//        if (token == null || !tokenProvider.validateToken(token)) {
+//            throw new MemberException.InvalidTokenException();
+//        }
+//
+//        String email = tokenProvider.getEmailFromToken(token);
+//
+//        MemberEntity updatedMember = memberService.saveAdditionalInfo(email, dto);
 //        return ResponseEntity.status(HttpStatus.OK).body(updatedMember);
 //    }
 
@@ -134,10 +141,10 @@ public class MemberController {
             throw new MemberException.InvalidTokenException();
         }
 
-        Long memberId = tokenProvider.getMemberIdFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberById(memberId));
-        if(memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("id", memberId);
+        String email = tokenProvider.getEmailFromToken(token);
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
+        if (memberEntity == null) {
+            throw new MemberException.MemberNotFoundException("email", email);
         }
 
         MemberUpdateResponseDto responseDto = memberUpdateMapper.toDto(memberEntity);
@@ -158,10 +165,10 @@ public class MemberController {
             throw new MemberException.InvalidTokenException();
         }
 
-        Long memberId = tokenProvider.getMemberIdFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberById(memberId));
+        String email = tokenProvider.getEmailFromToken(token);
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("id", memberId);
+            throw new MemberException.MemberNotFoundException("email", email);
         }
 
         MyPageResponseDto responseDto = myPageMapper.toDto(memberEntity);
@@ -184,7 +191,8 @@ public class MemberController {
             throw new InvalidTokenException();
         }
 
-        Long memberId = tokenProvider.getMemberIdFromToken(token);
+        String email = tokenProvider.getEmailFromToken(token);
+        Long memberId = memberService.findMemberByEmail(email).getId();
 
         MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
             dto.getPassword(),
@@ -242,7 +250,9 @@ public class MemberController {
             throw new UnauthorizedException("User is not authenticated");
         }
 
-        Long memberId = tokenProvider.getMemberIdFromToken(token);
+        String email = tokenProvider.getEmailFromToken(token);
+        Long memberId = memberService.findMemberByEmail(email).getId();
+
         memberService.signOut(memberId);
         return ResponseEntity.ok().build();
     }
