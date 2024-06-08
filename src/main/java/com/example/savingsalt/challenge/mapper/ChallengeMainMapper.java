@@ -7,8 +7,7 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCompleteReqDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateReqDto;
+import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
@@ -51,13 +50,10 @@ public interface ChallengeMainMapper {
 
         MemberChallengeEntity toEntity(MemberChallengeEntity MemberChallengeDto);
 
-        MemberChallengeCreateReqDto toMemberChallengeCreateReqDto(
+        MemberChallengeCreateResDto toMemberChallengeCreateResDto(
             MemberChallengeEntity memberChallengeEntity);
 
-        MemberChallengeEntity toEntity(MemberChallengeCreateReqDto memberChallengeCreateReqDto);
-
-        MemberChallengeCompleteReqDto toMemberChallengeCompleteReqDto(
-            MemberChallengeEntity memberChallengeEntity);
+        MemberChallengeEntity toEntity(MemberChallengeCreateResDto memberChallengeCreateResDto);
 
         MemberChallengeAbandonResDto toMemberChallengeAbandonResDto(
             MemberChallengeEntity memberChallengeEntity);
@@ -77,6 +73,10 @@ public interface ChallengeMainMapper {
 
         @Mapping(source = "certificationChallengeEntities", target = "certificationChallengeDtos")
         @Mapping(source = "challengeEntity", target = "challengeDto")
+        @Mapping(source = "challengeEntity.badgeEntity.name", target = "challengeDto.badgeDto.name")
+        @Mapping(source = "challengeEntity.badgeEntity.badgeDesc", target = "challengeDto.badgeDto.badgeDesc")
+        @Mapping(source = "challengeEntity.badgeEntity.badgeImage", target = "challengeDto.badgeDto.badgeImage")
+        @Mapping(source = "challengeEntity.badgeEntity.badgeType", target = "challengeDto.badgeDto.badgeType")
         MemberChallengeWithCertifyAndChallengeResDto toDto(
             MemberChallengeEntity memberChallengeEntity);
 
