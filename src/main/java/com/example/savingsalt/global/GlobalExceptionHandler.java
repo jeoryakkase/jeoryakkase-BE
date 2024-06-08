@@ -6,11 +6,10 @@ import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChal
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
+import com.example.savingsalt.community.bookmark.exception.BookmarkException;
 import com.example.savingsalt.community.comment.exception.CommentException;
+import com.example.savingsalt.community.like.exception.LikeException;
 import com.example.savingsalt.community.poll.exception.PollException;
-import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
-import com.example.savingsalt.goal.exception.GoalNotFoundException;
-import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
 import com.example.savingsalt.goal.exception.MaxProceedingGoalsExceededException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
@@ -200,5 +199,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleMaxProceedingGoalsExceeded(MaxProceedingGoalsExceededException ex) {
         // 진행중인 목표가 5개를 초과했을 때 처리
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    // 좋아요 예외 처리
+    @ExceptionHandler(LikeException.MemberNotFoundException.class)
+    public ResponseEntity<String> handleMemberNotFoundException(LikeException.MemberNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LikeException.BoardNotFoundException.class)
+    public ResponseEntity<String> handleBoardNotFoundException(LikeException.BoardNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    // 북마크 예외 처리
+    @ExceptionHandler(BookmarkException.MemberNotFoundException.class)
+    public ResponseEntity<String> handleMemberNotFoundException(BookmarkException.MemberNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BookmarkException.BoardNotFoundException.class)
+    public ResponseEntity<String> handleBoardNotFoundException(BookmarkException.BoardNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
