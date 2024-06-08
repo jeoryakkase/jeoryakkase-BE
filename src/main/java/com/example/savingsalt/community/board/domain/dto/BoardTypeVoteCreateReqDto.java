@@ -18,7 +18,7 @@ public class BoardTypeVoteCreateReqDto {
 
     private String title;
     private String contents;
-    private BoardCategory category;
+    private BoardCategory category = BoardCategory.VOTE;
     private PollCreateReqDto pollReqDto; // 투표 데이터 포함
 
     public BoardEntity toEntity(MemberEntity member) {
@@ -26,7 +26,6 @@ public class BoardTypeVoteCreateReqDto {
             .memberEntity(member)
             .title(title)
             .contents(contents)
-            .category(BoardCategory.VOTE)
             .build();
     }
 

@@ -28,8 +28,6 @@ public class ReplyCommentEntity extends BaseEntity {
     @NotNull
     private String content;
 
-    private int depth;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private CommentEntity parentComment;
@@ -39,7 +37,7 @@ public class ReplyCommentEntity extends BaseEntity {
     private MemberEntity memberEntity;
 
 
-    public ReplyCommentEntity(String comment, CommentEntity parentComment, MemberEntity memberEntity) {
+    public ReplyCommentEntity(String content, CommentEntity parentComment, MemberEntity memberEntity) {
         this.content = content;
         this.parentComment = parentComment;
         this.memberEntity = memberEntity;

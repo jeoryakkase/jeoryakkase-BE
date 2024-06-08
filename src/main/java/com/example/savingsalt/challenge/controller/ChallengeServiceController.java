@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// Todo: member 시큐리티 검증 적용 및 그에 따른 API 수정
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Challenge", description = "Challenge API")
@@ -40,37 +39,22 @@ public class ChallengeServiceController {
     @GetMapping("/challenges/{challengeId}")
     public ResponseEntity<ChallengeDto> getChallenge(
         @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
-        ChallengeDto challengeDto = challengeService.getChallenge(challengeId);
+        ChallengeDto challengesDto = challengeService.getChallenge(challengeId);
 
-        return (challengeDto == null) ? ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .build() : ResponseEntity.ok(challengeDto);
+        return (challengesDto == null) ? ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .build() : ResponseEntity.ok(challengesDto);
     }
 
-    // 챌린지 전체 목록 조회
-    @Operation(summary = "챌린지 목록 조회", description = "모든 챌린지 목록을 조회하는 API")
+    // 챌린지 전체 목록 및 키워드 검색(인기 챌린지 목록 조회 포함)
+    @Operation(summary = "챌린지 목록 조회", description = "모든 챌린지 목록을 조회하는 API(keyword에 \"Popularity\" 입력시 인기 챌린지들 조회)")
     @GetMapping("/challenges")
     public ResponseEntity<Page<ChallengeReadResDto>> getAllChallenges(
+        @Parameter(description = "검색할 키워드(챌린지 유형(\"Goal\", \"Count\"))") @RequestParam(name = "keyword", defaultValue = "") String keyword,
         @Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
         @Parameter(description = "페이지당 챌린지 수") @RequestParam(name = "size", defaultValue = "5") int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+
         Page<ChallengeReadResDto> challengesReadResDto =
-            challengeService.getAllChallenges(pageable);
-
-        return challengesReadResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .build() : ResponseEntity.ok(challengesReadResDto);
-    }
-
-
-    // 챌린지 키워드 검색
-    @Operation(summary = "챌린지 키워드 검색", description = "키워드별로 모든 챌린지 목록을 조회하는 API")
-    @GetMapping("/challenges/search")
-    public ResponseEntity<Page<ChallengeReadResDto>> getAllChallenges(
-        @Parameter(description = "검색할 키워드(챌린지 유형)") @RequestParam(name = "keyword", defaultValue = "") String keyword,
-        @Parameter(description = "페이지 번호") @RequestParam(name = "page", defaultValue = "1") int page,
-        @Parameter(description = "페이지당 챌린지 수") @RequestParam(name = "size", defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<ChallengeReadResDto> challengesReadResDto =
-            challengeService.searchChallengesByKeyword(keyword, pageable);
+            challengeService.getAllChallenges(keyword, page, size);
 
         return challengesReadResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build() : ResponseEntity.ok(challengesReadResDto);
@@ -109,5 +93,4 @@ public class ChallengeServiceController {
 
         return ResponseEntity.ok().build();
     }
-
 }

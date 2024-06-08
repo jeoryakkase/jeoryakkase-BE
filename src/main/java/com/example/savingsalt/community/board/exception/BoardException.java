@@ -5,14 +5,19 @@ public class BoardException extends RuntimeException {
     public BoardException(String message) {
         super(message);
     }
+    public BoardException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
     public static class UnauthorizedPostCreateException extends BoardException {
+
         public UnauthorizedPostCreateException() {
             super("게시글 작성 권한이 없습니다.");
         }
     }
 
     public static class BadRequestException extends BoardException {
+
         public BadRequestException(String message) {
             super(message);
         }
@@ -27,26 +32,33 @@ public class BoardException extends RuntimeException {
     }
 
     public static class BoardNotFoundException extends BoardException {
+
         public BoardNotFoundException() {
             super("해당 게시글을 찾을 수 없습니다.");
         }
     }
 
     public static class UnauthorizedPostUpdateException extends BoardException {
+
         public UnauthorizedPostUpdateException() {
             super("게시글 수정 권한이 없습니다.");
         }
     }
 
     public static class UnauthorizedPostDeleteException extends BoardException {
+
         public UnauthorizedPostDeleteException() {
             super("게시글 삭제 권한이 없습니다.");
         }
     }
 
-    public static class InternalServerErrorException extends BoardException {
-        public InternalServerErrorException() {
-            super("게시글 작성 중 오류가 발생했습니다.");
+    public static class BoardServiceException extends BoardException {
+
+        public BoardServiceException(String message) {
+            super(message);
+        }
+        public BoardServiceException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 
