@@ -15,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -57,6 +58,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 리프레시 토큰 저장
         saveRefreshToken(memberEntity.getId(), refreshToken);
         addRefreshTokenToCookie(request, response, refreshToken);
+
+        response.setHeader("Authorization", "Bearer " + accessToken);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter writer = response.getWriter();
+        writer.write("{\"refreshToken\": \"" + refreshToken + "\"}");
+        writer.flush();
 
 //        // JWT 토큰 생성
 //        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
