@@ -7,7 +7,10 @@ import com.example.savingsalt.goal.domain.entity.GoalEntity;
 import com.example.savingsalt.goal.service.GoalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,23 +35,44 @@ public class GoalController {
 
     // 목표 생성
     @Operation(summary = "새로운 목표 생성", description = "제공된 데이터를 기반으로 새로운 목표를 생성합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "목표가 성공적으로 생성됨",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = GoalResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
+            content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "401", description = "인증 실패",
+            content = @Content(mediaType = "application/json"))
+    })
     @PostMapping("/goals")
     public ResponseEntity<GoalResponseDto> createGoal(
         @Valid @Parameter(description = "목표 생성을 위한 요청 데이터", required = true, schema = @Schema(implementation = GoalCreateReqDto.class))
         @RequestBody GoalCreateReqDto goalCreateReqDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
         GoalResponseDto created = goalService.createGoal(goalCreateReqDto, userDetails);
         return (created != null) ? ResponseEntity.status(HttpStatus.CREATED).body(created)
             : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-//    @Operation(summary = "모든 목표 조회", description = "모든 목표를 검색하여 가져옵니다.")
-//    @GetMapping("/goals")
-//    public ResponseEntity<List<GoalResponseDto>> getAllGoals() {
-//        List<GoalResponseDto> goals = goalService.getAllGoals();
-//        return (goals != null && !goals.isEmpty()) ? ResponseEntity.ok(goals)
-//            : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
+    // 특정 사용자의 모든 목표 조회
+    @Operation(summary = "모든 목표 조회", description = "현재 사용자의 모든 목표를 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "목표가 성공적으로 조회됨",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = GoalResponseDto.class))),
+        @ApiResponse(responseCode = "401", description = "인증 실패",
+            content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "404", description = "목표를 찾을 수 없음",
+            content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "서버 오류",
+            content = @Content(mediaType = "application/json"))
+    })
+    @GetMapping("/goals")
+    public ResponseEntity<List<GoalResponseDto>> getAllGoals(
+        @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
+        List<GoalResponseDto> goals = goalService.getAllGoals(userDetails);
+        return ResponseEntity.ok(goals);
+    }
 
 //    @Operation(summary = "목표 수정", description = "제공된 데이터를 기반으로 기존 목표를 업데이트합니다.")
 //    @PutMapping("/goals/{id}")

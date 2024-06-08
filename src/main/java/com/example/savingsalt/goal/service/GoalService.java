@@ -12,6 +12,7 @@ import com.example.savingsalt.goal.repository.GoalRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,14 +46,15 @@ public class GoalService {
         return GoalResponseDto.fromEntity(savedGoal, memberEntity);
     }
 
-    // 진행중인 모든 목표를 가져오기
-    // TODO: 유효성 검사 및 로그 추가 할 것
-//    public List<GoalResponseDto> getAllGoals() {
-//        List<GoalEntity> goalEntities = goalRepository.findAll();
-//        return goalEntities.stream()
-//            .map(GoalResponseDto::fromEntity)
-//            .collect(Collectors.toList());
-//    }
+    // 특정 사용자의 모든 목표를 조회
+    public List<GoalResponseDto> getAllGoals(UserDetails userDetails) {
+        MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(MemberNotFoundException::new);
+
+        return goalRepository.findAllByMemberEntity(memberEntity).stream()
+            .map(goalEntity -> GoalResponseDto.fromEntity(goalEntity, memberEntity))
+            .collect(Collectors.toList());
+    }
 
     // 진행중인 목표 수정
 //    public GoalResponseDto updateGoal(Long id, GoalUpdateReqDto goalUpdateReqDto) {
