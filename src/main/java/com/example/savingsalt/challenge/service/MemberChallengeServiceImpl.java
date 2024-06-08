@@ -151,13 +151,19 @@ public class MemberChallengeServiceImpl implements
                 }
             }
 
-            foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
-                .toBuilder()
-                .challengeStatus(ChallengeStatus.CANCELLED)
-                .build();
+            if (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeStatus()
+                .equals(ChallengeStatus.COMPLETED)) {
+                throw new MemberChallengeAlreadySucceededException();
+            } else {
+                foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                    .toBuilder()
+                    .challengeStatus(ChallengeStatus.CANCELLED)
+                    .build();
 
-            return memberChallengeMapper.toMemberChallengeAbandonResDto(
-                memberChallengeRepository.save(foundMemberChallengeEntity));
+                return memberChallengeMapper.toMemberChallengeAbandonResDto(
+                    memberChallengeRepository.save(foundMemberChallengeEntity));
+            }
+
         } else {
             throw new MemberNotFoundException();
         }
