@@ -1,5 +1,8 @@
 package com.example.savingsalt.challenge.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
@@ -10,17 +13,20 @@ import com.example.savingsalt.challenge.service.MemberChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -30,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberChallengeController {
 
     private final MemberChallengeService memberChallengeService;
+    private final AmazonS3 amazonS3Client;
 
     // 회원 챌린지 목록 조회
     @Operation(summary = "회원 챌린지 목록 조회", description = "모든 회원 챌린지를 조회하는 API")
@@ -64,11 +71,30 @@ public class MemberChallengeController {
 
     // 회원 챌린지 인증
     @Operation(summary = "회원 챌린지 인증", description = "챌린지 인증 컬럼 생성/회원 챌린지 상태 변화")
-    @PostMapping("/members/{memberId}/challenges/{memberChallengeId}/certify")
+    @PostMapping(value =  "/members/{memberId}/challenges/{memberChallengeId}/certify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MemberChallengeDto> certifyDailyMemberChallenge(
         @Parameter(description = "ID of the member") @PathVariable Long memberId,
         @Parameter(description = "ID of the memberChallengeId") @PathVariable Long memberChallengeId,
-        @RequestBody CertificationChallengeReqDto certificationChallengeReqDto) {
+        @RequestPart CertificationChallengeReqDto certificationChallengeReqDto,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
+        throws IOException {
+
+        for (MultipartFile file : multipartFiles) {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(file.getContentType());
+            objectMetadata.setContentLength(file.getSize());
+
+            PutObjectRequest putObjectRequest;
+
+                putObjectRequest = new PutObjectRequest(
+                    "my.eliceproject.s3.bucket",
+                    "objectKey",
+                    file.getInputStream(),
+                    objectMetadata
+                );
+
+            amazonS3Client.putObject(putObjectRequest);
+        }
 
         MemberChallengeDto memberChallengeDto = memberChallengeService.certifyDailyMemberChallenge(
             memberId, memberChallengeId,
