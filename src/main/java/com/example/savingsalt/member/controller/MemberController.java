@@ -9,6 +9,7 @@ import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.service.MemberService;
 import com.example.savingsalt.member.service.TokenBlacklistService;
@@ -110,15 +111,21 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 
-    @PatchMapping("/members/{memberId}")
+    @PatchMapping("/members/update")
     @Operation(summary = "member update", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> updateMember(@PathVariable Long memberId,
-        @RequestBody MemberUpdateRequestDto dto) {
+    public ResponseEntity<?> updateMember(HttpServletRequest request, @RequestBody MemberUpdateRequestDto dto) {
+        String token = tokenProvider.resolveToken(request);
+        if (token == null || !tokenProvider.validateToken(token)) {
+            throw new InvalidTokenException();
+        }
+
+        Long memberId = tokenProvider.getMemberIdFromToken(token);
+
         MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
             dto.getPassword(),
             dto.getNickname(), dto.getAge(),
@@ -162,27 +169,27 @@ public class MemberController {
         }
     }
 
-    @DeleteMapping("/signout")
+    @DeleteMapping("members/signout")
     @Operation(summary = "signout", description = "Member signout")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Signout success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized member"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<Void> signout() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public ResponseEntity<Void> signout(HttpServletRequest request) {
+        String token = tokenProvider.resolveToken(request);
+        if (token == null || !tokenProvider.validateToken(token)) {
             throw new UnauthorizedException("User is not authenticated");
         }
 
-        String email = authentication.getName();
-        memberService.signOut(email);
+        Long memberId = tokenProvider.getMemberIdFromToken(token);
+        memberService.signOut(memberId);
         return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("/members/{memberId}")
-    @Operation(summary = "delete member", description = "Delete member")
+    @Operation(summary = "delete member by admin", description = "Delete member")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Delete success"),
         @ApiResponse(responseCode = "404", description = "Member not found"),

@@ -177,9 +177,9 @@ public class MemberService {
 
     // 회원 탈퇴
     @Transactional
-    public void signOut(String email) {
-        MemberEntity memberEntity = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+    public void signOut(Long memberId) {
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("Id", memberId));
 
         // 사용자 엔티티 삭제
         memberRepository.delete(memberEntity);
