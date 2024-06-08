@@ -36,4 +36,10 @@ public class ChallengeException {
             super("이미지 업로드가 실패했습니다.");
         }
     }
+
+    public static class CertificationChallengeNotFoundException extends RuntimeException {
+        public CertificationChallengeNotFoundException() {
+            super("챌린지 인증 테이블이 존재 하지 않습니다.");
+        }
+    }
 }

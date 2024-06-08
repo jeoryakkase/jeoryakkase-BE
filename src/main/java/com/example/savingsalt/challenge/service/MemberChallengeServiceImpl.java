@@ -1,5 +1,6 @@
 package com.example.savingsalt.challenge.service;
 
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
@@ -46,7 +47,8 @@ public class MemberChallengeServiceImpl implements
         MemberChallengeMapper memberChallengeMapper
         , MemberRepository memberRepository, ChallengeRepository challengeRepository,
         CertificationChallengeServiceImpl certificationChallengeServiceImpl,
-        MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper, ChallengeServiceImpl challengeService) {
+        MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
+        ChallengeServiceImpl challengeService) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
@@ -162,14 +164,14 @@ public class MemberChallengeServiceImpl implements
                 }
             }
 
-            if (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeStatus().equals(ChallengeStatus.COMPLETED)) {
+            if (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeStatus()
+                .equals(ChallengeStatus.COMPLETED)) {
                 throw new MemberChallengeAlreadySucceededException();
             }
 
             // 챌린지 인증 DTO -> 챌린지 일일 인증 DB로 저장
-            certificationChallengeServiceImpl.createCertificationChallenge(
-                foundMemberChallengeEntity,
-                certificationChallengeReqDto);
+            CertificationChallengeDto certificationChallengeDto = certificationChallengeServiceImpl.createCertificationChallenge(
+                foundMemberChallengeEntity, certificationChallengeReqDto);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
             if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
@@ -195,8 +197,13 @@ public class MemberChallengeServiceImpl implements
                     challengeService.setChallengeDifficulty(challengeEntity.getId());
                 }
 
-                return memberChallengeMapper.toDto(
+                MemberChallengeDto foundMemberChallengeDto = memberChallengeMapper.toDto(
                     memberChallengeRepository.save(foundMemberChallengeEntity));
+
+                foundMemberChallengeDto = foundMemberChallengeDto.toBuilder()
+                    .certificationChallengeDto(certificationChallengeDto).build();
+
+                return foundMemberChallengeDto;
 
             }
             // 챌린지 종류 'Count' > 목표 달성 방식
@@ -222,8 +229,13 @@ public class MemberChallengeServiceImpl implements
                     challengeService.setChallengeDifficulty(challengeEntity.getId());
                 }
 
-                return memberChallengeMapper.toDto(
+                MemberChallengeDto foundMemberChallengeDto = memberChallengeMapper.toDto(
                     memberChallengeRepository.save(foundMemberChallengeEntity));
+
+                foundMemberChallengeDto = foundMemberChallengeDto.toBuilder()
+                    .certificationChallengeDto(certificationChallengeDto).build();
+
+                return foundMemberChallengeDto;
             }
         } else {
             throw new MemberNotFoundException();
