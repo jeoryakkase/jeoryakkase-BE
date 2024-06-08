@@ -38,7 +38,7 @@ public class GoalCategoryController {
         @ApiResponse(responseCode = "400", description = "Bad Request"),
         @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    @PostMapping("/goal/category")
+    @PostMapping("/goal/categories")
     public ResponseEntity<Void> createGoalCategory(
         @Parameter(description = "목표 카테고리의 세부 사항", required = true,
             content = @Content(schema = @Schema(implementation = GoalCategoryCreateReqDto.class)))

@@ -73,6 +73,9 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     @ElementCollection
     private List<Long> interests;
 
+    @Column(name = "about", nullable = true)
+    private String about;
+
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
