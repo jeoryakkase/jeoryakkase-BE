@@ -8,6 +8,7 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,13 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Comment", description = "댓글 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/comments")
 public class CommentController {
 
     private final CommentService commentService;
 
     @Operation(summary = "댓글 작성", description = "로그인된 사용자가 새로운 댓글을 작성합니다.")
-    @PostMapping("/comments")
+    @PostMapping
     public ResponseEntity<CommentResDto> createComment(@RequestBody CommentReqDto requestDto,
         @AuthenticationPrincipal MemberEntity member) {
 
@@ -37,16 +38,11 @@ public class CommentController {
 
         CommentResDto responseDto = commentService.createComment(requestDto, member);
 
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-//    @GetMapping("/comments/{commentId}")
-//    public List<CommentResDto> getAllComments(@PathVariable Long commentId) {
-//        return commentService.getCommentsByBoardId(commentId);
-//    }
-
     @Operation(summary = "댓글 수정", description = "댓글 ID를 통해 댓글의 내용을 수정합니다.")
-    @PatchMapping("/comments/{commentId}")
+    @PatchMapping("/{commentId}")
     public ResponseEntity<String> updateComment(@PathVariable Long commentId,
         @RequestBody CommentReqDto requestDto, @AuthenticationPrincipal MemberEntity member) {
 
@@ -58,7 +54,7 @@ public class CommentController {
     }
 
     @Operation(summary = "댓글 삭제", description = "댓글 ID를 통해 댓글을 삭제합니다.")
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId,
         @AuthenticationPrincipal MemberEntity member) {
 
