@@ -71,14 +71,14 @@ public class JwtTokenProvider {
             .build();
     }
 
-    // 토큰에서 memberId 추출
-    public Long getMemberIdFromToken(String token) {
+    // 토큰에서 email 추출
+    public String getEmailFromToken(String token) {
         Claims claims = Jwts.parser()
             .setSigningKey(jwtProperties.getSecretKey())
             .parseClaimsJws(token)
             .getBody();
 
-        return Long.valueOf(claims.getSubject());
+        return String.valueOf(claims.getSubject());
     }
 
     // 요청 헤더에서 JWT 토큰 추출

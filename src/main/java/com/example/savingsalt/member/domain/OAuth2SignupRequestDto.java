@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 public class OAuth2SignupRequestDto {
 
-    private String email;
     private String nickname;
     private int age;
     private String gender;

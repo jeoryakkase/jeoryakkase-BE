@@ -63,9 +63,9 @@ public class BadgeController {
     @PutMapping("/members/{memberId}/challenges/badges")
     public ResponseEntity<RepresentativeBadgeSetResDto> setMemberRepresentativeBadge(
         @Parameter(description = "회원 ID") @PathVariable Long memberId,
-        @Parameter(description = "대표 뱃지로 지정할 뱃지 ID") @RequestParam Long badgeId) {
+        @Parameter(description = "대표 뱃지로 지정할 뱃지 이름") @RequestParam String badgeName) {
         RepresentativeBadgeSetResDto memberRepresentativeBadge = badgeService.setMemberRepresentativeBadge(
-            memberId, badgeId);
+            memberId, badgeName);
 
         return (memberRepresentativeBadge == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .build()
