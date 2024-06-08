@@ -1,15 +1,21 @@
 package com.example.savingsalt.community.board.service;
 
-import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.community.board.domain.BoardCategory;
-import com.example.savingsalt.community.board.domain.entity.BoardEntity;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeHofReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.enums.BoardCategory;
+import com.example.savingsalt.community.board.exception.BoardException;
+import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
+import com.example.savingsalt.community.board.exception.BoardException.BoardServiceException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
+import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
+import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
+import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity;
+import com.example.savingsalt.community.comment.repository.CommentRepository;
+import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.repository.PollRepository;
@@ -18,11 +24,15 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
+
 @RequiredArgsConstructor
+@Service
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
@@ -31,214 +41,285 @@ public class BoardServiceImpl implements BoardService {
 
     private final PollRepository pollRepository;
 
-    private final MemberChallengeRepository memberChallengeRepository;
+    private final CommentRepository commentRepository;
+
+    private final ReplyCommentRepository replyCommentRepository;
+
 
     // 절약팁 게시글 작성
+    @Transactional
     @Override
     public BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto,
         MemberEntity member) {
-
-        BoardEntity boardEntity = requestDto.toEntity(member, BoardCategory.TIPS);
-
-        BoardEntity savedBoardEntity;
-
+        BoardEntity boardEntity = requestDto.toEntity(member);
         try {
-            savedBoardEntity = boardRepository.save(boardEntity);
+            BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
+            return toTipReadDto(savedBoardEntity);
         } catch (Exception e) {
-            throw new RuntimeException("게시글 저장 중 오류가 발생했습니다.", e);
+            throw new BoardServiceException("팁 게시글을 작성하는 중 오류가 발생했습니다.", e);
         }
-
-        return convertToBoardTypeTipReadResDto(savedBoardEntity);
     }
 
     // 절약팁 게시글 목록 조회
+    @Transactional
     @Override
-    public List<BoardTypeTipReadResDto> findAllTipBoard() {
+    public Page<BoardTypeTipReadResDto> findAllTipBoard(int page, int size) {
         BoardCategory category = BoardCategory.TIPS;
-        List<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
-            category);
-        return boards.stream()
-            .map(this::convertToBoardTypeTipReadResDto)
-            .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            Page<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
+                category, pageable);
+
+            return boards.map(this::toTipReadDto);
+        } catch (Exception e) {
+            throw new BoardServiceException("팁 게시글 목록을 조회하는 중 오류가 발생했습니다.", e);
+        }
+
     }
 
     // 절약팁 게시글 조회
+    @Transactional
     @Override
     public BoardTypeTipReadResDto findTipBoardById(Long id) {
         BoardCategory category = BoardCategory.TIPS;
-
         BoardEntity boardEntity = boardRepository.findByIdAndCategory(id, category)
-            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-        return convertToBoardTypeTipReadResDto(boardEntity);
+            .orElseThrow(() -> new BoardNotFoundException());
+
+        boardEntity.incrementView();
+        try {
+            boardRepository.save(boardEntity);
+
+            List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+                boardEntity.getId());
+            List<CommentResDto> commentDtos = comments.stream()
+                .map(this::toCommentResDto)
+                .collect(Collectors.toList());
+
+            return toTipReadDto(boardEntity, commentDtos);
+        } catch (Exception e) {
+            throw new BoardServiceException("팁 게시글을 조회하는 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 절약팁 게시글 수정
+    @Transactional
     @Override
     public BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto requestDto,
         MemberEntity member) {
-        BoardCategory category = BoardCategory.TIPS;
-
-        BoardEntity board = findBoard(id, category);
+        BoardEntity board = findBoard(id, requestDto.getCategory());
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new IllegalStateException("작성자만 수정할 수 있습니다.");
+            throw new BoardException.UnauthorizedPostUpdateException();
         }
 
-        board.updateTipBoard(requestDto);
-
-        BoardEntity updatedBoard = boardRepository.save(board);
-
-        return convertToBoardTypeTipReadResDto(updatedBoard);
+        try {
+            board.updateTipBoard(requestDto);
+            BoardEntity updatedBoard = boardRepository.save(board);
+            return toTipReadDto(updatedBoard);
+        } catch (Exception e) {
+            throw new BoardServiceException("팁 게시글을 수정하는 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 절약팁 게시글 삭제
+    @Transactional
     @Override
     public void deleteTipBoard(Long id, MemberEntity member) {
-
         BoardCategory category = BoardCategory.TIPS;
-        BoardEntity board= findBoard(id, category);
+        BoardEntity board = findBoard(id, category);
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new IllegalStateException("작성자만 삭제할 수 있습니다.");
+            throw new BoardException.UnauthorizedPostDeleteException();
         }
 
-        boardRepository.delete(board);
+        try {
+            boardRepository.delete(board);
+        } catch (Exception e) {
+            throw new BoardServiceException("팁 게시글을 삭제하는 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 허불허 게시판 (투표게시판)
 
     // 투표 게시글 작성
+    @Transactional
     @Override
     public BoardTypeVoteReadResDto createVoteBoard(BoardTypeVoteCreateReqDto requestDto,
         MemberEntity member) {
-        BoardCategory category = BoardCategory.VOTE;
-        BoardEntity board =requestDto.toEntity(member, category);
-        boardRepository.save(board);
+        try {
+            BoardEntity board = requestDto.toEntity(member);
+            boardRepository.save(board);
 
-        PollEntity poll = requestDto.toPollEntity(board);
-        pollRepository.save(poll);
+            PollEntity poll = requestDto.toPollEntity(board);
+            pollRepository.save(poll);
 
-        return convertToBoardTypeVoteReadResDto(board);
+            return toVoteReadDto(board);
+        } catch (Exception e) {
+            throw new BoardServiceException("투표 게시글을 작성하는 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 투표 게시글 목록 조회
+    @Transactional
     @Override
-    public List<BoardTypeVoteReadResDto> findAllVoteBoard() {
+    public Page<BoardTypeVoteReadResDto> findAllVoteBoard(int page, int size) {
         BoardCategory category = BoardCategory.VOTE;
-        List<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
-            category);
-        return boards.stream()
-            .map(this::convertToBoardTypeVoteReadResDto)
-            .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            Page<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
+                category, pageable);
+            return boards.map(this::toVoteReadDto);
+        } catch (Exception e) {
+            throw new BoardServiceException("투표 게시글 목록을 조회 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 투표 게시글 조회
+    @Transactional
     @Override
     public BoardTypeVoteReadResDto findVoteBoardById(Long id) {
         BoardCategory category = BoardCategory.VOTE;
 
         BoardEntity boardEntity = boardRepository.findByIdAndCategory(id, category)
-            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-        return convertToBoardTypeVoteReadResDto(boardEntity);
+            .orElseThrow(() -> new BoardNotFoundException());
+
+        boardEntity.incrementView();
+
+        try {
+            boardRepository.save(boardEntity);
+
+            List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+                boardEntity.getId());
+            List<CommentResDto> commentDtos = comments.stream()
+                .map(this::toCommentResDto)
+                .collect(Collectors.toList());
+
+            return toVoteReadDto(boardEntity, commentDtos);
+        } catch (Exception e) {
+            throw new BoardServiceException("투표 게시글을 조회하는 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 투표 게시글 수정
+    @Transactional
     @Override
     public BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteCreateReqDto requestDto,
         MemberEntity member) {
-        BoardCategory category = BoardCategory.VOTE;
 
-        BoardEntity board = findBoard(id, category);
+        BoardEntity board = findBoard(id, requestDto.getCategory());
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
-            throw new IllegalStateException("작성자만 수정할 수 있습니다.");
+            throw new BoardException.UnauthorizedPostUpdateException();
         }
 
-        board.updateVoteBoard(requestDto);
+        try {
+            board.updateVoteBoard(requestDto);
 
-        BoardEntity updatedBoard = boardRepository.save(board);
+            BoardEntity updatedBoard = boardRepository.save(board);
 
-        return convertToBoardTypeVoteReadResDto(updatedBoard);
+            return toVoteReadDto(updatedBoard);
+        } catch (Exception e) {
+            throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 투표 게시글 삭제
+    @Transactional
     @Override
-    public void deleteVoteBoard(Long id) {
+    public void deleteVoteBoard(Long id, MemberEntity member) {
 
         BoardCategory category = BoardCategory.VOTE;
         BoardEntity board = findBoard(id, category);
 
-        boardRepository.delete(board);
-    }
-
-    // 소금모아태산 게시판 (챌린지 달성 정보 작성 게시판)
-
-    // 달성 정보 게시글 작성
-    @Override
-    public BoardTypeHofReadResDto createHofBoard(BoardTypeHofCreateReqDto requestDto) {
-        return null;
-    }
-
-    // 달성 정보 게시글 목록 조회
-    @Override
-    public List<BoardTypeHofReadResDto> findAllHofBoard() {
-        BoardCategory category = BoardCategory.HALL_OF_FAME;
-        List<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
-            category);
-        return boards.stream()
-            .map(this::convertToBoardTypeHofReadResDto)
-            .collect(Collectors.toList());
-    }
-
-
-    // 달성 정보 게시글 삭제
-    @Override
-    public void deleteHofBoard(Long id) {
+        if (!board.getMemberEntity().getId().equals(member.getId())) {
+            throw new BoardException.UnauthorizedPostDeleteException();
+        }
+        try {
+            boardRepository.delete(board);
+        } catch (Exception e) {
+            throw new BoardServiceException("투표 게시글을 삭제하는 중 오류가 발생했습니다.", e);
+        }
     }
 
 
     // BoardEntity를 BoardTypeTipReadResDto로 변환
-    private BoardTypeTipReadResDto convertToBoardTypeTipReadResDto(BoardEntity boardEntity) {
+    private BoardTypeTipReadResDto toTipReadDto(BoardEntity boardEntity) {
         return BoardTypeTipReadResDto.builder()
-            .id(boardEntity.getId())
             .nickname(boardEntity.getMemberEntity().getNickname())
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .totalLike(boardEntity.getTotalLike())
-            .boardHits(boardEntity.getBoardHits())
+            .view(boardEntity.getView())
             .build();
     }
 
-    private BoardTypeVoteReadResDto convertToBoardTypeVoteReadResDto(BoardEntity boardEntity) {
+    private BoardTypeTipReadResDto toTipReadDto(BoardEntity boardEntity,
+        List<CommentResDto> comments) {
+        return BoardTypeTipReadResDto.builder()
+            .nickname(boardEntity.getMemberEntity().getNickname())
+            .title(boardEntity.getTitle())
+            .contents(boardEntity.getContents())
+            .comments(comments)
+            .totalLike(boardEntity.getTotalLike())
+            .view(boardEntity.getView())
+            .build();
+    }
+
+    private BoardTypeVoteReadResDto toVoteReadDto(BoardEntity boardEntity) {
         PollResDto pollResDto = pollService.findPollByBoardId(boardEntity.getId());
 
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
-            .nickname(boardEntity.getNickname())
+            .nickname(boardEntity.getMemberEntity().getNickname())
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
-            .boardHits(boardEntity.getBoardHits())
+            .view(boardEntity.getView())
             .pollResDto(pollResDto)
             .build();
     }
 
-    private BoardTypeHofReadResDto convertToBoardTypeHofReadResDto(BoardEntity boardEntity) {
+    private BoardTypeVoteReadResDto toVoteReadDto(BoardEntity boardEntity,
+        List<CommentResDto> comments) {
+        PollResDto pollResDto = pollService.findPollByBoardId(boardEntity.getId());
 
-        return BoardTypeHofReadResDto.builder()
+        return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
             .nickname(boardEntity.getMemberEntity().getNickname())
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
-            .totalLike(boardEntity.getTotalLike())
-//            .achievements()
+            .comments(comments)
+            .view(boardEntity.getView())
+            .pollResDto(pollResDto)
             .build();
+    }
 
+    private CommentResDto toCommentResDto(CommentEntity comment) {
+        List<ReplyCommentEntity> replies = replyCommentRepository.findAllByParentCommentIdOrderByCreatedAtAsc(
+            comment.getId());
+        List<ReplyCommentResDto> replyDtos = replies.stream()
+            .map(this::toReplyCommentDto)
+            .collect(Collectors.toList());
+
+        return CommentResDto.builder()
+            .id(comment.getId())
+            .content(comment.getContent())
+            .nickname(comment.getNickname())
+            .replyComments(replyDtos)
+            .build();
+    }
+
+    private ReplyCommentResDto toReplyCommentDto(ReplyCommentEntity replyComment) {
+        return ReplyCommentResDto.builder()
+            .id(replyComment.getId())
+            .content(replyComment.getContent())
+            .nickname(replyComment.getMemberEntity().getNickname())
+            .build();
     }
 
     // 카테고리별 게시글 찾기
     private BoardEntity findBoard(Long id, BoardCategory category) {
         return boardRepository.findByIdAndCategory(id, category)
-            .orElseThrow(() -> new IllegalArgumentException("선택한 게시글은 존재하지 않습니다."));
+            .orElseThrow(() -> new BoardNotFoundException());
     }
 }
 

@@ -52,12 +52,19 @@ dependencies {
 
     // OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'com.google.api-client:google-api-client:1.32.1'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.32.1'
+    // implementation 'com.google.apis:google-api-services-oauth2:v2-rev185-1.25.0'
+    implementation group: 'com.google.apis', name: 'google-api-services-oauth2', version: 'v2-rev20200213-2.0.0'
 
     // Mapstruct
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     testAnnotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     implementation("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+    // AWS S3
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.174")
 }
 
 tasks.named('test') {

@@ -404,7 +404,11 @@ gradle-app.setting
 *.hprof
 
 ### Application Properties ###
-src/main/resources/application.yml
+src/main/resources/*.yml
+
+
+# generated directory
+src/main/generated
 
 .idea
 

@@ -29,12 +29,23 @@ public class MemberException extends RuntimeException {
         public MemberNotFoundException(String field, Object value) {
             super(String.format("Member with %s '%s' not found.", field, value));
         }
+
+        public MemberNotFoundException() {
+            super("Member not found.");
+        }
     }
 
     public static class RefreshTokenNotFoundException extends MemberException {
 
         public RefreshTokenNotFoundException() {
             super("Unexpected token.");
+        }
+    }
+
+    public static class InvalidTokenException extends MemberException {
+
+        public InvalidTokenException() {
+            super("Invalid token.");
         }
     }
 

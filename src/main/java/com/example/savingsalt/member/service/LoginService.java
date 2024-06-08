@@ -32,9 +32,11 @@ public class LoginService implements UserDetailsService {
             .age(memberEntity.getAge())
             .gender(memberEntity.getGender())
             .income(memberEntity.getIncome())
-            .savingGoal(memberEntity.getSavingGoal())
+            .savePurpose(memberEntity.getSavePurpose())
             .role(memberEntity.getRole())
             .profileImage(memberEntity.getProfileImage())
+            .interests(memberEntity.getInterests())
+            .about(memberEntity.getAbout())
             .build();
     }
 }

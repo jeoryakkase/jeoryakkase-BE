@@ -9,6 +9,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Base64;
@@ -36,6 +37,10 @@ public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
 
+    private static final int ACCESS_TOKEN_EXPIRE_TIME = 2 * 60 * 60 * 1000; // 2시간
+    private static final int REFRESH_TOKEN_EXPIRE_TIME = 14 * 24 * 60 * 60 * 1000; // 2주
+    private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
+
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
     public TokenResponseDto generateToken(Authentication authentication) {
         // 권한 가져오기
@@ -45,18 +50,18 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 2 * 60 * 60 * 1000); // 2시간
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME); // 2시간
         String accessToken = Jwts.builder()
             .setSubject(authentication.getName())
             .claim("auth", authorities)
             .setExpiration(accessTokenExpiresIn)
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
             .compact();
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
-            .setExpiration(new Date(now + 14 * 24 * 60 * 60 * 1000)) // 2주
-            .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
+            .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME)) // 2주
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
             .compact();
 
         return TokenResponseDto.builder()
@@ -64,6 +69,25 @@ public class JwtTokenProvider {
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();
+    }
+
+    // 토큰에서 email 추출
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtProperties.getSecretKey())
+            .parseClaimsJws(token)
+            .getBody();
+
+        return String.valueOf(claims.getSubject());
+    }
+
+    // 요청 헤더에서 JWT 토큰 추출
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드

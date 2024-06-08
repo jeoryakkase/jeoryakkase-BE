@@ -1,10 +1,12 @@
 package com.example.savingsalt.member.domain;
 
-import com.example.savingsalt.badge.domain.entity.MemberGoalBadgeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;
+import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -15,7 +17,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -34,7 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "memberㄴ")
+@Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
 public class MemberEntity extends BaseEntity implements UserDetails {
 
@@ -56,26 +57,34 @@ public class MemberEntity extends BaseEntity implements UserDetails {
     private int age;
 
     @Column(name = "gender", nullable = true)
-    private int gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(name = "income", nullable = true)
     private int income;
 
-    @Column(name = "saving_goal", nullable = true)
-    private int savingGoal;
+    @Column(name = "save_purpose", nullable = true)
+    private String savePurpose;
 
     @Column(name = "profile_image", nullable = true)
     private String profileImage;
+
+    @Column(name = "interests", nullable = true)
+    @ElementCollection
+    private List<Long> interests;
+
+    @Column(name = "about", nullable = true)
+    private String about;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity")
-    private List<MemberGoalBadgeEntity> memberGoalBadges = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity", cascade = CascadeType.ALL)
     private List<MemberChallengeEntity> memberChallengeEntities;
+
+    @Column(name = "representative_badge_id", nullable = true)
+    private Long representativeBadgeId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

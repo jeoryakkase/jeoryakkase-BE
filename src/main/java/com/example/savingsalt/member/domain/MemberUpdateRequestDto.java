@@ -1,5 +1,6 @@
 package com.example.savingsalt.member.domain;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,11 +14,14 @@ import lombok.Setter;
 @Builder
 public class MemberUpdateRequestDto {
 
+    private String email;
     private String password;
     private String nickname;
     private int age;
-    private int gender;
+    private String gender;
     private int income;
-    private int savingGoal;
+    private String savePurpose;
     private String profileImage;
+    private List<Long> interests;
+    private String about;
 }
