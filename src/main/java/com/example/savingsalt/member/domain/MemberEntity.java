@@ -17,7 +17,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -80,6 +79,9 @@ public class MemberEntity extends BaseEntity implements UserDetails {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberEntity", cascade = CascadeType.ALL)
     private List<MemberChallengeEntity> memberChallengeEntities;
+
+    @Column(name = "representative_badge_id", nullable = true)
+    private Long representativeBadgeId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
