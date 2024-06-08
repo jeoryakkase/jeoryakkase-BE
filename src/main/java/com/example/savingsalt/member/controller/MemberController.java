@@ -111,6 +111,8 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body("Logout success");
     }
 
+    @GetMapping("/members/")
+
     @PatchMapping("/members/update")
     @Operation(summary = "member update", description = "Update member info")
     @ApiResponses({
@@ -118,7 +120,8 @@ public class MemberController {
         @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> updateMember(HttpServletRequest request, @RequestBody MemberUpdateRequestDto dto) {
+    public ResponseEntity<?> updateMember(HttpServletRequest request,
+        @RequestBody MemberUpdateRequestDto dto) {
         String token = tokenProvider.resolveToken(request);
         if (token == null || !tokenProvider.validateToken(token)) {
             throw new InvalidTokenException();
@@ -130,7 +133,7 @@ public class MemberController {
             dto.getPassword(),
             dto.getNickname(), dto.getAge(),
             dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
-            dto.getInterests());
+            dto.getInterests(), dto.getAbout());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
