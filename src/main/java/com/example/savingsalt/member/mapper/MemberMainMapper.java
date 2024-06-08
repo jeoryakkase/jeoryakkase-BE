@@ -6,6 +6,7 @@ import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberUpdateResponseDto;
 import com.example.savingsalt.member.domain.MyPageResponseDto;
 import com.example.savingsalt.member.enums.Gender;
+import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -42,6 +43,8 @@ public interface MemberMainMapper {
                     throw new IllegalArgumentException("Unknown gender: " + gender);
             }
         }
+
+        RepresentativeBadgeSetResDto toRepresentativeBadgeSetResDto(MemberEntity member);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)

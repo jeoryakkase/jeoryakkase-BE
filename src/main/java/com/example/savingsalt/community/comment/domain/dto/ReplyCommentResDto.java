@@ -11,6 +11,6 @@ public class ReplyCommentResDto extends BaseEntity {
     private String content;
     private Long parentCommentId;
     private Long memberId;
-
+    private String nickname;
 
 }

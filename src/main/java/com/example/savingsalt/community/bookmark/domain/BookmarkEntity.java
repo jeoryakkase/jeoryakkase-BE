@@ -32,4 +32,8 @@ public class BookmarkEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity boardEntity;
 
+    public BookmarkEntity(BoardEntity boardEntity, MemberEntity memberEntity) {
+        this.boardEntity = boardEntity;
+        this.memberEntity = memberEntity;
+    }
 }
