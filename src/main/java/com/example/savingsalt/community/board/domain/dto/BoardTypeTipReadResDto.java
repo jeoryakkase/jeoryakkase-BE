@@ -1,7 +1,9 @@
 package com.example.savingsalt.community.board.domain.dto;
 
+import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
 import com.example.savingsalt.global.BaseEntity;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,20 +11,12 @@ import lombok.Getter;
 @Getter
 public class BoardTypeTipReadResDto extends BaseEntity {
 
-    private Long id;
     private String nickname;
     private String title;
     private String contents;
+    private List<CommentResDto> comments = new ArrayList<>();
     private int totalLike;
-    private int boardHits;
-
-    public LocalDateTime getCreatedAt() {
-        return this.getCreatedAt();
-    }
-
-    public LocalDateTime getModifiedAt() {
-        return this.getModifiedAt();
-    }
+    private int view;
 
 
 }

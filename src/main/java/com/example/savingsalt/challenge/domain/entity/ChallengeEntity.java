@@ -2,6 +2,7 @@ package com.example.savingsalt.challenge.domain.entity;
 
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.global.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -70,7 +71,7 @@ public class ChallengeEntity extends BaseEntity {
     @JoinColumn(name = "badge_id")
     private BadgeEntity badgeEntity;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "challengeEntity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "challengeEntity", cascade = CascadeType.ALL)
     private List<MemberChallengeEntity> memberChallengeEntities;
 
 }

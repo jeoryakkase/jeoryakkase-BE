@@ -43,4 +43,11 @@ public class PollEntity extends BaseEntity {
         }
     }
 
+    public void setChoices(List<PollChoiceEntity> choices) {
+        this.choices = choices;
+        for (PollChoiceEntity choice : choices) {
+            choice.setPollEntity(this);
+        }
+    }
+
 }

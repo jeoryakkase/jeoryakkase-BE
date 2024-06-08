@@ -1,8 +1,11 @@
 package com.example.savingsalt.goal.domain.entity;
 
+import com.example.savingsalt.goal.enums.GoalStatus;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,7 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,24 +35,25 @@ public class GoalEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
+    @Column(name = "goal_title")
+    private String goalTitle;
+
     @Column(name = "goal_amount")
     private Long goalAmount;
 
     @Column(name = "goal_image")
     private String goalImage;
 
-    @Column(name = "goal_desc")
-    private String goalDesc;
-
     @Column(name = "goal_start_date")
-    private LocalDateTime goalStartDate;
+    private LocalDate goalStartDate;
 
     @Column(name = "goal_end_date")
-    private LocalDateTime goalEndDate;
+    private LocalDate goalEndDate;
 
     @Column(name = "current_amount")
     private Long currentAmount;
 
+    @Enumerated(EnumType.STRING) // Enum을 String 형태로 저장
     @Column(name = "goal_status")
-    private String goalStatus;
+    private GoalStatus goalStatus;
 }

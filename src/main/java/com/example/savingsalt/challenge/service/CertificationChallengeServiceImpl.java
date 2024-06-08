@@ -1,12 +1,13 @@
 package com.example.savingsalt.challenge.service;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
-import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,31 +16,44 @@ public class CertificationChallengeServiceImpl {
 
     private final CertificationChallengeRepository certificationChallengeRepository;
     private final CertificationChallengeMapper certificationChallengeMapper;
-    private final MemberChallengeRepository memberChallengeRepository;
+    private final CertificationChallengeImageServiceImpl certificationChallengeImageService;
 
     public CertificationChallengeServiceImpl(
-        CertificationChallengeRepository certificationChallengeRepository
-        , CertificationChallengeMapper certificationChallengeMapper
-        , MemberChallengeRepository memberChallengeRepository) {
+        CertificationChallengeRepository certificationChallengeRepository,
+        CertificationChallengeMapper certificationChallengeMapper,
+        CertificationChallengeImageServiceImpl certificationChallengeImageService) {
 
         this.certificationChallengeRepository = certificationChallengeRepository;
         this.certificationChallengeMapper = certificationChallengeMapper;
-        this.memberChallengeRepository = memberChallengeRepository;
+        this.certificationChallengeImageService = certificationChallengeImageService;
     }
 
-    // 회원 챌린지 일일 인증 이미지 경로 및 인증 날짜 업로드
-    public void uploadDailyChallengeImageUrlAndDateTime(
-        Long memberChallngeId, CertificationChallengeDto certificationChallengeDto) {
+    // 회원 챌린지 일일 인증 생성
+    public CertificationChallengeDto createCertificationChallenge(MemberChallengeEntity memberChallengeEntity,
+        CertificationChallengeReqDto certificationChallengeReqDto) {
 
-        MemberChallengeEntity memberChallengeEntity = memberChallengeRepository.findById(
-            memberChallngeId).orElse(null);
+        LocalDateTime currentDateTime = LocalDateTime.now();
 
         CertificationChallengeEntity certificationChallengeEntity = certificationChallengeMapper.toEntity(
-            certificationChallengeDto);
+            certificationChallengeReqDto);
 
-        certificationChallengeEntity.toBuilder().memberChallengeEntity(memberChallengeEntity);
+        certificationChallengeEntity = certificationChallengeEntity.toBuilder()
+            .memberChallengeEntity(memberChallengeEntity)
+            .certificationDate(currentDateTime).build();
 
-        certificationChallengeRepository.save(certificationChallengeEntity);
+        certificationChallengeEntity = certificationChallengeRepository.save(
+            certificationChallengeEntity);
+
+        CertificationChallengeDto certificationChallengeDto = certificationChallengeMapper.toDto(
+            certificationChallengeEntity);
+
+        // 챌린지 인증 테이블에 이미지 저장
+        certificationChallengeDto = certificationChallengeDto.toBuilder().certificationChallengeImageDtos(
+                certificationChallengeImageService.createCertificationChallengeImage(
+                    certificationChallengeReqDto.getImageUrls(), certificationChallengeEntity.getId()))
+            .build();
+
+        return certificationChallengeDto;
     }
 
 }

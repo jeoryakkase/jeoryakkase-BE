@@ -4,6 +4,7 @@ import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ public class TokenService {
     private final RefreshTokenService refreshTokenService;
     private final MemberService memberService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final MemberMapper memberMapper;
 
     public TokenResponseDto createNewAccessToken(String refreshToken) {
         if (!tokenProvider.validateToken(refreshToken)) {
@@ -26,7 +28,7 @@ public class TokenService {
         }
 
         Long memberId = refreshTokenService.findByRefreshToken(refreshToken).getMemberId();
-        MemberEntity memberEntity = memberService.findMemberById(memberId).toEntity();
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberById(memberId));
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberEntity.getEmail(), memberEntity.getPassword());
 

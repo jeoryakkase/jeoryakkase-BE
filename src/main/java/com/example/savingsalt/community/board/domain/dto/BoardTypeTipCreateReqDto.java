@@ -1,28 +1,30 @@
 package com.example.savingsalt.community.board.domain.dto;
 
-import com.example.savingsalt.community.board.domain.BoardCategory;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.member.domain.MemberEntity;
-import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Builder
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class BoardTypeTipCreateReqDto {
 
     private String title;
     private String contents;
-    private List<String> imageUrls;
-    private BoardCategory category;
+    private String imageUrls;
+    private BoardCategory category = BoardCategory.TIPS;
 
-    public BoardEntity toEntity(MemberEntity memberEntity, BoardCategory category) {
+    public BoardEntity toEntity(MemberEntity member) {
         return BoardEntity.builder()
-            .memberEntity(memberEntity)
-            .title(this.title)
-            .contents(this.contents)
-            .category(category)
-            .imageUrls(this.imageUrls)
+            .memberEntity(member)
+            .title(title)
+            .contents(contents)
+            .imageUrls(imageUrls)
             .build();
     }
 

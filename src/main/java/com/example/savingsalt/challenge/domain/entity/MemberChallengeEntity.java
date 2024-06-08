@@ -42,26 +42,26 @@ public class MemberChallengeEntity {
     private LocalDateTime endDate;
 
     @Column(name = "certify_date")
-    private LocalDateTime certifyDate;
+    private LocalDateTime successDate;
 
-    @Column(name = "challenge_status")
+    @Column(name = "challenge_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private ChallengeStatus challengeStatus;
 
-    @Column(name = "is_Today_certification", nullable = false)
+    @Column(name = "is_today_certification", nullable = false)
     private Boolean isTodayCertification;
 
     @Column(name = "challenge_conut", nullable = false)
-    private Integer challengeConut;
+    private Integer authCount;
 
-    @Column(name = "challenge_try", nullable = false)
-    private Integer challengeTry;
+    @Column(name = "success_count", nullable = false)
+    private Integer successCount;
 
     @Column(name = "challenge_comment", length = 50)
     private String challengeComment;
 
-    @Column(name = "save_money", nullable = false)
-    private Integer saveMoney;
+    @Column(name = "total_save_money", nullable = false)
+    private Integer totalSaveMoney;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity")
     private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
