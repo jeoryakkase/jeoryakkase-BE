@@ -6,12 +6,14 @@ import com.example.savingsalt.member.domain.LoginRequestDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberUpdateRequestDto;
 import com.example.savingsalt.member.domain.MemberUpdateResponseDto;
+import com.example.savingsalt.member.domain.MyPageResponseDto;
 import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMyPageMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberUpdateMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.service.MemberService;
@@ -25,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +58,7 @@ public class MemberController {
     private final TokenBlacklistService tokenBlacklistService;
     private final MemberMapper memberMapper;
     private final MemberUpdateMapper memberUpdateMapper;
+    private final MemberMyPageMapper myPageMapper;
 
     @PostMapping("/signup")
     @Operation(summary = "signup", description = "Signup new member")
@@ -139,6 +143,31 @@ public class MemberController {
         MemberUpdateResponseDto responseDto = memberUpdateMapper.toDto(memberEntity);
         return ResponseEntity.ok(responseDto);
     }
+
+    @GetMapping("/members/mypage")
+    @Operation(summary = "get mypage", description = "Get member mypage")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Success"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Member not found"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<MyPageResponseDto> getMyPage(HttpServletRequest request) {
+        String token = tokenProvider.resolveToken(request);
+        if (token == null || !tokenProvider.validateToken(token)) {
+            throw new MemberException.InvalidTokenException();
+        }
+
+        Long memberId = tokenProvider.getMemberIdFromToken(token);
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberById(memberId));
+        if (memberEntity == null) {
+            throw new MemberException.MemberNotFoundException("id", memberId);
+        }
+
+        MyPageResponseDto responseDto = myPageMapper.toDto(memberEntity);
+        return ResponseEntity.ok(responseDto);
+    }
+
 
     @PatchMapping("/members/update")
     @Operation(summary = "member update", description = "Update member info")
