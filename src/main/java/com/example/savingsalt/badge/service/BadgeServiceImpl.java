@@ -5,6 +5,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
+import com.example.savingsalt.badge.exception.BadgeException.InvalidRepresentativeBadgeException;
 import com.example.savingsalt.badge.exception.BadgeException.RepresentativeBadgeNotFoundException;
 import com.example.savingsalt.badge.mapper.BadgeMainMapper;
 import com.example.savingsalt.badge.repository.BadgeRepository;
@@ -13,7 +14,9 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.Chal
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +32,16 @@ public class BadgeServiceImpl implements BadgeService {
     private final MemberRepository memberRepository;
     private final MemberChallengeRepository memberChallengeRepository;
     private final BadgeMainMapper badgeMainMapper;
+    private final MemberMapper memberMapper;
 
     public BadgeServiceImpl(BadgeRepository badgeRepository, MemberRepository memberRepository,
-        MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper) {
+        MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper,
+        MemberMapper memberMapper) {
         this.badgeRepository = badgeRepository;
         this.memberRepository = memberRepository;
         this.memberChallengeRepository = memberChallengeRepository;
         this.badgeMainMapper = badgeMainMapper;
+        this.memberMapper = memberMapper;
     }
 
     // 해당 뱃지 조회
@@ -97,6 +103,39 @@ public class BadgeServiceImpl implements BadgeService {
         return memberChallengeBadgeResDto;
     }
 
+    // 회원 챌린지 대표 뱃지 등록
+    public RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, Long badgeId) {
+        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+            .orElseThrow(BadgeNotFoundException::new);
+        MemberEntity member = memberRepository.findById(memberId)
+            .orElseThrow(MemberNotFoundException::new);
+
+        Boolean checkBadge = false;
+        List<MemberChallengeEntity> memberChallengeEntity = memberChallengeRepository.findAllByMemberEntity(
+            member);
+
+        // 회원 챌린지의 성공한 뱃지중 해당 뱃지가 존재하는지 검증
+        for (int i = 0; i < memberChallengeEntity.size(); i++) {
+            if ((memberChallengeEntity.get(i).getChallengeStatus()
+                == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessCount()
+                == 1)) {
+                BadgeEntity membeBadgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
+                    .getBadgeEntity();
+                if (membeBadgeEntity.getId() == badgeId) {
+                    checkBadge = true;
+                }
+            }
+        }
+        RepresentativeBadgeSetResDto representativeBadgeSetResDto = null;
+        if (checkBadge) {
+            member.setRepresentativeBadgeId(badgeId);
+            representativeBadgeSetResDto = memberMapper.toRepresentativeBadgeSetResDto(member);
+        } else {
+            throw new InvalidRepresentativeBadgeException();
+        }
+
+        return representativeBadgeSetResDto;
+    }
 
     // 뱃지 생성
     public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
