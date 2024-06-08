@@ -6,11 +6,9 @@ import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChal
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
+import com.example.savingsalt.community.board.exception.BoardException.BoardServiceException;
 import com.example.savingsalt.community.comment.exception.CommentException;
 import com.example.savingsalt.community.poll.exception.PollException;
-import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
-import com.example.savingsalt.goal.exception.GoalNotFoundException;
-import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,22 +100,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    // 게시판 관련 예외처리
     @ExceptionHandler(BoardException.UnauthorizedPostCreateException.class)
     public ResponseEntity<String> handleUnauthorizedPostCreateException(
         BoardException.UnauthorizedPostCreateException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BoardException.UnauthorizedPostUpdateException.class)
     public ResponseEntity<String> handleUnauthorizedPostUpdateException(
         BoardException.UnauthorizedPostUpdateException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BoardException.UnauthorizedPostDeleteException.class)
     public ResponseEntity<String> handleUnauthorizedPostDeleteException(
         BoardException.UnauthorizedPostDeleteException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BoardException.EmptyBoardException.class)
@@ -131,11 +130,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(BoardException.InternalServerErrorException.class)
-    public ResponseEntity<String> handleInternalServerErrorException(
-        BoardException.InternalServerErrorException ex) {
+    @ExceptionHandler(BoardServiceException.class)
+    public ResponseEntity<String> handleBoardServiceException(BoardServiceException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 
     // 댓글 관련 예외 처리
     @ExceptionHandler(CommentException.CommentNotFoundException.class)
@@ -147,13 +146,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CommentException.ValidateAuthorForUpdate.class)
     public ResponseEntity<String> handleValidateAuthorForUpdate(
         CommentException.ValidateAuthorForUpdate ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(CommentException.ValidateAuthorForDelete.class)
     public ResponseEntity<String> handleValidateAuthorForDelete(
         CommentException.ValidateAuthorForDelete ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(CommentException.CannotUpdateCommentWithReplies.class)
