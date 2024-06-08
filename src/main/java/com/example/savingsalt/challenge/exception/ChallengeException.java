@@ -1,5 +1,7 @@
 package com.example.savingsalt.challenge.exception;
 
+import java.io.IOException;
+
 public class ChallengeException {
 
     public static class MemberChallengeNotFoundException extends RuntimeException {
@@ -26,6 +28,12 @@ public class ChallengeException {
     public static class MemberChallengeAlreadySucceededException extends RuntimeException {
         public MemberChallengeAlreadySucceededException() {
             super("이미 완료된 챌린지입니다.");
+        }
+    }
+
+    public static class ResourceCreationException extends IOException {
+        public ResourceCreationException() {
+            super("이미지 업로드가 실패했습니다.");
         }
     }
 }
