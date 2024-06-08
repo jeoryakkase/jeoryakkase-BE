@@ -133,11 +133,16 @@ public class MemberController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "409", description = "This email already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> checkEmail(@RequestParam String email) {
-        memberService.checkEmail(email);
-        return ResponseEntity.ok().body("This email is available");
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        try {
+            boolean isAvailable = memberService.checkEmail(email);
+            return ResponseEntity.ok().body(isAvailable);
+        } catch (MemberException.EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
+        }
     }
 
     @GetMapping("/check-nickname")
@@ -145,11 +150,16 @@ public class MemberController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "409", description = "This nickname already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
-        memberService.checkNickname(nickname);
-        return ResponseEntity.ok().body("This nickname is available.");
+        try {
+            boolean isAvailable = memberService.checkNickname(nickname);
+            return ResponseEntity.ok().body(isAvailable);
+        } catch (MemberException.EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
+        }
     }
 
     @DeleteMapping("/signout")

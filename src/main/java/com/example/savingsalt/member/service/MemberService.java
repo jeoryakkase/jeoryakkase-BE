@@ -160,17 +160,19 @@ public class MemberService {
     }
 
     // 이메일 중복 검사
-    public void checkEmail(String email) {
+    public boolean checkEmail(String email) {
         if (memberRepository.existsByEmail(email)) {
             throw new MemberException.EmailAlreadyExistsException();
         }
+        return true;
     }
 
     // 닉네임 중복 검사
-    public void checkNickname(String nickname) {
+    public boolean checkNickname(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
             throw new MemberException.NicknameAlreadyExistsException();
         }
+        return true;
     }
 
     // 회원 탈퇴
