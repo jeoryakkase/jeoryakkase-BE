@@ -11,6 +11,7 @@ import com.example.savingsalt.community.poll.exception.PollException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeFailureException;
 import com.example.savingsalt.goal.exception.GoalNotFoundException;
 import com.example.savingsalt.goal.exception.InvalidGoalRequestException;
+import com.example.savingsalt.goal.exception.MaxProceedingGoalsExceededException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -193,5 +194,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PollException.PollParticipationException.class)
     public ResponseEntity<String> handlePollParticipationException(PollException.PollParticipationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MaxProceedingGoalsExceededException.class)
+    public ResponseEntity<String> handleMaxProceedingGoalsExceeded(MaxProceedingGoalsExceededException ex) {
+        // 진행중인 목표가 5개를 초과했을 때 처리
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }
