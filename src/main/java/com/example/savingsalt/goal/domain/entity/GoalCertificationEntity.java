@@ -1,11 +1,8 @@
 package com.example.savingsalt.goal.domain.entity;
 
-import com.example.savingsalt.goal.enums.GoalStatus;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,40 +22,30 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class GoalEntity {
+public class GoalCertificationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "goal_id", nullable = false, updatable = false)
+    @Column(name = "certification_id", nullable = false, updatable = false)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id")
+    private GoalEntity goalEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    @Column(name = "goal_title")
-    private String goalTitle;
+    @Column(name = "certification_money")
+    private Long certificationMoney;
 
-    @Column(name = "goal_amount")
-    private Long goalAmount;
+    @Column(name = "certification_content")
+    private String certificationContent;
 
-    @Column(name = "goal_image")
-    private String goalImage;
+    @Column(name = "certification_image_url")
+    private String certificationImageUrl;
 
-    @Column(name = "goal_start_date")
-    private LocalDate goalStartDate;
-
-    @Column(name = "goal_end_date")
-    private LocalDate goalEndDate;
-
-    @Column(name = "current_amount")
-    private Long currentAmount;
-
-    @Enumerated(EnumType.STRING) // Enum을 String 형태로 저장
-    @Column(name = "goal_status")
-    private GoalStatus goalStatus;
-
-    public void updateGoalStatus(GoalStatus goalStatus) {
-        this.goalStatus = goalStatus;
-    }
+    @Column(name = "certification_date")
+    private LocalDate certificationDate;
 }
