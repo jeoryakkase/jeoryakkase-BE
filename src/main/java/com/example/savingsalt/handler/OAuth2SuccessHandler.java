@@ -2,6 +2,7 @@ package com.example.savingsalt.handler;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.OAuth2LoginResponseDto;
 import com.example.savingsalt.member.domain.RefreshToken;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
@@ -80,16 +81,20 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if (isNewUser) {
             // 새로운 회원 -> 추가 정보 입력 페이지로 리디렉션
             CookieUtil.deleteCookie(request, response, "newUser"); // 쿠키를 제거하여 상태를 초기화
-            REDIRECT_PATH = "/additional-info";
+            REDIRECT_PATH = "/userinfo/edit";
         }
 
-        // 패스에 액세스 토큰 추가
-        String targetUrl = getTargetUrl(tokenResponseDto.getAccessToken());
+        // 응답 바디에 이메일, 토큰, 리디렉션 url 담아 전송
+        OAuth2LoginResponseDto loginResponseDto = OAuth2LoginResponseDto.builder()
+            .email(email)
+            .accessToken(tokenResponseDto.getAccessToken())
+            .refreshToken(tokenResponseDto.getRefreshToken())
+            .redirectUrl(REDIRECT_PATH)
+            .build();
 
-        // 인증 관련 설정값, 쿠키 제거
-        clearAuthenticationAttributes(request, response);
-
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(loginResponseDto));
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     // 리프레시 토큰을 데이터베이스에 저장

@@ -63,25 +63,24 @@ public class MemberService {
     }
 
     // OAuth2 회원가입 (추가 정보 입력)
-    public MemberEntity saveAdditionalInfo(OAuth2SignupRequestDto dto) {
-        String email = dto.getEmail();
-        MemberEntity memberEntity = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
-
-        checkNickname(dto.getNickname()); // 닉네임 중복 검사
-
-        memberEntity.setNickname(dto.getNickname());
-        memberEntity.setAge(dto.getAge());
-        memberEntity.setGender(Gender.valueOf(dto.getGender()));
-        memberEntity.setIncome(dto.getIncome());
-        memberEntity.setSavePurpose(dto.getSavePurpose());
-        memberEntity.setProfileImage(dto.getProfileImage());
-        memberEntity.setInterests(dto.getInterests());
-        memberEntity.setAbout(dto.getAbout());
-        memberEntity.authorizeUser();
-
-        return memberRepository.save(memberEntity);
-    }
+//    public MemberEntity saveAdditionalInfo(String email, OAuth2SignupRequestDto dto) {
+//        MemberEntity memberEntity = memberRepository.findByEmail(email)
+//            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+//
+//        checkNickname(dto.getNickname()); // 닉네임 중복 검사
+//
+//        memberEntity.setNickname(dto.getNickname());
+//        memberEntity.setAge(dto.getAge());
+//        memberEntity.setGender(Gender.valueOf(dto.getGender()));
+//        memberEntity.setIncome(dto.getIncome());
+//        memberEntity.setSavePurpose(dto.getSavePurpose());
+//        memberEntity.setProfileImage(dto.getProfileImage());
+//        memberEntity.setInterests(dto.getInterests());
+//        memberEntity.setAbout(dto.getAbout());
+//        memberEntity.authorizeUser();
+//
+//        return memberRepository.save(memberEntity);
+//    }
 
     // 로그인
     @Transactional(readOnly = true)
