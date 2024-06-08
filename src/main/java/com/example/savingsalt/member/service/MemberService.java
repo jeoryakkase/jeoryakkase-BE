@@ -11,6 +11,8 @@ import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.exception.MemberException.InvalidPasswordException;
+import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
+import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
@@ -20,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,47 +62,70 @@ public class MemberService {
     }
 
     // OAuth2 회원가입 (추가 정보 입력)
-    public MemberEntity saveAdditionalInfo(OAuth2SignupRequestDto dto) {
-        String email = dto.getEmail();
-        MemberEntity memberEntity = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
-
-        checkNickname(dto.getNickname()); // 닉네임 중복 검사
-
-        memberEntity.setNickname(dto.getNickname());
-        memberEntity.setAge(dto.getAge());
-        memberEntity.setGender(Gender.valueOf(dto.getGender()));
-        memberEntity.setIncome(dto.getIncome());
-        memberEntity.setSavePurpose(dto.getSavePurpose());
-        memberEntity.setProfileImage(dto.getProfileImage());
-        memberEntity.setInterests(dto.getInterests());
-        memberEntity.authorizeUser();
-
-        return memberRepository.save(memberEntity);
-    }
+//    public MemberEntity saveAdditionalInfo(OAuth2SignupRequestDto dto) {
+//        String email = dto.getEmail();
+//        MemberEntity memberEntity = memberRepository.findByEmail(email)
+//            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+//
+//        checkNickname(dto.getNickname()); // 닉네임 중복 검사
+//
+//        memberEntity.setNickname(dto.getNickname());
+//        memberEntity.setAge(dto.getAge());
+//        memberEntity.setGender(Gender.valueOf(dto.getGender()));
+//        memberEntity.setIncome(dto.getIncome());
+//        memberEntity.setSavePurpose(dto.getSavePurpose());
+//        memberEntity.setProfileImage(dto.getProfileImage());
+//        memberEntity.setInterests(dto.getInterests());
+//        memberEntity.authorizeUser();
+//
+//        return memberRepository.save(memberEntity);
+//    }
 
     // 로그인
     @Transactional(readOnly = true)
     public TokenResponseDto login(LoginRequestDto dto) {
-        MemberEntity memberEntity = (MemberEntity) loginService.loadUserByUsername(
-            dto.getEmail()); // 회원이 존재하는지 확인
-        if (!bCryptPasswordEncoder.matches(dto.getPassword(),
-            memberEntity.getPassword())) { // 비밀번호 확인
-            throw new InvalidPasswordException();
+        // 클라이언트로부터 토큰 받아오기
+        String clientAccessToken = dto.getAccessToken();
+        String clientRefreshToken = dto.getRefreshToken();
+
+        // 토큰 유효성 검증
+        if (!jwtTokenProvider.validateToken(clientAccessToken)) {
+            throw new InvalidTokenException();
         }
 
-        // 인증 토큰 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-            dto.getEmail(), dto.getPassword());
+        Authentication authentication = jwtTokenProvider.getAuthentication(clientAccessToken);
 
-        // 인증 수행
-        Authentication authentication = authenticationManagerBuilder.getObject()
-            .authenticate(authenticationToken);
+        // 토큰에서 사용자 정보 추출
+        MemberEntity memberEntity = (MemberEntity) loginService.loadUserByUsername(
+            authentication.getName());
+        if (memberEntity == null) {
+            throw new MemberNotFoundException("email", memberEntity.getEmail());
+        }
 
-        // JWT 토큰 생성
-        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
+        TokenResponseDto tokenResponseDto = TokenResponseDto.builder()
+            .accessToken(clientAccessToken)
+            .refreshToken(clientRefreshToken)
+            .build();
 
         return tokenResponseDto;
+
+//        if (!bCryptPasswordEncoder.matches(dto.getPassword(),
+//            memberEntity.getPassword())) { // 비밀번호 확인
+//            throw new InvalidPasswordException();
+//        }
+//
+        // 인증 토큰 생성
+//        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+//            dto.getEmail(), dto.getPassword());
+//
+//        // 인증 수행
+//        Authentication authentication = authenticationManagerBuilder.getObject()
+//            .authenticate(authenticationToken);
+//
+//        // JWT 토큰 생성
+//        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
+//
+//        return tokenResponseDto;
     }
 
     // 회원 정보 수정
@@ -133,20 +160,33 @@ public class MemberService {
     }
 
     // 이메일 중복 검사
-    public void checkEmail(String email) {
+    public boolean checkEmail(String email) {
         if (memberRepository.existsByEmail(email)) {
             throw new MemberException.EmailAlreadyExistsException();
         }
+        return true;
     }
 
     // 닉네임 중복 검사
-    public void checkNickname(String nickname) {
+    public boolean checkNickname(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
             throw new MemberException.NicknameAlreadyExistsException();
         }
+        return true;
     }
 
     // 회원 탈퇴
+    @Transactional
+    public void signOut(String email) {
+        MemberEntity memberEntity = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new MemberException.MemberNotFoundException("email", email));
+
+        // 사용자 엔티티 삭제
+        memberRepository.delete(memberEntity);
+
+    }
+
+    // 회원 삭제
     @Transactional
     public void deleteMember(Long memberId) {
         MemberEntity memberEntity = memberRepository.findById(memberId)
