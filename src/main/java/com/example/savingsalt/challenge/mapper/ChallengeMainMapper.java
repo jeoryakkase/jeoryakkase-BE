@@ -73,6 +73,10 @@ public interface ChallengeMainMapper {
 
         @Mapping(source = "certificationChallengeEntities", target = "certificationChallengeDtos")
         @Mapping(source = "challengeEntity", target = "challengeDto")
+        @Mapping(source = "challengeEntity.badgeEntity.name", target = "challengeDto.badgeDto.name")
+        @Mapping(source = "challengeEntity.badgeEntity.badgeDesc", target = "challengeDto.badgeDto.badgeDesc")
+        @Mapping(source = "challengeEntity.badgeEntity.badgeImage", target = "challengeDto.badgeDto.badgeImage")
+        @Mapping(source = "challengeEntity.badgeEntity.badgeType", target = "challengeDto.badgeDto.badgeType")
         MemberChallengeWithCertifyAndChallengeResDto toDto(
             MemberChallengeEntity memberChallengeEntity);
 
