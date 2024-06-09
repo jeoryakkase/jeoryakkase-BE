@@ -14,12 +14,4 @@ public interface PollMainMapper {
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
     interface PollMapper extends EntityMapper<PollEntity, PollDto> {
     }
-
-    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
-    interface PollChoiceMapper extends EntityMapper<PollChoiceEntity, PollChoiceDto> {
-    }
-
-    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
-    interface PollResultMapper extends EntityMapper<PollResultEntity, PollResultDto> {
-    }
 }
