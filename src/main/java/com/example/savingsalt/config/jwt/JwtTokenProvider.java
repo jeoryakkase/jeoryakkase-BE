@@ -48,7 +48,7 @@ public class JwtTokenProvider {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime();
+        Long now = (new Date()).getTime();
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME); // 2시간
         String accessToken = Jwts.builder()
@@ -69,6 +69,52 @@ public class JwtTokenProvider {
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();
+    }
+
+    // access 토큰 생성
+    public String createAccessToken(Authentication authentication) {
+        // 권한 가져오기
+        String authorities = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
+
+        Long now = (new Date()).getTime();
+        // Access Token 생성
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME); // 2시간
+        String accessToken = Jwts.builder()
+            .setSubject(authentication.getName())
+            .claim("auth", authorities)
+            .setExpiration(accessTokenExpiresIn)
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
+            .compact();
+
+        return accessToken;
+    }
+
+    // refresh 토큰 생성
+    public String createRefreshToken(String email) {
+        Date now = new Date();
+
+        return Jwts.builder()
+            .setSubject(email)
+            .setIssuedAt(now)
+            .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
+            .compact();
+    }
+
+    // authResult로 refresh 토큰 생성
+    public String createRefreshToken(Authentication authResult) {
+        // 사용자 정보 가져오기
+        String email = ((UserDetails) authResult.getPrincipal()).getUsername();
+        Date now = new Date();
+
+        return Jwts.builder()
+            .setSubject(email)
+            .setIssuedAt(now)
+            .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
+            .signWith(SIGNATURE_ALGORITHM, jwtProperties.getSecretKey())
+            .compact();
     }
 
     // 토큰에서 email 추출
