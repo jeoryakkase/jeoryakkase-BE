@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PollResultDto {
-    private Long id;
-    private Long pollId;
-    private Long choiceId;
-    private Long memberId;
+    private int yesCount;
+    private int noCount;
 }

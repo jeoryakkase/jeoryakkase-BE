@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+//없앨예정!!!
 @Table(name = "pollResults")
 @AllArgsConstructor
 @NoArgsConstructor

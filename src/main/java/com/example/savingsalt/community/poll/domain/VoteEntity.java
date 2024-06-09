@@ -1,6 +1,12 @@
 package com.example.savingsalt.community.poll.domain;
 
+import com.example.savingsalt.community.poll.enums.VoteChoice;
+import com.example.savingsalt.global.BaseEntity;
+import com.example.savingsalt.member.domain.MemberEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,15 +18,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-///없앨예정!!!
-@Table(name = "pollChoices")
+@Table(name = "votes")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Entity
 @Builder
-public class PollChoiceEntity {
-
+public class VoteEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,14 +33,11 @@ public class PollChoiceEntity {
     @JoinColumn(name = "poll_id", nullable = false)
     private PollEntity pollEntity;
 
-    private String answer;
-    private int count = 0;
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private MemberEntity memberEntity;
 
-    public void setPollEntity(PollEntity pollEntity) {
-        this.pollEntity = pollEntity;
-    }
-
-    public void incrementCount() {
-        this.count++;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VoteChoice voteChoice;
 }

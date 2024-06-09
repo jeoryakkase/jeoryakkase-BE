@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+///없앨예정!!!
 @Schema(description = "Poll choice details")
 @Getter
 @NoArgsConstructor
