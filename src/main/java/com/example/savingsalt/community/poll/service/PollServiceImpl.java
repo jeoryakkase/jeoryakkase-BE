@@ -30,9 +30,6 @@ public class PollServiceImpl implements PollService {
     private PollVoteRepository pollVoteRepository;
 
     @Autowired
-    private BoardRepository boardRepository;
-
-    @Autowired
     private MemberRepository memberRepository;
 
     @Transactional
