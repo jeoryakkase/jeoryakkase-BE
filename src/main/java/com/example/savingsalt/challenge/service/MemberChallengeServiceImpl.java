@@ -7,10 +7,12 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
+import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
@@ -66,6 +68,15 @@ public class MemberChallengeServiceImpl implements
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
+
+            List<MemberChallengeEntity> memberChallengeEntityList =
+                memberChallengeRepository.findAllByMemberEntity(memberEntity);
+
+            List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtoList
+                = memberChallengeWithCertifyAndChallengeMapper.toDtoList(memberChallengeEntityList);
+
+            List<CertificationChallengeEntity> certificationChallengeEntityList;
+
 
             return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
                 memberChallengeRepository.findAllByMemberEntity(memberEntity));
@@ -151,7 +162,7 @@ public class MemberChallengeServiceImpl implements
 
     // 회원 챌린지 인증
     public MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
-        CertificationChallengeReqDto certificationChallengeReqDto) {
+        CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
 
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
@@ -177,7 +188,7 @@ public class MemberChallengeServiceImpl implements
 
             // 챌린지 인증 DTO -> 챌린지 일일 인증 DB로 저장
             CertificationChallengeDto certificationChallengeDto = certificationChallengeServiceImpl.createCertificationChallenge(
-                foundMemberChallengeEntity, certificationChallengeReqDto);
+                foundMemberChallengeEntity, certificationChallengeReqDto, imageUrls);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
             if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
@@ -303,8 +314,8 @@ public class MemberChallengeServiceImpl implements
             case "1주" -> startDate.plusDays(7);
             case "2주" -> startDate.plusDays(14);
             case "3주" -> startDate.plusDays(21);
-            case "30일" -> startDate.plusDays(30);
-            default -> null;
+            case "한 달" -> startDate.plusDays(30);
+            default -> throw new InvalidChallengeTermException();
         };
     }
 }
