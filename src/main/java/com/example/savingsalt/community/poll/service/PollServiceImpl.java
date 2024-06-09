@@ -34,8 +34,7 @@ public class PollServiceImpl implements PollService {
     private MemberRepository memberRepository;
 
     @Transactional
-    public PollEntity createPollForBoard(Long boardId) {
-        BoardEntity boardEntity = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board not found"));
+    public PollEntity createPollForBoard(BoardEntity boardEntity) {
         PollEntity pollEntity = PollEntity.builder()
             .boardEntity(boardEntity)
             .yesCount(0)
