@@ -9,11 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,7 +61,7 @@ public class KakaoAuthController {
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/kakao-authcode")
-    public TokenResponseDto kakaoAuthCode(@RequestParam String code) {
+    public ResponseEntity<?> kakaoAuthCode(@RequestParam String code) {
         try {
             // Kakao OAuth2 token exchange
             RestTemplate restTemplate = new RestTemplate();
@@ -81,7 +84,8 @@ public class KakaoAuthController {
             KakaoTokenResponse tokenResponse = response.getBody();
             String accessToken = tokenResponse.getAccessToken();
 
-            ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId("kakao");
+            ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(
+                "kakao");
             OAuth2AccessToken oAuth2AccessToken = new OAuth2AccessToken(
                 OAuth2AccessToken.TokenType.BEARER,
                 accessToken,
@@ -96,20 +100,32 @@ public class KakaoAuthController {
 
             OAuth2User user = oAuth2UserCustomService.loadUser(userRequest);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
+                user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
 
-            return tokenResponseDto;
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set(HttpHeaders.AUTHORIZATION,
+                "Bearer " + tokenResponseDto.getAccessToken());
+
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("refreshToken", tokenResponseDto.getRefreshToken());
+
+            return ResponseEntity.status(HttpStatus.OK)
+                .headers(responseHeaders)
+                .body(responseBody);
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Kakao authentication failed");
         }
     }
 
     @Getter
     static class KakaoTokenResponse {
+
         @JsonProperty("access_token")
         private String accessToken;
         @JsonProperty("token_type")

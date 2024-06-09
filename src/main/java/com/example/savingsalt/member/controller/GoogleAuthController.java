@@ -15,8 +15,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,7 +65,7 @@ public class GoogleAuthController {
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/google-authcode")
-    public TokenResponseDto googleAuthCode(@RequestParam String code) {
+    public ResponseEntity<?> googleAuthCode(@RequestParam String code) {
         try {
             GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
                 GoogleNetHttpTransport.newTrustedTransport(),
@@ -96,10 +101,19 @@ public class GoogleAuthController {
 
             TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
 
-            return tokenResponseDto;
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken());
+
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("refreshToken", tokenResponseDto.getRefreshToken());
+
+            return ResponseEntity.status(HttpStatus.OK)
+                .headers(headers)
+                .body(responseBody);
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
-            return null;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Google authentication failed");
         }
     }
 }
