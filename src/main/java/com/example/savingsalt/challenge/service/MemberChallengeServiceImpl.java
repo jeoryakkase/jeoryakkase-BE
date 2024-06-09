@@ -7,7 +7,6 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
-import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
@@ -68,15 +67,6 @@ public class MemberChallengeServiceImpl implements
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
-
-            List<MemberChallengeEntity> memberChallengeEntityList =
-                memberChallengeRepository.findAllByMemberEntity(memberEntity);
-
-            List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtoList
-                = memberChallengeWithCertifyAndChallengeMapper.toDtoList(memberChallengeEntityList);
-
-            List<CertificationChallengeEntity> certificationChallengeEntityList;
-
 
             return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
                 memberChallengeRepository.findAllByMemberEntity(memberEntity));
