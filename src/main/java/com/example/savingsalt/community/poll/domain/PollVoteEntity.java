@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.poll.domain;
 
-import com.example.savingsalt.community.poll.enums.VoteChoice;
+import com.example.savingsalt.community.poll.enums.PollVoteChoice;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
 import jakarta.persistence.Column;
@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Builder
-public class VoteEntity extends BaseEntity {
+public class PollVoteEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,5 +39,5 @@ public class VoteEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private VoteChoice voteChoice;
+    private PollVoteChoice pollVoteChoice;
 }
