@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.poll.controller;
 
 import com.example.savingsalt.community.poll.domain.PollResultDto;
-import com.example.savingsalt.community.poll.domain.VoteReqDto;
+import com.example.savingsalt.community.poll.domain.PollVoteReqDto;
 import com.example.savingsalt.community.poll.service.PollService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,8 @@ public class PollController {
     private PollService pollService;
 
     @PostMapping("/{pollId}/vote")
-    public ResponseEntity<Void> vote(@PathVariable Long pollId, @RequestBody VoteReqDto voteReqDto) {
-        pollService.vote(pollId, voteReqDto.getMemberId(), voteReqDto.getVoteChoice());
+    public ResponseEntity<Void> vote(@PathVariable Long pollId, @RequestBody PollVoteReqDto pollVoteReqDto) {
+        pollService.vote(pollId, pollVoteReqDto.getMemberId(), pollVoteReqDto.getPollVoteChoice());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
