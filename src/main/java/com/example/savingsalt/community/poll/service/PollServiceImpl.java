@@ -6,16 +6,18 @@ import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
-import com.example.savingsalt.community.poll.domain.VoteEntity;
-import com.example.savingsalt.community.poll.enums.VoteChoice;
+import com.example.savingsalt.community.poll.domain.PollVoteEntity;
+import com.example.savingsalt.community.poll.enums.PollVoteChoice;
+import com.example.savingsalt.community.poll.exception.PollException;
+import com.example.savingsalt.community.poll.exception.PollException.MemberNotFoundException;
+import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
 import com.example.savingsalt.community.poll.repository.PollRepository;
-import com.example.savingsalt.community.poll.repository.VoteRepository;
+import com.example.savingsalt.community.poll.repository.PollVoteRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -25,10 +27,7 @@ public class PollServiceImpl implements PollService {
     private PollRepository pollRepository;
 
     @Autowired
-    private VoteRepository voteRepository;
-
-    @Autowired
-    private BoardRepository boardRepository;
+    private PollVoteRepository pollVoteRepository;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -44,22 +43,24 @@ public class PollServiceImpl implements PollService {
     }
 
     @Transactional
-    public void vote(Long pollId, Long memberId, VoteChoice voteChoice) {
-        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(() -> new RuntimeException("Poll not found"));
-        MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
+    public void vote(Long pollId, Long memberId, PollVoteChoice pollVoteChoice) {
+        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
+            PollNotFoundException::new);
+        MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
+            MemberNotFoundException::new);
 
-        if (voteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberId)) {
-            throw new RuntimeException("User has already voted in this poll");
+        if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberId)) {
+            throw new PollException.UserAlreadyVotedException();
         }
 
-        VoteEntity voteEntity = VoteEntity.builder()
+        PollVoteEntity pollVoteEntity = PollVoteEntity.builder()
             .pollEntity(pollEntity)
             .memberEntity(memberEntity)
-            .voteChoice(voteChoice)
+            .pollVoteChoice(pollVoteChoice)
             .build();
-        voteRepository.save(voteEntity);
+        pollVoteRepository.save(pollVoteEntity);
 
-        if (voteChoice == VoteChoice.YES) {
+        if (pollVoteChoice == PollVoteChoice.YES) {
             pollEntity = PollEntity.builder()
                 .yesCount(pollEntity.getYesCount() + 1)
                 .noCount(pollEntity.getNoCount())
@@ -78,7 +79,8 @@ public class PollServiceImpl implements PollService {
 
     @Transactional(readOnly = true)
     public PollResultDto getPollResults(Long pollId) {
-        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(() -> new RuntimeException("Poll not found"));
+        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
+            PollNotFoundException::new);
         return PollResultDto.builder()
             .yesCount(pollEntity.getYesCount())
             .noCount(pollEntity.getNoCount())
