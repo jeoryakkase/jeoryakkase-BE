@@ -318,4 +318,20 @@ public class MemberChallengeServiceImpl implements
             default -> throw new InvalidChallengeTermException();
         };
     }
+
+    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
+    public void resetDailyMemberChallengeAuthentication() {
+        List<MemberEntity> memberEntityList = memberRepository.findAll();
+        for (MemberEntity memberEntity : memberEntityList) {
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
+
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .isTodayCertification(false)
+                    .build();
+
+                memberChallengeRepository.save(memberChallengeEntity);
+            }
+        }
+    }
 }

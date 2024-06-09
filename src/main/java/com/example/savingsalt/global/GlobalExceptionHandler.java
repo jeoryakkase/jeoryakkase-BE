@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RepresentativeBadgeNotFoundException.class)
     public ResponseEntity<String> handleRepresentativeBadgeNotFoundException(
         RepresentativeBadgeNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MemberChallengeAlreadySucceededException.class)
