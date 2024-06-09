@@ -39,7 +39,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,7 +76,7 @@ public class OAuth2AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
 
-    @Operation(summary = "카카오 소셜 로그인", description = "Exchanges the authorization code for an access token and retrieves the user information from Kakao.")
+    @Operation(summary = "카카오 코드 인가", description = "Exchanges the authorization code for an access token and retrieves the user information from Kakao.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request or Kakao token exchange failed"),
@@ -88,7 +87,7 @@ public class OAuth2AuthController {
         return authenticateWithKakao(code);
     }
 
-    @Operation(summary = "구글 소셜 로그인", description = "Exchanges the authorization code for an access token and retrieves the user information from Google.")
+    @Operation(summary = "구글 코드 인가", description = "Exchanges the authorization code for an access token and retrieves the user information from Google.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request or Google token exchange failed"),
