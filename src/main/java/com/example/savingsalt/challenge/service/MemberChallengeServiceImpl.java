@@ -12,6 +12,7 @@ import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
@@ -313,8 +314,8 @@ public class MemberChallengeServiceImpl implements
             case "1주" -> startDate.plusDays(7);
             case "2주" -> startDate.plusDays(14);
             case "3주" -> startDate.plusDays(21);
-            case "30일" -> startDate.plusDays(30);
-            default -> null;
+            case "한 달" -> startDate.plusDays(30);
+            default -> throw new InvalidChallengeTermException();
         };
     }
 }

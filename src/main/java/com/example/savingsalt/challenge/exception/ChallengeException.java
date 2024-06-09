@@ -34,4 +34,10 @@ public class ChallengeException {
             super(ChallengeExceptionType.NOT_FOUND_CERTIFICATION_CHALLENGE.getExceptionMessage());
         }
     }
+
+    public static class InvalidChallengeTermException extends RuntimeException {
+        public InvalidChallengeTermException() {
+            super(ChallengeExceptionType.INVALID_CHALLENGE_TERM.getExceptionMessage());
+        }
+    }
 }
