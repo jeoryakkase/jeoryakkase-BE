@@ -16,14 +16,12 @@ import com.example.savingsalt.member.exception.MemberException.MemberNotFoundExc
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +32,6 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final LoginService loginService;
     private final MemberMapper memberMapper;
@@ -175,6 +172,17 @@ public class MemberService {
             throw new MemberException.NicknameAlreadyExistsException();
         }
         return true;
+    }
+
+    // 요청에서 멤버 이메일 추출
+    public String getEmailFromRequest(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            throw new MemberException.InvalidTokenException();
+        }
+
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        return email;
     }
 
     // 회원 탈퇴

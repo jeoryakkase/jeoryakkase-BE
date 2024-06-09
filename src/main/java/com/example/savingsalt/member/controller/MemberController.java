@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "Member", description = "Member API")
+@Tag(name = "Member", description = "회원 API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -61,7 +61,7 @@ public class MemberController {
     private final MemberMyPageMapper myPageMapper;
 
     @PostMapping("/signup")
-    @Operation(summary = "signup", description = "Signup new member")
+    @Operation(summary = "회원가입", description = "Signup new member")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Signup success",
             content = {
@@ -95,7 +95,7 @@ public class MemberController {
 //    }
 
     @PostMapping("/login")
-    @Operation(summary = "login", description = "Member login")
+    @Operation(summary = "로그인", description = "Member login")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Login success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -108,27 +108,27 @@ public class MemberController {
             .body(tokenResponseDto.getRefreshToken());
     }
 
-    @PostMapping("/logout")
-    @Operation(summary = "logout", description = "Member logout")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Logout success"),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
-        @ApiResponse(responseCode = "500", description = "Server error")
-    })
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String token = authHeader.substring(7);
-        Long expiration = tokenProvider.getExpiration(token);
-        tokenBlacklistService.blacklistToken(token, expiration);
-        return ResponseEntity.status(HttpStatus.OK).body("Logout success");
-    }
+//    @PostMapping("/logout")
+//    @Operation(summary = "로그아웃", description = "Member logout")
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "200", description = "Logout success"),
+//        @ApiResponse(responseCode = "400", description = "Bad request"),
+//        @ApiResponse(responseCode = "500", description = "Server error")
+//    })
+//    public ResponseEntity<?> logout(HttpServletRequest request) {
+//        String authHeader = request.getHeader("Authorization");
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            throw new MemberException.InvalidTokenException();
+//        }
+//
+//        String token = authHeader.substring(7);
+//        Long expiration = tokenProvider.getExpiration(token);
+//        tokenBlacklistService.blacklistToken(token, expiration);
+//        return ResponseEntity.status(HttpStatus.OK).body("Logout success");
+//    }
 
     @GetMapping("/members/update-info")
-    @Operation(summary = "get member update info page", description = "Get member info page for update")
+    @Operation(summary = "회원 정보 수정 페이지 조회", description = "Get member info page for update")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -136,12 +136,7 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<MemberUpdateResponseDto> getMemberUpdatePage(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
             throw new MemberException.MemberNotFoundException("email", email);
@@ -152,7 +147,7 @@ public class MemberController {
     }
 
     @GetMapping("/members/mypage")
-    @Operation(summary = "get mypage", description = "Get member mypage")
+    @Operation(summary = "회원 마이페이지 조회", description = "Get member mypage")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -160,12 +155,7 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<MyPageResponseDto> getMyPage(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
             throw new MemberException.MemberNotFoundException("email", email);
@@ -177,7 +167,7 @@ public class MemberController {
 
 
     @PatchMapping("/members/update")
-    @Operation(summary = "member update", description = "Update member info")
+    @Operation(summary = "회원 정보 수정", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -186,12 +176,7 @@ public class MemberController {
     })
     public ResponseEntity<?> updateMember(HttpServletRequest request,
         @RequestBody MemberUpdateRequestDto dto) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         Long memberId = memberService.findMemberByEmail(email).getId();
 
         MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
@@ -204,7 +189,7 @@ public class MemberController {
     }
 
     @GetMapping("/check-email")
-    @Operation(summary = "check email", description = "Check whether this email already exists")
+    @Operation(summary = "이메일 중복 검사", description = "Check whether this email already exists")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -221,7 +206,7 @@ public class MemberController {
     }
 
     @GetMapping("/check-nickname")
-    @Operation(summary = "check nickname", description = "Check whether this nickname already exists")
+    @Operation(summary = "닉네임 중복 검사", description = "Check whether this nickname already exists")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -238,19 +223,14 @@ public class MemberController {
     }
 
     @DeleteMapping("members/signout")
-    @Operation(summary = "signout", description = "Member signout")
+    @Operation(summary = "회원 탈퇴", description = "Member signout")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Signout success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized member"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<Void> signout(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new UnauthorizedException("User is not authenticated");
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         Long memberId = memberService.findMemberByEmail(email).getId();
 
         memberService.signOut(memberId);
@@ -259,7 +239,7 @@ public class MemberController {
 
 
     @DeleteMapping("/members/{memberId}")
-    @Operation(summary = "delete member by admin", description = "Delete member")
+    @Operation(summary = "관리자의 회원 삭제", description = "Delete member")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Delete success"),
         @ApiResponse(responseCode = "404", description = "Member not found"),
