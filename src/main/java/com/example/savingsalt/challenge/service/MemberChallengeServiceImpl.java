@@ -7,7 +7,6 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
-import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
@@ -68,15 +67,6 @@ public class MemberChallengeServiceImpl implements
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
-
-            List<MemberChallengeEntity> memberChallengeEntityList =
-                memberChallengeRepository.findAllByMemberEntity(memberEntity);
-
-            List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtoList
-                = memberChallengeWithCertifyAndChallengeMapper.toDtoList(memberChallengeEntityList);
-
-            List<CertificationChallengeEntity> certificationChallengeEntityList;
-
 
             return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
                 memberChallengeRepository.findAllByMemberEntity(memberEntity));
@@ -317,5 +307,21 @@ public class MemberChallengeServiceImpl implements
             case "한 달" -> startDate.plusDays(30);
             default -> throw new InvalidChallengeTermException();
         };
+    }
+
+    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
+    public void resetDailyMemberChallengeAuthentication() {
+        List<MemberEntity> memberEntityList = memberRepository.findAll();
+        for (MemberEntity memberEntity : memberEntityList) {
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
+
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .isTodayCertification(false)
+                    .build();
+
+                memberChallengeRepository.save(memberChallengeEntity);
+            }
+        }
     }
 }
