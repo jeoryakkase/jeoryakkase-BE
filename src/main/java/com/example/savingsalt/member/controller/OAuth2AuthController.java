@@ -1,9 +1,12 @@
 package com.example.savingsalt.member.controller;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.member.domain.LoginResponseDto;
+import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -72,6 +75,7 @@ public class OAuth2AuthController {
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "카카오 소셜 로그인", description = "Exchanges the authorization code for an access token and retrieves the user information from Kakao.")
     @ApiResponses(value = {
@@ -171,12 +175,20 @@ public class OAuth2AuthController {
 
             TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
 
+            MemberEntity memberEntity = (MemberEntity) authentication.getPrincipal();
+            LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .nickname(memberEntity.getNickname())
+                .profileImage(memberEntity.getProfileImage())
+                .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
+                .build();
+
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set(HttpHeaders.AUTHORIZATION,
                 "Bearer " + tokenResponseDto.getAccessToken());
 
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("refreshToken", tokenResponseDto.getRefreshToken());
+            responseBody.put("user", objectMapper.writeValueAsString(loginResponseDto));
 
             return ResponseEntity.status(HttpStatus.OK)
                 .headers(responseHeaders)
