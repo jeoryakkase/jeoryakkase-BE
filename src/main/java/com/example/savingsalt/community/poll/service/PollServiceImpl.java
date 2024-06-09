@@ -8,6 +8,9 @@ import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.domain.PollVoteEntity;
 import com.example.savingsalt.community.poll.enums.PollVoteChoice;
+import com.example.savingsalt.community.poll.exception.PollException;
+import com.example.savingsalt.community.poll.exception.PollException.MemberNotFoundException;
+import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.repository.PollVoteRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
@@ -44,11 +47,13 @@ public class PollServiceImpl implements PollService {
 
     @Transactional
     public void vote(Long pollId, Long memberId, PollVoteChoice pollVoteChoice) {
-        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(() -> new RuntimeException("Poll not found"));
-        MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
+        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
+            PollNotFoundException::new);
+        MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
+            MemberNotFoundException::new);
 
         if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberId)) {
-            throw new RuntimeException("User has already voted in this poll");
+            throw new PollException.UserAlreadyVotedException();
         }
 
         PollVoteEntity pollVoteEntity = PollVoteEntity.builder()
