@@ -18,14 +18,12 @@ import lombok.ToString;
 public class GoalCategoryResDto {
 
     private Long id;
-    private MemberEntity memberEntity;
     private String certificationDetails;
 
     public static GoalCategoryResDto fromEntity(GoalCategoryEntity entity) {
         return GoalCategoryResDto.builder()
             .id(entity.getId())
             .certificationDetails(entity.getCertificationDetails())
-            .memberEntity(entity.getMemberEntity())
             .build();
     }
 }

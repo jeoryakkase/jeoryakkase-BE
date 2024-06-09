@@ -20,7 +20,6 @@ import lombok.ToString;
 public class GoalResponseDto {
 
     private Long id;
-    private MemberEntity memberEntity;
     private String goalTitle;
     private Long goalAmount;
     private Long currentAmount;
@@ -29,10 +28,9 @@ public class GoalResponseDto {
     private LocalDate goalEndDate;
     private GoalStatus goalStatus;
 
-    public static GoalResponseDto fromEntity(GoalEntity goalEntity, MemberEntity memberEntity) {
+    public static GoalResponseDto fromEntity(GoalEntity goalEntity) {
         return GoalResponseDto.builder()
             .id(goalEntity.getId())
-            .memberEntity(memberEntity)
             .goalTitle(goalEntity.getGoalTitle())
             .goalAmount(goalEntity.getGoalAmount())
             .currentAmount(goalEntity.getCurrentAmount())

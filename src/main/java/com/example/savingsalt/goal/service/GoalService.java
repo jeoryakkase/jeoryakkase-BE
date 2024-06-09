@@ -46,7 +46,7 @@ public class GoalService {
         GoalEntity goalEntity = goalCreateReqDto.toEntity(goalCreateReqDto, memberEntity);
 
         GoalEntity savedGoal = goalRepository.save(goalEntity);
-        return GoalResponseDto.fromEntity(savedGoal, memberEntity);
+        return GoalResponseDto.fromEntity(savedGoal);
     }
 
     // 특정 사용자의 모든 목표를 조회
@@ -56,7 +56,7 @@ public class GoalService {
             .orElseThrow(MemberNotFoundException::new);
 
         return goalRepository.findAllByMemberEntity(memberEntity).stream()
-            .map(goalEntity -> GoalResponseDto.fromEntity(goalEntity, memberEntity))
+            .map(goalEntity -> GoalResponseDto.fromEntity(goalEntity))
             .collect(Collectors.toList());
     }
 
@@ -77,6 +77,6 @@ public class GoalService {
         goalEntity.updateGoalStatus(GoalStatus.GIVE_UP);
         goalRepository.save(goalEntity);
 
-        return GoalResponseDto.fromEntity(goalEntity, memberEntity);
+        return GoalResponseDto.fromEntity(goalEntity);
     }
 }

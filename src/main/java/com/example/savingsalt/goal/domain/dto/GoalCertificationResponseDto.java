@@ -17,7 +17,6 @@ public class GoalCertificationResponseDto {
 
     private Long id;
     private Long goalId;
-    private Long memberId;
     private Long certificationMoney;
     private String certificationContent;
     private String certificationImageUrl;
@@ -28,7 +27,6 @@ public class GoalCertificationResponseDto {
         return GoalCertificationResponseDto.builder()
             .id(entity.getId())
             .goalId(entity.getGoalEntity().getId())
-            .memberId(entity.getMemberEntity().getId())
             .certificationMoney(entity.getCertificationMoney())
             .certificationContent(entity.getCertificationContent())
             .certificationImageUrl(entity.getCertificationImageUrl())
