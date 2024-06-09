@@ -16,7 +16,6 @@ import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
 import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
 import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
-import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.service.PollService;
@@ -149,8 +148,7 @@ public class BoardServiceImpl implements BoardService {
             BoardEntity board = requestDto.toEntity(member);
             boardRepository.save(board);
 
-            PollEntity poll = requestDto.toPollEntity(board);
-            pollRepository.save(poll);
+            pollService.createPollForBoard(board);
 
             return toVoteReadDto(board);
         } catch (Exception e) {
