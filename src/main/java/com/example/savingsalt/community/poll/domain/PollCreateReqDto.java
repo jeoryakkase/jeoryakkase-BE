@@ -21,7 +21,7 @@ public class PollCreateReqDto {
 
     public PollEntity toEntity(BoardEntity boardEntity) {
         PollEntity poll = PollEntity.builder()
-            .board(boardEntity)
+
             .build();
 
         List<PollChoiceEntity> pollChoices = choices.stream()
@@ -32,7 +32,6 @@ public class PollCreateReqDto {
                 .build())
             .collect(Collectors.toList());
 
-        poll.setChoices(pollChoices);
 
         return poll;
     }
