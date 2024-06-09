@@ -16,7 +16,6 @@ import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
 import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
 import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
-import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.service.PollService;
@@ -114,8 +113,7 @@ public class BoardServiceImpl implements BoardService {
 
         try {
             board.updateTipBoard(requestDto);
-            BoardEntity updatedBoard = boardRepository.save(board);
-            return toTipReadDto(updatedBoard);
+            return toTipReadDto(board);
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
@@ -150,8 +148,7 @@ public class BoardServiceImpl implements BoardService {
             BoardEntity board = requestDto.toEntity(member);
             boardRepository.save(board);
 
-            PollEntity poll = requestDto.toPollEntity(board);
-            pollRepository.save(poll);
+            pollService.createPollForBoard(board);
 
             return toVoteReadDto(board);
         } catch (Exception e) {
@@ -214,10 +211,7 @@ public class BoardServiceImpl implements BoardService {
 
         try {
             board.updateVoteBoard(requestDto);
-
-            BoardEntity updatedBoard = boardRepository.save(board);
-
-            return toVoteReadDto(updatedBoard);
+            return toVoteReadDto(board);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }

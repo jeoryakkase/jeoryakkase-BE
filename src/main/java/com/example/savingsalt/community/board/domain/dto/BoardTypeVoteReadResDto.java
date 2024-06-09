@@ -17,7 +17,7 @@ public class BoardTypeVoteReadResDto extends BaseEntity {
     private String nickname;
     private String title;
     private String contents;
-    private List<CommentResDto> comments = new ArrayList<>();
+    private List<CommentResDto> comments;
     private int view;
     private PollResDto pollResDto;
 
