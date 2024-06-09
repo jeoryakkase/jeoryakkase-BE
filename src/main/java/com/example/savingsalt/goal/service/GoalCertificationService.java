@@ -5,6 +5,7 @@ import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
 import com.example.savingsalt.goal.domain.entity.GoalCertificationEntity;
 import com.example.savingsalt.goal.domain.entity.GoalEntity;
 import com.example.savingsalt.goal.enums.GoalStatus;
+import com.example.savingsalt.goal.exception.CertificationNotFoundException;
 import com.example.savingsalt.goal.exception.GoalNotFoundException;
 import com.example.savingsalt.goal.repository.GoalCertificationRepository;
 import com.example.savingsalt.goal.repository.GoalRepository;
@@ -54,6 +55,31 @@ public class GoalCertificationService {
         goalRepository.save(goalEntity);
 
         return GoalCertificationResponseDto.fromEntity(savedEntity);
+    }
+
+    // 목표 인증 삭제
+    @Transactional
+    public void deleteCertification(Long goalId, Long certificationId, UserDetails userDetails) {
+        // 목표와 회원 정보를 가져옴
+        GoalEntity goalEntity = goalRepository.findById(goalId)
+            .orElseThrow(GoalNotFoundException::new);
+
+        // 인증 엔티티를 조회
+        GoalCertificationEntity certificationEntity = certificationRepository.findById(
+                certificationId)
+            .orElseThrow(CertificationNotFoundException::new);
+
+        // 현재 인증 금액만큼 목표 금액에서 차감
+        goalEntity.subtractCertificationMoney(certificationEntity.getCertificationMoney());
+
+        // 인증 삭제
+        certificationRepository.delete(certificationEntity);
+
+        // 목표 상태 업데이트
+        updateGoalStatus(goalEntity);
+
+        // GoalEntity 업데이트
+        goalRepository.save(goalEntity);
     }
 
     // 목표 상태를 업데이트하는 메서드

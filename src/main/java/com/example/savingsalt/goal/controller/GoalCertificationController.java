@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +47,21 @@ public class GoalCertificationController {
         GoalCertificationResponseDto responseDto = certificationService.createCertification(
             goalCertificationCreateReqDto, userDetails, goalId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    // 목표 인증 삭제
+    @Operation(summary = "목표 인증 삭제", description = "특정 목표의 인증을 삭제합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "인증이 성공적으로 삭제됨"),
+        @ApiResponse(responseCode = "404", description = "인증을 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @DeleteMapping("/goals/{goalId}/certifications/{certificationId}")
+    public ResponseEntity<Void> deleteCertification(
+        @Parameter(description = "인증이 삭제될 목표의 ID", required = true) @PathVariable Long goalId,
+        @Parameter(description = "삭제할 인증의 ID", required = true) @PathVariable Long certificationId,
+        @AuthenticationPrincipal UserDetails userDetails) {
+        certificationService.deleteCertification(goalId, certificationId, userDetails);
+        return ResponseEntity.noContent().build();
     }
 }
