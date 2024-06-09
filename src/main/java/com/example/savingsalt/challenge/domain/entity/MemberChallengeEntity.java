@@ -51,7 +51,7 @@ public class MemberChallengeEntity {
     @Column(name = "is_today_certification", nullable = false)
     private Boolean isTodayCertification;
 
-    @Column(name = "challenge_conut", nullable = false)
+    @Column(name = "auth_count", nullable = false)
     private Integer authCount;
 
     @Column(name = "success_count", nullable = false)
