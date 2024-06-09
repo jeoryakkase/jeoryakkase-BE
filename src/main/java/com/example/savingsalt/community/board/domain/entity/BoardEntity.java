@@ -3,8 +3,10 @@ package com.example.savingsalt.community.board.domain.entity;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.enums.BoardCategory;
+import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.MemberEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -57,6 +60,9 @@ public class BoardEntity extends BaseEntity {
     private BoardCategory category;
 
     private String imageUrls;
+
+    @OneToOne(mappedBy = "boardEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PollEntity pollEntity;
 
     public void updateTipBoard(BoardTypeTipCreateReqDto requestDto) {
         this.title = requestDto.getTitle();
