@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -29,6 +30,7 @@ public class GoalService {
     private final MemberRepository memberRepository;
 
     // 목표를 리포지토리에 저장
+    @Transactional
     public GoalResponseDto createGoal(GoalCreateReqDto goalCreateReqDto, UserDetails userDetails) {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);
@@ -48,6 +50,7 @@ public class GoalService {
     }
 
     // 특정 사용자의 모든 목표를 조회
+    @Transactional
     public List<GoalResponseDto> getAllGoals(UserDetails userDetails) {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);
@@ -58,6 +61,7 @@ public class GoalService {
     }
 
     // 진행중인 목표 포기
+    @Transactional
     public GoalResponseDto giveUpGoal(Long id, UserDetails userDetails) {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);

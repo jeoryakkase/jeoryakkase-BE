@@ -85,6 +85,7 @@ public class GoalCertificationService {
     }
 
     // 특정 목표의 모든 인증을 최신순으로 조회
+    @Transactional
     public List<GoalCertificationResponseDto> getCertificationsByGoal(Long goalId,
         UserDetails userDetails) {
         // 목표를 조회하여 인증 목록 반환

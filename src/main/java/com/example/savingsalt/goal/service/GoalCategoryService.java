@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -19,6 +20,7 @@ public class GoalCategoryService {
     private final GoalCategoryRepository goalCategoryRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public void createGoalCategory(GoalCategoryCreateReqDto goalCategoryCreateReqDto,
         String email) {
         // email 을 이용해 MemberEntity 조회
@@ -35,6 +37,7 @@ public class GoalCategoryService {
         goalCategoryRepository.save(goalCategory);
     }
 
+    @Transactional
     public List<GoalCategoryResDto> getGoalCategoriesByUser(String email) {
         // email 을 이용해 MemberEntity 조회
         MemberEntity memberEntity = memberRepository.findByEmail(email)
