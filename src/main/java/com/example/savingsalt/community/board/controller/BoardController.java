@@ -37,10 +37,10 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @Operation(summary = "팁 게시물 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시물을 작성합니다.")
+    @Operation(summary = "팁 게시글 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "게시물 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "401", description = "로그인 인증 실패"),
+        @ApiResponse(responseCode = "201", description = "게시글 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
+        @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping
@@ -58,8 +58,8 @@ public class BoardController {
 
     @Operation(summary = "팁 게시판 목록 조회", description = "팁 게시판에 있는 모든 게시글을 최신순으로 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시물 찾을 수 없음"),
+        @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/tips")
@@ -74,10 +74,10 @@ public class BoardController {
         return ResponseEntity.ok(allTipBoard);
     }
 
-    @Operation(summary = "팁 게시물 조회", description = "게시글 ID를 통해 팁 게시판의 게시글을 조회합니다.")
+    @Operation(summary = "팁 게시글 조회", description = "게시글 ID를 통해 팁 게시판의 게시글을 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시물 찾을 수 없음"),
+        @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/{boardId}")
@@ -89,13 +89,13 @@ public class BoardController {
 
     @Operation(summary = "팁 게시글 수정", description = "게시글 ID를 통해 팁 게시판의 게시글 제목, 내용 및 이미지를 수정합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 수정 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "401", description = "로그인 인증 실패"),
+        @ApiResponse(responseCode = "200", description = "게시글 수정 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
+        @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PatchMapping("/{boardId}")
-    public ResponseEntity<?> updateTipBoard(@PathVariable Long boardId,
+    public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable Long boardId,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal MemberEntity member) {
 
@@ -103,19 +103,16 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        try {
-            BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId,
-                requestDto, member);
-            return ResponseEntity.ok(responseDto);
-        } catch (IllegalStateException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        }
+        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId, requestDto,
+            member);
+        return ResponseEntity.ok(responseDto);
+
     }
 
     @Operation(summary = "팁 게시글 삭제", description = "게시글 ID를 통해 팁 게시판의 게시글을 삭제합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 삭제 성공"),
-        @ApiResponse(responseCode = "401", description = "로그인 인증 실패"),
+        @ApiResponse(responseCode = "200", description = "게시글 삭제 성공"),
+        @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
@@ -127,23 +124,20 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        try {
-            boardService.deleteTipBoard(boardId, member);
-            return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
-        } catch (IllegalStateException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        }
+        boardService.deleteTipBoard(boardId, member);
+        return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
     }
 
-    @Operation(summary = "투표 게시글 작성", description = "로그인된 사용자가 투표 게시판에 새로운 게시물을 작성합니다.")
+    @Operation(summary = "투표 게시글 작성", description = "로그인된 사용자가 투표 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "게시물 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
-        @ApiResponse(responseCode = "401", description = "로그인 인증 실패"),
+        @ApiResponse(responseCode = "201", description = "투표 게시글 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
+        @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/votes")
-    public ResponseEntity<BoardTypeVoteReadResDto> createVoteBoard(@RequestBody BoardTypeVoteCreateReqDto requestDto,
+    public ResponseEntity<BoardTypeVoteReadResDto> createVoteBoard(
+        @RequestBody BoardTypeVoteCreateReqDto requestDto,
         @AuthenticationPrincipal MemberEntity member) {
 
         if (member == null) {
@@ -151,18 +145,17 @@ public class BoardController {
         }
 
         BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @Operation(summary = "투표게시판 목록 조회", description = "투표 게시판에 있는 모든 게시글을 최신순으로 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시물 찾을 수 없음"),
+        @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/votes")
-    public ResponseEntity<Page<BoardTypeVoteReadResDto>> getVoteBoards(
+    public ResponseEntity<Page<BoardTypeVoteReadResDto>> getAllVoteBoards(
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "5") int size) {
         Page<BoardTypeVoteReadResDto> allVoteBoard = boardService.findAllVoteBoard(page, size);
@@ -176,8 +169,8 @@ public class BoardController {
 
     @Operation(summary = "투표 게시글 조회", description = "게시글 ID를 통해 투표 게시판의 게시글을 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시물 찾을 수 없음"),
+        @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/{boardId}/votes")
@@ -190,21 +183,21 @@ public class BoardController {
 
     @Operation(summary = "투표 게시글 수정", description = "게시글 ID를 통해 투표 게시판의 게시글 제목, 내용 및 이미지를 수정합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 수정 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
-        @ApiResponse(responseCode = "401", description = "로그인 인증 실패"),
+        @ApiResponse(responseCode = "200", description = "게시글 수정 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
+        @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PatchMapping("/{boardId}/votes")
     public ResponseEntity<?> updateVoteBoard(@PathVariable Long boardId,
-        @RequestBody BoardTypeTipCreateReqDto requestDto,
+        @RequestBody BoardTypeVoteCreateReqDto requestDto,
         @AuthenticationPrincipal MemberEntity member) {
 
         if (member == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId,
+        BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(boardId,
             requestDto, member);
 
         return ResponseEntity.ok(responseDto);
@@ -212,8 +205,8 @@ public class BoardController {
 
     @Operation(summary = "투표 게시글 삭제", description = "게시글 ID를 통해 투표 게시판의 게시글을 삭제합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "게시물 삭제 성공"),
-        @ApiResponse(responseCode = "401", description = "로그인 인증 실패"),
+        @ApiResponse(responseCode = "200", description = "게시글 삭제 성공"),
+        @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
@@ -225,7 +218,7 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        boardService.deleteTipBoard(boardId, member);
+        boardService.deleteVoteBoard(boardId, member);
 
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
