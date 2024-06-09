@@ -8,8 +8,10 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
+import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeTypeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.ChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -64,7 +66,13 @@ public class ChallengeServiceImpl implements ChallengeService {
                 pageable = PageRequest.of(0, 8);
                 challengeEntities = challengeRepository.findChallengesWithMostMembers(pageable);
             } else {
-                challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,
+                ChallengeType challengeType;
+                try {
+                    challengeType = ChallengeType.valueOf(keyword.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new ChallengeTypeNotFoundException(keyword);
+                }
+                challengeEntities = challengeRepository.findByChallengeType(challengeType,
                     pageable);
             }
         } else {
