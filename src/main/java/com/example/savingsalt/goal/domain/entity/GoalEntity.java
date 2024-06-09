@@ -61,4 +61,12 @@ public class GoalEntity {
     public void updateGoalStatus(GoalStatus goalStatus) {
         this.goalStatus = goalStatus;
     }
+
+    // currentAmount 에 돈을 누적하는 메소드
+    public void addCertificationMoney(Long certificationMoney) {
+        if (this.currentAmount == null) {
+            this.currentAmount = 0L;
+        }
+        this.currentAmount += certificationMoney;
+    }
 }

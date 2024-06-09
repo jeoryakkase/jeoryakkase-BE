@@ -13,6 +13,7 @@ import com.example.savingsalt.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -23,6 +24,7 @@ public class GoalCertificationService {
     private final MemberRepository memberRepository;
 
     // 목표 인증 내용 생성
+    @Transactional
     public GoalCertificationResponseDto createCertification(
         GoalCertificationCreateReqDto goalCertificationCreateReqDto, UserDetails userDetails,
         Long goalId) {
@@ -33,6 +35,8 @@ public class GoalCertificationService {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);
 
+        goalEntity.addCertificationMoney(goalCertificationCreateReqDto.getCertificationMoney());
+
         // GoalCertificationEntity 생성
         GoalCertificationEntity certificationEntity = goalCertificationCreateReqDto.toEntity(
             goalCertificationCreateReqDto,
@@ -41,6 +45,9 @@ public class GoalCertificationService {
 
         // 저장
         GoalCertificationEntity savedEntity = certificationRepository.save(certificationEntity);
+
+        // GoalEntity 업데이트
+        goalRepository.save(goalEntity);
 
         return GoalCertificationResponseDto.fromEntity(savedEntity);
     }

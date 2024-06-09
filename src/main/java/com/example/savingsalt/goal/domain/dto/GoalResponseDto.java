@@ -35,6 +35,7 @@ public class GoalResponseDto {
             .memberEntity(memberEntity)
             .goalTitle(goalEntity.getGoalTitle())
             .goalAmount(goalEntity.getGoalAmount())
+            .currentAmount(goalEntity.getCurrentAmount())
             .goalImage(goalEntity.getGoalImage())
             .goalStartDate(goalEntity.getGoalStartDate())
             .goalEndDate(goalEntity.getGoalEndDate())
