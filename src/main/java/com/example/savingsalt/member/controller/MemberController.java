@@ -1,5 +1,6 @@
 package com.example.savingsalt.member.controller;
 
+import com.amazonaws.Response;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.LoginRequestDto;
@@ -11,7 +12,9 @@ import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.exception.MemberException.EmailAlreadyExistsException;
 import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
+import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMyPageMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberUpdateMapper;
@@ -26,7 +29,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -47,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -54,8 +63,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtTokenProvider tokenProvider;
-    private final TokenBlacklistService tokenBlacklistService;
     private final MemberMapper memberMapper;
     private final MemberUpdateMapper memberUpdateMapper;
     private final MemberMyPageMapper myPageMapper;
@@ -97,15 +104,30 @@ public class MemberController {
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "Member login")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Login success"),
+        @ApiResponse(responseCode = "200", description = "Login success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
-        TokenResponseDto tokenResponseDto = memberService.login(dto);
-        return ResponseEntity.status(HttpStatus.OK)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken())
-            .body(tokenResponseDto.getRefreshToken());
+    public ResponseEntity<?> login(HttpServletRequest request, @RequestBody LoginRequestDto dto) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Authorization header");
+        }
+
+        String accessToken = authHeader.replace("Bearer ", "");
+        String refreshToken = memberService.login(dto, accessToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("refreshToken", refreshToken);
+
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.CREATED)
+            .headers(headers)
+            .body(responseBody);
+
+        return response;
     }
 
 //    @PostMapping("/logout")
@@ -139,7 +161,7 @@ public class MemberController {
         String email = memberService.getEmailFromRequest(request);
         MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
+            throw new MemberNotFoundException("email", email);
         }
 
         MemberUpdateResponseDto responseDto = memberUpdateMapper.toDto(memberEntity);
@@ -158,7 +180,7 @@ public class MemberController {
         String email = memberService.getEmailFromRequest(request);
         MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
+            throw new MemberNotFoundException("email", email);
         }
 
         MyPageResponseDto responseDto = myPageMapper.toDto(memberEntity);
@@ -200,7 +222,7 @@ public class MemberController {
         try {
             boolean isAvailable = memberService.checkEmail(email);
             return ResponseEntity.ok().body(isAvailable);
-        } catch (MemberException.EmailAlreadyExistsException e) {
+        } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }
@@ -217,7 +239,7 @@ public class MemberController {
         try {
             boolean isAvailable = memberService.checkNickname(nickname);
             return ResponseEntity.ok().body(isAvailable);
-        } catch (MemberException.EmailAlreadyExistsException e) {
+        } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }

@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class MemberService {
     private final LoginService loginService;
     private final MemberMapper memberMapper;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 회원가입
     @Transactional
@@ -43,12 +45,19 @@ public class MemberService {
         checkEmail(dto.getEmail()); // 이메일 중복 검사
         checkNickname(dto.getNickname()); // 닉네임 중복 검사
 
+        Gender gender;
+        try {
+            gender = Gender.valueOf(dto.getGender().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid gender value");
+        }
+
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setEmail(dto.getEmail());
         memberEntity.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         memberEntity.setNickname(dto.getNickname());
         memberEntity.setAge(dto.getAge());
-        memberEntity.setGender(Gender.valueOf(dto.getGender()));
+        memberEntity.setGender(gender);
         memberEntity.setIncome(dto.getIncome());
         memberEntity.setSavePurpose(dto.getSavePurpose());
         memberEntity.setProfileImage(dto.getProfileImage());
@@ -81,31 +90,33 @@ public class MemberService {
 
     // 로그인
     @Transactional(readOnly = true)
-    public TokenResponseDto login(LoginRequestDto dto) {
-        // 클라이언트로부터 토큰 받아오기
-        String clientAccessToken = dto.getAccessToken();
-        String clientRefreshToken = dto.getRefreshToken();
-
-        // 토큰 유효성 검증
-        if (!jwtTokenProvider.validateToken(clientAccessToken)) {
-            throw new InvalidTokenException();
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(clientAccessToken);
-
-        // 토큰에서 사용자 정보 추출
+    public String login(LoginRequestDto dto, String accessToken) {
+        // 이메일, 패스워드 확인
         MemberEntity memberEntity = (MemberEntity) loginService.loadUserByUsername(
-            authentication.getName());
+            dto.getEmail());
         if (memberEntity == null) {
             throw new MemberNotFoundException("email", memberEntity.getEmail());
         }
+        if(!passwordEncoder.matches(dto.getPassword(), memberEntity.getPassword())) {
+            throw new MemberException.InvalidPasswordException();
+        }
 
-        TokenResponseDto tokenResponseDto = TokenResponseDto.builder()
-            .accessToken(clientAccessToken)
-            .refreshToken(clientRefreshToken)
-            .build();
+        // 액세스 토큰 유효성 검증
+        if(!jwtTokenProvider.validateToken(accessToken)) {
+            throw new MemberException.InvalidTokenException();
+        }
 
-        return tokenResponseDto;
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+
+        // 토큰에서 사용자 정보 추출
+        if (!authentication.getName().equals(dto.getEmail())) {
+            throw new InvalidTokenException();
+        }
+
+        // 리프레시 토큰 생성
+        String refreshToken = jwtTokenProvider.createRefreshToken(memberEntity.getEmail());
+
+        return refreshToken;
 
 //        if (!bCryptPasswordEncoder.matches(dto.getPassword(),
 //            memberEntity.getPassword())) { // 비밀번호 확인
@@ -146,9 +157,16 @@ public class MemberService {
             memberEntity.setPassword(bCryptPasswordEncoder.encode(password));
         }
 
+        Gender genderEnum;
+        try {
+            genderEnum = Gender.valueOf(gender.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid gender value");
+        }
+
         memberEntity.setNickname(nickname);
         memberEntity.setAge(age);
-        memberEntity.setGender(Gender.valueOf(gender));
+        memberEntity.setGender(genderEnum);
         memberEntity.setIncome(income);
         memberEntity.setSavePurpose(savePurpose);
         memberEntity.setProfileImage(profileImage);
