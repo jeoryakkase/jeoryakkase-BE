@@ -17,13 +17,13 @@ public class BoardTypeTipCreateReqDto {
     private String title;
     private String contents;
     private String imageUrls;
+    private BoardCategory category = BoardCategory.TIPS;
 
     public BoardEntity toEntity(MemberEntity member) {
         return BoardEntity.builder()
             .memberEntity(member)
             .title(title)
             .contents(contents)
-            .category(BoardCategory.TIPS)
             .imageUrls(imageUrls)
             .build();
     }

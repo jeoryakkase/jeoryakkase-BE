@@ -39,22 +39,6 @@ public class CommentService {
         return convertToDto(comment);
     }
 
-//    @Transactional
-//    public List<CommentResDto> getCommentsByBoardId(Long boardId) {
-//        // 게시글의 모든 댓글 조회
-//        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
-//            boardId);
-//        // 부모 댓글을 기준으로 모든 대댓글 조회
-//        List<ReplyCommentEntity> replyComments = replyCommentRepository.findAllByParentCommentIdOrderByCreatedAtAsc(
-//            comments);
-//
-//        List<CommentResDto> commentResDtos = comments.stream()
-//            .map(comment -> convertToDto(comment, replyComments))
-//
-//        return comments.stream()
-//            .map(this::convertToDto)
-//            .collect(Collectors.toList());
-//    }
 
     @Transactional
     public ResponseEntity<String> updateComment(Long commentId, CommentReqDto requestDto,
