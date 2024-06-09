@@ -1,5 +1,6 @@
 package com.example.savingsalt.challenge.domain.dto;
 
+import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -25,7 +26,7 @@ public class ChallengeUpdateReqDto {
 
     private Integer challengeCount;
 
-    @Size(min = 1, max = 50, message = "챌린지 유형은 1 ~ 20자 이여야 합니다!")
+    @Pattern(regexp = "COUNT|GOAL", message = "챌린지 유형은 COUNT(횟수), GOAL(모으기) 중 하나여야 합니다.")
     private String challengeType;
 
     @Size(min = 1, max = 50, message = "챌린지 기간은 1 ~ 20자 이여야 합니다!")

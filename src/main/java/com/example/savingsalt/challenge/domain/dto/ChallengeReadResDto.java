@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.domain.dto;
 
 import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ public class ChallengeReadResDto {
 
     private String challengeTitle;
 
-    private String challengeType;
+    private ChallengeType challengeType;
 
     private String challengeTerm;
 
