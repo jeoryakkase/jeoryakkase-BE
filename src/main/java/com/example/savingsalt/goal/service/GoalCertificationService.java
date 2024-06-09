@@ -4,6 +4,7 @@ import com.example.savingsalt.goal.domain.dto.GoalCertificationCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
 import com.example.savingsalt.goal.domain.entity.GoalCertificationEntity;
 import com.example.savingsalt.goal.domain.entity.GoalEntity;
+import com.example.savingsalt.goal.enums.GoalStatus;
 import com.example.savingsalt.goal.exception.GoalNotFoundException;
 import com.example.savingsalt.goal.repository.GoalCertificationRepository;
 import com.example.savingsalt.goal.repository.GoalRepository;
@@ -46,9 +47,21 @@ public class GoalCertificationService {
         // 저장
         GoalCertificationEntity savedEntity = certificationRepository.save(certificationEntity);
 
+        // 목표 상태 업데이트
+        updateGoalStatus(goalEntity);
+
         // GoalEntity 업데이트
         goalRepository.save(goalEntity);
 
         return GoalCertificationResponseDto.fromEntity(savedEntity);
+    }
+
+    // 목표 상태를 업데이트하는 메서드
+    private void updateGoalStatus(GoalEntity goalEntity) {
+        // 현재 금액이 목표 금액을 넘으면 COMPLETE로 설정
+        if (goalEntity.getCurrentAmount() >= goalEntity.getGoalAmount()) {
+            goalEntity.updateGoalStatus(GoalStatus.COMPLETE);
+        }
+        goalRepository.save(goalEntity);
     }
 }
