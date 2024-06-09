@@ -114,8 +114,7 @@ public class BoardServiceImpl implements BoardService {
 
         try {
             board.updateTipBoard(requestDto);
-            BoardEntity updatedBoard = boardRepository.save(board);
-            return toTipReadDto(updatedBoard);
+            return toTipReadDto(board);
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
@@ -214,10 +213,7 @@ public class BoardServiceImpl implements BoardService {
 
         try {
             board.updateVoteBoard(requestDto);
-
-            BoardEntity updatedBoard = boardRepository.save(board);
-
-            return toVoteReadDto(updatedBoard);
+            return toVoteReadDto(board);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
