@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Token", description = "Token API")
+@Tag(name = "Token", description = "토큰 API")
 public class TokenApiController {
 
     private final TokenService tokenService;
 
     @PostMapping("/api/token")
-    @Operation(summary = "Create new access token", description = "Generate a new access token using a refresh token")
+    @Operation(summary = "새 액세스 토큰 발급하기", description = "Generate a new access token using a refresh token")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Token created successfully"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
