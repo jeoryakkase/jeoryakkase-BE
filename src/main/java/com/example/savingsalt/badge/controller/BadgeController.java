@@ -87,7 +87,7 @@ public class BadgeController {
     @PutMapping("/members/challenges/badges")
     public ResponseEntity<RepresentativeBadgeSetResDto> setMemberRepresentativeBadge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
-        @Parameter(description = "대표 뱃지로 지정할 뱃지 ID") @RequestParam String badgeName) {
+        @Parameter(description = "대표 뱃지로 지정할 뱃지 이름") @RequestParam String badgeName) {
         String token = tokenProvider.resolveToken(request);
         if (token == null || !tokenProvider.validateToken(token)) {
             throw new MemberException.InvalidTokenException();
