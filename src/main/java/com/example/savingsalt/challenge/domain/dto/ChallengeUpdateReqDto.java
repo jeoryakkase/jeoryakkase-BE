@@ -33,7 +33,7 @@ public class ChallengeUpdateReqDto {
     private String challengeTerm;
 
     @Pattern(regexp = "UNSET|EASY|NORMAL|HARD", message = "챌린지 난이도는 UNSET, EASY, NORMAL, HARD 중 하나여야 합니다.")
-    private ChallengeDifficulty challengeDifficulty;
+    private String challengeDifficulty;
 
     private LocalDateTime updateAt;
 

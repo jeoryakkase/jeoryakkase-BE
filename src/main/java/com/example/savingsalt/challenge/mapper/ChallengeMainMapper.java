@@ -31,8 +31,6 @@ public interface ChallengeMainMapper {
         @Mapping(source = "dto.challengeDifficulty", target = "challengeDifficulty")
         ChallengeEntity toEntity(ChallengeCreateReqDto dto);
 
-        ChallengeEntity toEntity(ChallengeUpdateReqDto dto);
-
         @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
         @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
