@@ -82,7 +82,8 @@ public class PollServiceImpl implements PollService {
 
     @Transactional(readOnly = true)
     public PollResultDto getPollResults(Long pollId) {
-        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(() -> new RuntimeException("Poll not found"));
+        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
+            PollNotFoundException::new);
         return PollResultDto.builder()
             .yesCount(pollEntity.getYesCount())
             .noCount(pollEntity.getNoCount())
