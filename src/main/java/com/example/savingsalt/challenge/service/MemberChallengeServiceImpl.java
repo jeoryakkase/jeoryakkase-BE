@@ -161,7 +161,7 @@ public class MemberChallengeServiceImpl implements
 
     // 회원 챌린지 인증
     public MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
-        CertificationChallengeReqDto certificationChallengeReqDto) {
+        CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
 
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
@@ -187,7 +187,7 @@ public class MemberChallengeServiceImpl implements
 
             // 챌린지 인증 DTO -> 챌린지 일일 인증 DB로 저장
             CertificationChallengeDto certificationChallengeDto = certificationChallengeServiceImpl.createCertificationChallenge(
-                foundMemberChallengeEntity, certificationChallengeReqDto);
+                foundMemberChallengeEntity, certificationChallengeReqDto, imageUrls);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
             if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {

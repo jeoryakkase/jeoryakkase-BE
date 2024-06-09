@@ -110,13 +110,9 @@ public class MemberChallengeController {
             imageUrls.add(imageUrl);
         }
 
-        certificationChallengeReqDto = certificationChallengeReqDto.toBuilder()
-            .imageUrls(imageUrls)
-            .build();
-
         MemberChallengeDto memberChallengeDto = memberChallengeService.certifyDailyMemberChallenge(
             memberId, memberChallengeId,
-            certificationChallengeReqDto);
+            certificationChallengeReqDto, imageUrls);
 
         if (memberChallengeDto != null) {
             return ResponseEntity.status(HttpStatus.CREATED)

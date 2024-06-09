@@ -1,6 +1,5 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +13,6 @@ import lombok.NoArgsConstructor;
 public class CertificationChallengeReqDto {
 
     private String content;
-
-    private List<String> imageUrls;
 
     private Integer saveMoney;
 }

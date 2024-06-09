@@ -8,6 +8,7 @@ import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCation
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,7 +40,7 @@ public class CertificationChallengeServiceImpl {
     // 챌린지 인증 컬럼 생성
     public CertificationChallengeDto createCertificationChallenge(
         MemberChallengeEntity memberChallengeEntity,
-        CertificationChallengeReqDto certificationChallengeReqDto) {
+        CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
 
@@ -61,7 +62,7 @@ public class CertificationChallengeServiceImpl {
         certificationChallengeDto = certificationChallengeDto.toBuilder()
             .certificationChallengeImageDtos(
                 certificationChallengeImageService.createCertificationChallengeImage(
-                    certificationChallengeReqDto.getImageUrls(),
+                    imageUrls,
                     certificationChallengeEntity.getId()))
             .build();
 

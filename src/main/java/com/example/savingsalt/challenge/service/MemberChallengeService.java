@@ -21,7 +21,7 @@ public interface MemberChallengeService {
 
     // 회원 챌린지 일일 인증
     MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
-        CertificationChallengeReqDto certificationChallengeReqDto);
+        CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls);
 
     // 참여 중인 챌린지 목록 조회
     List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId);
