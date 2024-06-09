@@ -65,9 +65,9 @@ public class MemberChallengeController {
         if (createdMemberChallengeCreateResDto != null) {
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(createdMemberChallengeCreateResDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     // 회원 챌린지 인증
@@ -110,20 +110,16 @@ public class MemberChallengeController {
             imageUrls.add(imageUrl);
         }
 
-        certificationChallengeReqDto = certificationChallengeReqDto.toBuilder()
-            .imageUrls(imageUrls)
-            .build();
-
         MemberChallengeDto memberChallengeDto = memberChallengeService.certifyDailyMemberChallenge(
             memberId, memberChallengeId,
-            certificationChallengeReqDto);
+            certificationChallengeReqDto, imageUrls);
 
         if (memberChallengeDto != null) {
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(memberChallengeDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     // 회원 챌린지 포기
@@ -139,9 +135,9 @@ public class MemberChallengeController {
         if (memberChallengeAbandonResDto != null) {
             return ResponseEntity.status(HttpStatus.OK)
                 .body(memberChallengeAbandonResDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     // 참여 중인 챌린지 목록 조회
@@ -154,8 +150,8 @@ public class MemberChallengeController {
 
         if (!memberChallengeJoinResDtos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(memberChallengeJoinResDtos);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

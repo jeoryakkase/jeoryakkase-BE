@@ -1,6 +1,5 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(toBuilder = true)
 public class CertificationChallengeReqDto {
-
-    private List<String> imageUrls;
 
     private String content;
 
