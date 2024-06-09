@@ -12,6 +12,8 @@ import com.example.savingsalt.goal.repository.GoalRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -80,6 +82,22 @@ public class GoalCertificationService {
 
         // GoalEntity 업데이트
         goalRepository.save(goalEntity);
+    }
+
+    // 특정 목표의 모든 인증을 최신순으로 조회
+    public List<GoalCertificationResponseDto> getCertificationsByGoal(Long goalId,
+        UserDetails userDetails) {
+        // 목표를 조회하여 인증 목록 반환
+        GoalEntity goalEntity = goalRepository.findById(goalId)
+            .orElseThrow(GoalNotFoundException::new);
+
+        // 인증 엔티티를 조회하고 DTO로 변환
+        List<GoalCertificationEntity> certifications = certificationRepository.findAllByGoalEntityOrderByCertificationDateDesc(
+            goalEntity);
+
+        return certifications.stream()
+            .map(GoalCertificationResponseDto::fromEntity)
+            .collect(Collectors.toList());
     }
 
     // 목표 상태를 업데이트하는 메서드
