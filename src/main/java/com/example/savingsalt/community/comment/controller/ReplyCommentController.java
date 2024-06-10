@@ -4,7 +4,7 @@ import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
 import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
 import com.example.savingsalt.community.comment.service.ReplyCommentService;
 import com.example.savingsalt.global.UnauthorizedException;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,6 +1,6 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import com.example.savingsalt.member.domain.MemberDto;
+import com.example.savingsalt.member.domain.dto.MemberDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

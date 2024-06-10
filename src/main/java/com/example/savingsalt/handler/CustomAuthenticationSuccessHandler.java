@@ -1,9 +1,9 @@
 package com.example.savingsalt.handler;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.RefreshToken;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.entity.RefreshToken;
+import com.example.savingsalt.member.domain.dto.TokenResponseDto;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import com.example.savingsalt.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;

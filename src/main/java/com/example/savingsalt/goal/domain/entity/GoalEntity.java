@@ -1,7 +1,7 @@
 package com.example.savingsalt.goal.domain.entity;
 
 import com.example.savingsalt.goal.enums.GoalStatus;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

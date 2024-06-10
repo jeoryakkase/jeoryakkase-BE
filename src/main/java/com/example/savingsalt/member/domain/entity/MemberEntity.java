@@ -1,4 +1,4 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.member.domain.entity;
 
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.global.BaseEntity;

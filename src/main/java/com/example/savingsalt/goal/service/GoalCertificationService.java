@@ -9,7 +9,7 @@ import com.example.savingsalt.goal.exception.CertificationNotFoundException;
 import com.example.savingsalt.goal.exception.GoalNotFoundException;
 import com.example.savingsalt.goal.repository.GoalCertificationRepository;
 import com.example.savingsalt.goal.repository.GoalRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
