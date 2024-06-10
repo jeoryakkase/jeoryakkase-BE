@@ -5,7 +5,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqD
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.global.BaseEntity;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

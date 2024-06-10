@@ -2,7 +2,7 @@ package com.example.savingsalt.community.poll.domain;
 
 import com.example.savingsalt.community.poll.enums.PollVoteChoice;
 import com.example.savingsalt.global.BaseEntity;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
