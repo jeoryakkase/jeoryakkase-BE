@@ -22,4 +22,10 @@ public class PollException extends RuntimeException{
             super("사용자가 이미 투표했습니다.");
         }
     }
+
+    public static class PollNotActiveException extends PollException {
+        public PollNotActiveException() {
+            super("투표가 활성 상태가 아닙니다.");
+        }
+    }
 }

@@ -15,6 +15,7 @@ import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.repository.PollVoteRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +33,20 @@ public class PollServiceImpl implements PollService {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private BoardRepository boardRepository;
+
     @Transactional
-    public PollEntity createPollForBoard(BoardEntity boardEntity) {
+    public PollEntity createPollForBoard(Long boardId, LocalDateTime startTime, LocalDateTime endTime) {
+        BoardEntity boardEntity = boardRepository.findById(boardId)
+            .orElseThrow(PollNotFoundException::new);
+
         PollEntity pollEntity = PollEntity.builder()
             .boardEntity(boardEntity)
             .yesCount(0)
             .noCount(0)
+            .startTime(startTime)
+            .endTime(endTime)
             .build();
         return pollRepository.save(pollEntity);
     }
@@ -51,6 +60,10 @@ public class PollServiceImpl implements PollService {
 
         if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberId)) {
             throw new PollException.UserAlreadyVotedException();
+        }
+
+        if (!pollEntity.isActive()) {
+            throw new PollException.PollNotActiveException();
         }
 
         PollVoteEntity pollVoteEntity = PollVoteEntity.builder()
@@ -81,9 +94,19 @@ public class PollServiceImpl implements PollService {
     public PollResultDto getPollResults(Long pollId) {
         PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
             PollNotFoundException::new);
+
+        if (pollEntity.isNotStarted()) {
+            return PollResultDto.builder()
+                .yesCount(0)
+                .noCount(0)
+                .isFinished(false)
+                .build();
+        }
+
         return PollResultDto.builder()
             .yesCount(pollEntity.getYesCount())
             .noCount(pollEntity.getNoCount())
+            .isFinished(pollEntity.isFinished())
             .build();
     }
 
