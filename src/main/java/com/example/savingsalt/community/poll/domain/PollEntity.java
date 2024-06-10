@@ -2,16 +2,14 @@ package com.example.savingsalt.community.poll.domain;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.global.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.List;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,23 +29,25 @@ public class PollEntity extends BaseEntity {
 
     @OneToOne
     @JoinColumn(name = "board_id", nullable = false)
-    private BoardEntity board;
+    private BoardEntity boardEntity;
 
-    @OneToMany(mappedBy = "pollEntity", cascade = CascadeType.ALL)
-    private List<PollChoiceEntity> choices;
+    private int yesCount;
 
-    public void addChoices(List<PollChoiceEntity> choices) {
-        this.choices = choices;
-        for (PollChoiceEntity choice : choices) {
-            choice.setPollEntity(this);
-        }
+    private int noCount;
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    public boolean isActive() {
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(startTime) && now.isBefore(endTime);
     }
 
-    public void setChoices(List<PollChoiceEntity> choices) {
-        this.choices = choices;
-        for (PollChoiceEntity choice : choices) {
-            choice.setPollEntity(this);
-        }
+    public boolean isFinished() {
+        return LocalDateTime.now().isAfter(endTime);
     }
 
+    public boolean isNotStarted() {
+        return LocalDateTime.now().isBefore(startTime);
+    }
 }
