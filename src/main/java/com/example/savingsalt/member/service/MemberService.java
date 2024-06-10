@@ -97,12 +97,12 @@ public class MemberService {
         if (memberEntity == null) {
             throw new MemberNotFoundException("email", memberEntity.getEmail());
         }
-        if(!passwordEncoder.matches(dto.getPassword(), memberEntity.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), memberEntity.getPassword())) {
             throw new MemberException.InvalidPasswordException();
         }
 
         // 액세스 토큰 유효성 검증
-        if(!jwtTokenProvider.validateToken(accessToken)) {
+        if (!jwtTokenProvider.validateToken(accessToken)) {
             throw new MemberException.InvalidTokenException();
         }
 
@@ -141,7 +141,8 @@ public class MemberService {
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, String gender,
-        int income, String savePurpose, String profileImage, List<Long> interests, String about) {
+        int income, String savePurpose, String profileImage, List<Long> interests, String about,
+        Long representativeBadgeId) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
@@ -172,6 +173,7 @@ public class MemberService {
         memberEntity.setProfileImage(profileImage);
         memberEntity.setInterests(interests);
         memberEntity.setAbout(about);
+        memberEntity.setRepresentativeBadgeId(representativeBadgeId);
 
         return memberRepository.save(memberEntity);
     }

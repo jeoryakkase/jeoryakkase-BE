@@ -205,7 +205,7 @@ public class MemberController {
             dto.getPassword(),
             dto.getNickname(), dto.getAge(),
             dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
-            dto.getInterests(), dto.getAbout());
+            dto.getInterests(), dto.getAbout(), dto.getRepresentativeBadgeId());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }

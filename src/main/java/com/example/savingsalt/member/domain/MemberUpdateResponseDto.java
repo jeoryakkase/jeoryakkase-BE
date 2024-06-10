@@ -21,4 +21,5 @@ public class MemberUpdateResponseDto {
     private String profileImage;
     private List<Long> interests;
     private String about;
+    private Long representativeBadgeId;
 }
