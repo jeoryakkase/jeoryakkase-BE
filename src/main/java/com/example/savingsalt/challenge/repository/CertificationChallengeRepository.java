@@ -9,4 +9,5 @@ public interface CertificationChallengeRepository extends
 
     CertificationChallengeEntity findByMemberChallengeEntity(
         MemberChallengeEntity memberChallengeEntity);
+
 }
