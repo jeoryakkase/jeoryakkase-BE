@@ -16,6 +16,7 @@ import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNo
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
+import com.example.savingsalt.challenge.mapper.ChallengeMainMapper$CertifiCationChallengeMapperImpl;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -47,6 +48,7 @@ public class MemberChallengeServiceImpl implements
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeServiceImpl challengeService;
     private final EntityManager entityManager;
+    private final ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl;
 
     public MemberChallengeServiceImpl(
         MemberChallengeRepository memberChallengeRepository,
@@ -56,7 +58,8 @@ public class MemberChallengeServiceImpl implements
         CertificationChallengeServiceImpl certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
         ChallengeServiceImpl challengeService,
-        EntityManager entityManager) {
+        EntityManager entityManager,
+        ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
@@ -66,6 +69,7 @@ public class MemberChallengeServiceImpl implements
         this.challengeService = challengeService;
         this.certificationChallengeService = certificationChallengeService;
         this.entityManager = entityManager;
+        this.certifiCationChallengeMapperImpl = certifiCationChallengeMapperImpl;
     }
 
     // 회원 챌린지 목록 조회
@@ -275,6 +279,7 @@ public class MemberChallengeServiceImpl implements
                     if (memberChallengeEntity.getChallengeStatus()
                         .equals(ChallengeStatus.IN_PROGRESS)) {
 
+
                         Long effectiveDate = ChronoUnit.DAYS.between(
                             memberChallengeEntity.getStartDate().toLocalDate(),
                             now.toLocalDate());
@@ -288,6 +293,7 @@ public class MemberChallengeServiceImpl implements
                             .startDate(memberChallengeEntity.getStartDate().toLocalDate())
                             .endDate(memberChallengeEntity.getEndDate().toLocalDate())
                             .effectiveDate(effectiveDate)
+                            .certificationChallengeDto(certificationChallengeService.getCertifiCationChallenge(memberChallengeEntity))
                             .build();
 
                         memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
