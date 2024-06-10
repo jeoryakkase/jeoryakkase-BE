@@ -1,7 +1,8 @@
 package com.example.savingsalt.config;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.LoginResponseDto;
+import com.example.savingsalt.member.domain.MemberEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -77,9 +80,29 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response,
         FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authResult);
+        /// JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken(authResult);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authResult);
+
+        // 응답 헤더에 accessToken 설정
+        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        MemberEntity memberEntity = (MemberEntity) authResult.getPrincipal();
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+            .nickname(memberEntity.getNickname())
+            .profileImage(memberEntity.getProfileImage())
+            .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
+            .build();
+
+        // 응답 바디에 refresh token 설정
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("refreshToken", refreshToken);
+        String loginResponseJson = objectMapper.writeValueAsString(loginResponseDto);
+        responseBody.put("user", loginResponseJson);
+
+        // 응답 바디를 JSON 형태로 변환하여 클라이언트에게 전송
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(tokenResponseDto));
+        response.getWriter().write(objectMapper.writeValueAsString(responseBody));
     }
 }

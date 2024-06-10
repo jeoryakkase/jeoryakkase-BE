@@ -1,5 +1,6 @@
 package com.example.savingsalt.member.controller;
 
+import com.amazonaws.Response;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.LoginRequestDto;
@@ -11,7 +12,9 @@ import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
 import com.example.savingsalt.member.domain.SignupRequestDto;
 import com.example.savingsalt.member.domain.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.exception.MemberException.EmailAlreadyExistsException;
 import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
+import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMyPageMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberUpdateMapper;
@@ -26,7 +29,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -47,21 +55,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "Member", description = "Member API")
+@Tag(name = "Member", description = "회원 API")
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtTokenProvider tokenProvider;
-    private final TokenBlacklistService tokenBlacklistService;
     private final MemberMapper memberMapper;
     private final MemberUpdateMapper memberUpdateMapper;
     private final MemberMyPageMapper myPageMapper;
 
     @PostMapping("/signup")
-    @Operation(summary = "signup", description = "Signup new member")
+    @Operation(summary = "회원가입", description = "Signup new member")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Signup success",
             content = {
@@ -95,40 +102,55 @@ public class MemberController {
 //    }
 
     @PostMapping("/login")
-    @Operation(summary = "login", description = "Member login")
+    @Operation(summary = "로그인", description = "Member login")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Login success"),
+        @ApiResponse(responseCode = "200", description = "Login success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
-        TokenResponseDto tokenResponseDto = memberService.login(dto);
-        return ResponseEntity.status(HttpStatus.OK)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken())
-            .body(tokenResponseDto.getRefreshToken());
-    }
-
-    @PostMapping("/logout")
-    @Operation(summary = "logout", description = "Member logout")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Logout success"),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
-        @ApiResponse(responseCode = "500", description = "Server error")
-    })
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
+    public ResponseEntity<?> login(HttpServletRequest request, @RequestBody LoginRequestDto dto) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new MemberException.InvalidTokenException();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Authorization header");
         }
 
-        String token = authHeader.substring(7);
-        Long expiration = tokenProvider.getExpiration(token);
-        tokenBlacklistService.blacklistToken(token, expiration);
-        return ResponseEntity.status(HttpStatus.OK).body("Logout success");
+        String accessToken = authHeader.replace("Bearer ", "");
+        String refreshToken = memberService.login(dto, accessToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("refreshToken", refreshToken);
+
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.CREATED)
+            .headers(headers)
+            .body(responseBody);
+
+        return response;
     }
 
+//    @PostMapping("/logout")
+//    @Operation(summary = "로그아웃", description = "Member logout")
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "200", description = "Logout success"),
+//        @ApiResponse(responseCode = "400", description = "Bad request"),
+//        @ApiResponse(responseCode = "500", description = "Server error")
+//    })
+//    public ResponseEntity<?> logout(HttpServletRequest request) {
+//        String authHeader = request.getHeader("Authorization");
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            throw new MemberException.InvalidTokenException();
+//        }
+//
+//        String token = authHeader.substring(7);
+//        Long expiration = tokenProvider.getExpiration(token);
+//        tokenBlacklistService.blacklistToken(token, expiration);
+//        return ResponseEntity.status(HttpStatus.OK).body("Logout success");
+//    }
+
     @GetMapping("/members/update-info")
-    @Operation(summary = "get member update info page", description = "Get member info page for update")
+    @Operation(summary = "회원 정보 수정 페이지 조회", description = "Get member info page for update")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -136,15 +158,10 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<MemberUpdateResponseDto> getMemberUpdatePage(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
+            throw new MemberNotFoundException("email", email);
         }
 
         MemberUpdateResponseDto responseDto = memberUpdateMapper.toDto(memberEntity);
@@ -152,7 +169,7 @@ public class MemberController {
     }
 
     @GetMapping("/members/mypage")
-    @Operation(summary = "get mypage", description = "Get member mypage")
+    @Operation(summary = "회원 마이페이지 조회", description = "Get member mypage")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -160,15 +177,10 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<MyPageResponseDto> getMyPage(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
         if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
+            throw new MemberNotFoundException("email", email);
         }
 
         MyPageResponseDto responseDto = myPageMapper.toDto(memberEntity);
@@ -177,7 +189,7 @@ public class MemberController {
 
 
     @PatchMapping("/members/update")
-    @Operation(summary = "member update", description = "Update member info")
+    @Operation(summary = "회원 정보 수정", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -186,25 +198,20 @@ public class MemberController {
     })
     public ResponseEntity<?> updateMember(HttpServletRequest request,
         @RequestBody MemberUpdateRequestDto dto) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         Long memberId = memberService.findMemberByEmail(email).getId();
 
         MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
             dto.getPassword(),
             dto.getNickname(), dto.getAge(),
             dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
-            dto.getInterests(), dto.getAbout());
+            dto.getInterests(), dto.getAbout(), dto.getRepresentativeBadgeId());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
 
     @GetMapping("/check-email")
-    @Operation(summary = "check email", description = "Check whether this email already exists")
+    @Operation(summary = "이메일 중복 검사", description = "Check whether this email already exists")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -215,13 +222,13 @@ public class MemberController {
         try {
             boolean isAvailable = memberService.checkEmail(email);
             return ResponseEntity.ok().body(isAvailable);
-        } catch (MemberException.EmailAlreadyExistsException e) {
+        } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }
 
     @GetMapping("/check-nickname")
-    @Operation(summary = "check nickname", description = "Check whether this nickname already exists")
+    @Operation(summary = "닉네임 중복 검사", description = "Check whether this nickname already exists")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Check success"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -232,25 +239,20 @@ public class MemberController {
         try {
             boolean isAvailable = memberService.checkNickname(nickname);
             return ResponseEntity.ok().body(isAvailable);
-        } catch (MemberException.EmailAlreadyExistsException e) {
+        } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }
 
     @DeleteMapping("members/signout")
-    @Operation(summary = "signout", description = "Member signout")
+    @Operation(summary = "회원 탈퇴", description = "Member signout")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Signout success"),
         @ApiResponse(responseCode = "401", description = "Unauthorized member"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<Void> signout(HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new UnauthorizedException("User is not authenticated");
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
+        String email = memberService.getEmailFromRequest(request);
         Long memberId = memberService.findMemberByEmail(email).getId();
 
         memberService.signOut(memberId);
@@ -259,7 +261,7 @@ public class MemberController {
 
 
     @DeleteMapping("/members/{memberId}")
-    @Operation(summary = "delete member by admin", description = "Delete member")
+    @Operation(summary = "관리자의 회원 삭제", description = "Delete member")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Delete success"),
         @ApiResponse(responseCode = "404", description = "Member not found"),

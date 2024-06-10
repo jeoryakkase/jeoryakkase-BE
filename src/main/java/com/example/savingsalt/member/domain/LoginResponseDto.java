@@ -4,16 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class OAuth2LoginResponseDto {
-
-    String email;
-    String accessToken;
-    String refreshToken;
-//    String redirectUrl;
+public class LoginResponseDto {
+    private String nickname;
+    private Long representativeBadgeId;
+    private String profileImage;
 }

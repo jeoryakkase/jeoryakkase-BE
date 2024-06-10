@@ -25,4 +25,5 @@ public class MemberDto {
     private String savePurpose;
     private List<Long> interests;
     private String about;
+    private Long representativeBadgeId;
 }
