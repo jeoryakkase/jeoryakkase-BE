@@ -24,7 +24,7 @@ public interface MemberMainMapper {
 
         @Named("genderToString")
         static String genderToString(Gender gender) {
-            return gender != null ? gender.getKey() : null;
+            return gender != null ? gender.name() : null;
         }
 
         @Named("stringToGender")
@@ -58,7 +58,7 @@ public interface MemberMainMapper {
 
         @Named("genderToString")
         static String genderToString(Gender gender) {
-            return gender != null ? gender.getKey() : null;
+            return gender != null ? gender.name() : null;
         }
 
         @Named("stringToGender")
@@ -90,7 +90,7 @@ public interface MemberMainMapper {
 
         @Named("genderToString")
         static String genderToString(Gender gender) {
-            return gender != null ? gender.getKey() : null;
+            return gender != null ? gender.name() : null;
         }
 
         @Named("stringToGender")
