@@ -4,6 +4,7 @@ import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundExcept
 import com.example.savingsalt.badge.exception.BadgeException.InvalidRepresentativeBadgeException;
 import com.example.savingsalt.badge.exception.BadgeException.RepresentativeBadgeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeTypeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.community.board.exception.BoardException;
@@ -79,10 +80,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ChallengeTypeNotFoundException.class)
+    public ResponseEntity<String> handleChallengeTypeNotFoundException(
+        ChallengeTypeNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(InvalidChallengeGoalAndCountException.class)
     public ResponseEntity<String> handleInvalidChallengeGoalAndCountException(
         InvalidChallengeGoalAndCountException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -105,7 +112,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RepresentativeBadgeNotFoundException.class)
     public ResponseEntity<String> handleRepresentativeBadgeNotFoundException(
         RepresentativeBadgeNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MemberChallengeAlreadySucceededException.class)
@@ -186,7 +193,6 @@ public class GlobalExceptionHandler {
         CommentException.NotFoundParentComment ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
-
 
     // 투표 관련 예외 처리
     @ExceptionHandler(PollException.PollNotFoundException.class)
