@@ -218,11 +218,17 @@ public class MemberController {
         @ApiResponse(responseCode = "409", description = "This email already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
         try {
             boolean isAvailable = memberService.checkEmail(email);
-            return ResponseEntity.ok().body(isAvailable);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", isAvailable);
+            return ResponseEntity.ok().body(responseBody);
         } catch (EmailAlreadyExistsException e) {
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", false);
+            responseBody.put("errorCode", "DUPLICATED_ERROR");
+            responseBody.put("errorMessage", "This email already exists.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }
@@ -238,8 +244,14 @@ public class MemberController {
     public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
         try {
             boolean isAvailable = memberService.checkNickname(nickname);
-            return ResponseEntity.ok().body(isAvailable);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", isAvailable);
+            return ResponseEntity.ok().body(responseBody);
         } catch (EmailAlreadyExistsException e) {
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", false);
+            responseBody.put("errorCode", "DUPLICATED_ERROR");
+            responseBody.put("errorMessage", "This nickname already exists.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }
