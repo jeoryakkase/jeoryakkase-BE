@@ -17,7 +17,6 @@ import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNo
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
-import com.example.savingsalt.challenge.mapper.ChallengeMainMapper$CertifiCationChallengeMapperImpl;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -25,7 +24,6 @@ import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
-import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -56,9 +54,7 @@ public class MemberChallengeServiceImpl implements
         ChallengeRepository challengeRepository,
         CertificationChallengeServiceImpl certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
-        ChallengeServiceImpl challengeService,
-        EntityManager entityManager,
-        ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl) {
+        ChallengeServiceImpl challengeService) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
