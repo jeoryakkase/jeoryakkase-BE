@@ -263,7 +263,9 @@ public class MemberChallengeServiceImpl implements
 
     // 참여 중인 챌린지 목록 조회
     public List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId) {
+
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+
         List<MemberChallengeEntity> memberChallengeEntities;
         List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
