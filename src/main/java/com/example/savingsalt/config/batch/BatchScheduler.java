@@ -21,7 +21,6 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
-    @Bean()
     public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor() {
         JobRegistryBeanPostProcessor jobProcessor = new JobRegistryBeanPostProcessor();
         jobProcessor.setJobRegistry(jobRegistry);

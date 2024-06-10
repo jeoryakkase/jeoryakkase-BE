@@ -1,11 +1,9 @@
 package com.example.savingsalt.member.service;
 
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.repository.MemberRepository;
-import com.example.savingsalt.util.CookieUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -13,8 +11,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RequiredArgsConstructor
 @Service

@@ -1,4 +1,4 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.member.domain.dto;
 
 import java.util.List;
 import lombok.Getter;

@@ -17,7 +17,7 @@ import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollResultMap
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.repository.PollChoiceRepository;
 import com.example.savingsalt.community.poll.repository.PollResultRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;

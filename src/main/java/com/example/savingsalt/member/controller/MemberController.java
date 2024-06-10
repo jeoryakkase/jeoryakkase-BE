@@ -1,26 +1,17 @@
 package com.example.savingsalt.member.controller;
 
-import com.amazonaws.Response;
-import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.global.UnauthorizedException;
-import com.example.savingsalt.member.domain.LoginRequestDto;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.MemberUpdateRequestDto;
-import com.example.savingsalt.member.domain.MemberUpdateResponseDto;
-import com.example.savingsalt.member.domain.MyPageResponseDto;
-import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
-import com.example.savingsalt.member.domain.SignupRequestDto;
-import com.example.savingsalt.member.domain.TokenResponseDto;
-import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.domain.dto.LoginRequestDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.dto.MemberUpdateRequestDto;
+import com.example.savingsalt.member.domain.dto.MemberUpdateResponseDto;
+import com.example.savingsalt.member.domain.dto.MyPageResponseDto;
+import com.example.savingsalt.member.domain.dto.SignupRequestDto;
 import com.example.savingsalt.member.exception.MemberException.EmailAlreadyExistsException;
-import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMyPageMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberUpdateMapper;
-import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.service.MemberService;
-import com.example.savingsalt.member.service.TokenBlacklistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,28 +19,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.token.TokenService;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -218,11 +199,17 @@ public class MemberController {
         @ApiResponse(responseCode = "409", description = "This email already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
         try {
             boolean isAvailable = memberService.checkEmail(email);
-            return ResponseEntity.ok().body(isAvailable);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", isAvailable);
+            return ResponseEntity.ok().body(responseBody);
         } catch (EmailAlreadyExistsException e) {
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", false);
+            responseBody.put("errorCode", "DUPLICATED_ERROR");
+            responseBody.put("errorMessage", "This email already exists.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }
@@ -238,8 +225,14 @@ public class MemberController {
     public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
         try {
             boolean isAvailable = memberService.checkNickname(nickname);
-            return ResponseEntity.ok().body(isAvailable);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", isAvailable);
+            return ResponseEntity.ok().body(responseBody);
         } catch (EmailAlreadyExistsException e) {
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("isAvailable", false);
+            responseBody.put("errorCode", "DUPLICATED_ERROR");
+            responseBody.put("errorMessage", "This nickname already exists.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
         }
     }

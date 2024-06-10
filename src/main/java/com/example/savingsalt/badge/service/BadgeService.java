@@ -5,7 +5,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
-import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
+import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
 import java.util.List;
 
 public interface BadgeService {

@@ -4,7 +4,7 @@ import com.example.savingsalt.goal.domain.dto.GoalCategoryCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCategoryResDto;
 import com.example.savingsalt.goal.domain.entity.GoalCategoryEntity;
 import com.example.savingsalt.goal.repository.GoalCategoryRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;

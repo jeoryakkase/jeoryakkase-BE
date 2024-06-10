@@ -22,7 +22,7 @@ import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallen
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import jakarta.persistence.EntityManager;
