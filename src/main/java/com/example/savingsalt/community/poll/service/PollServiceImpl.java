@@ -13,7 +13,7 @@ import com.example.savingsalt.community.poll.exception.PollException.MemberNotFo
 import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.repository.PollVoteRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
