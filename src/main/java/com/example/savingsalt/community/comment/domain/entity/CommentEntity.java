@@ -3,7 +3,7 @@ package com.example.savingsalt.community.comment.domain.entity;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.comment.domain.dto.CommentReqDto;
 import com.example.savingsalt.global.BaseEntity;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

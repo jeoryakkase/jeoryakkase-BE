@@ -1,7 +1,6 @@
 package com.example.savingsalt.member.repository;
 
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.RefreshToken;
+import com.example.savingsalt.member.domain.entity.RefreshToken;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

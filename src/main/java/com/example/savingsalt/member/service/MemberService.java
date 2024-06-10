@@ -1,16 +1,13 @@
 package com.example.savingsalt.member.service;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.LoginRequestDto;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.MemberDto;
-import com.example.savingsalt.member.domain.OAuth2SignupRequestDto;
-import com.example.savingsalt.member.domain.SignupRequestDto;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.dto.LoginRequestDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.dto.MemberDto;
+import com.example.savingsalt.member.domain.dto.SignupRequestDto;
 import com.example.savingsalt.member.enums.Gender;
 import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.exception.MemberException;
-import com.example.savingsalt.member.exception.MemberException.InvalidPasswordException;
 import com.example.savingsalt.member.exception.MemberException.InvalidTokenException;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
@@ -20,7 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;

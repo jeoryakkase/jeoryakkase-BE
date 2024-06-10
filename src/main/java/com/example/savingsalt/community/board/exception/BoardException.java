@@ -5,6 +5,7 @@ public class BoardException extends RuntimeException {
     public BoardException(String message) {
         super(message);
     }
+
     public BoardException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -13,13 +14,6 @@ public class BoardException extends RuntimeException {
 
         public UnauthorizedPostCreateException() {
             super("게시글 작성 권한이 없습니다.");
-        }
-    }
-
-    public static class BadRequestException extends BoardException {
-
-        public BadRequestException(String message) {
-            super(message);
         }
     }
 
@@ -57,6 +51,7 @@ public class BoardException extends RuntimeException {
         public BoardServiceException(String message) {
             super(message);
         }
+
         public BoardServiceException(String message, Throwable cause) {
             super(message, cause);
         }
