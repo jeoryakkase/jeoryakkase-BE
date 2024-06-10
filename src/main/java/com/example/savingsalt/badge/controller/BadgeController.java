@@ -5,7 +5,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.service.BadgeServiceImpl;
-import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
+import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

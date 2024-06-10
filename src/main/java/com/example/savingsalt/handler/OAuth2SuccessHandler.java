@@ -1,21 +1,19 @@
 package com.example.savingsalt.handler;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.OAuth2LoginResponseDto;
-import com.example.savingsalt.member.domain.RefreshToken;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.dto.OAuth2LoginResponseDto;
+import com.example.savingsalt.member.domain.entity.RefreshToken;
+import com.example.savingsalt.member.domain.dto.TokenResponseDto;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import com.example.savingsalt.member.service.MemberService;
 import com.example.savingsalt.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

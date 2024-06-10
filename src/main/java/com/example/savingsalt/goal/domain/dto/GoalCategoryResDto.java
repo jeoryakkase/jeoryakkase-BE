@@ -1,7 +1,6 @@
 package com.example.savingsalt.goal.domain.dto;
 
 import com.example.savingsalt.goal.domain.entity.GoalCategoryEntity;
-import com.example.savingsalt.member.domain.MemberEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

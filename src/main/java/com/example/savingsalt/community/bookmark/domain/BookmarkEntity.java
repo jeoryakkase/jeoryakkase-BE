@@ -1,7 +1,7 @@
 package com.example.savingsalt.community.bookmark.domain;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

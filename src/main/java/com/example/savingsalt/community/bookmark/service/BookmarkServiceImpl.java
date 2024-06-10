@@ -7,7 +7,7 @@ import com.example.savingsalt.community.bookmark.domain.BookmarkEntity;
 import com.example.savingsalt.community.bookmark.repository.BookmarkRepository;
 import com.example.savingsalt.community.bookmark.exception.BookmarkException.BoardNotFoundException;
 import com.example.savingsalt.community.bookmark.exception.BookmarkException.MemberNotFoundException;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
 import java.util.Optional;

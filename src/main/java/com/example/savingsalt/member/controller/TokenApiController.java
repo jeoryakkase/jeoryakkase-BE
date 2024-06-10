@@ -1,8 +1,8 @@
 package com.example.savingsalt.member.controller;
 
-import com.example.savingsalt.member.domain.AccessTokenRequestDto;
-import com.example.savingsalt.member.domain.AccessTokenResponseDto;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.dto.AccessTokenRequestDto;
+import com.example.savingsalt.member.domain.dto.AccessTokenResponseDto;
+import com.example.savingsalt.member.domain.dto.TokenResponseDto;
 import com.example.savingsalt.member.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

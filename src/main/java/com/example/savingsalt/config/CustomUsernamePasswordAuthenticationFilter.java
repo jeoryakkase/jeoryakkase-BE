@@ -1,8 +1,8 @@
 package com.example.savingsalt.config;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.LoginResponseDto;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.dto.LoginResponseDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
