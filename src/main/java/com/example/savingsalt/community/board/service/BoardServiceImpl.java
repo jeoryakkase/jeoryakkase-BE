@@ -20,6 +20,7 @@ import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.service.PollService;
 import com.example.savingsalt.member.domain.MemberEntity;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -148,7 +149,7 @@ public class BoardServiceImpl implements BoardService {
             BoardEntity board = requestDto.toEntity(member);
             boardRepository.save(board);
 
-            pollService.createPollForBoard(board);
+            pollService.createPollForBoard(board.getId(), requestDto.getStartTime(), requestDto.getEndTime());
 
             return toVoteReadDto(board);
         } catch (Exception e) {

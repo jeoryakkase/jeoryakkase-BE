@@ -46,4 +46,8 @@ public class PollEntity extends BaseEntity {
     public boolean isFinished() {
         return LocalDateTime.now().isAfter(endTime);
     }
+
+    public boolean isNotStarted() {
+        return LocalDateTime.now().isBefore(startTime);
+    }
 }
