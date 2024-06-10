@@ -9,7 +9,6 @@ import com.example.savingsalt.member.domain.dto.SignupRequestDto;
 import com.example.savingsalt.member.exception.MemberException.EmailAlreadyExistsException;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
-import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMyPageMapper;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberUpdateMapper;
 import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +45,6 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberMapper memberMapper;
     private final MemberUpdateMapper memberUpdateMapper;
-    private final MemberMyPageMapper myPageMapper;
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "Signup new member")
@@ -164,7 +162,7 @@ public class MemberController {
             throw new MemberNotFoundException("email", email);
         }
 
-        MyPageResponseDto responseDto = myPageMapper.toDto(memberEntity);
+        MyPageResponseDto responseDto = memberService.getMyPage(memberEntity.getId());
         return ResponseEntity.ok(responseDto);
     }
 
@@ -186,7 +184,7 @@ public class MemberController {
             dto.getPassword(),
             dto.getNickname(), dto.getAge(),
             dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
-            dto.getInterests(), dto.getAbout(), dto.getRepresentativeBadgeId());
+            dto.getInterests(), dto.getAbout());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);
     }
