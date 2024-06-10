@@ -405,6 +405,7 @@ gradle-app.setting
 
 ### Application Properties ###
 src/main/resources/*.yml
+src/main/resources/*.properties
 
 
 # generated directory

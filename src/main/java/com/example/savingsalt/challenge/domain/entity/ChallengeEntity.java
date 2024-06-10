@@ -47,8 +47,9 @@ public class ChallengeEntity extends BaseEntity {
     @Column(name = "challenge_count")
     private int challengeCount;
 
-    @Column(name = "challenge_type", nullable = false, length = 20)
-    private String challengeType;
+    @Column(name = "challenge_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ChallengeType challengeType;
 
     @Column(name = "challenge_term", nullable = false, length = 20)
     private String challengeTerm;
@@ -56,13 +57,6 @@ public class ChallengeEntity extends BaseEntity {
     @Column(name = "challenge_difficulty", nullable = false)
     @Enumerated(EnumType.STRING)
     private ChallengeDifficulty challengeDifficulty;
-
-    public enum ChallengeDifficulty {
-        UNSET,
-        EASY,
-        NORMAL,
-        HARD
-    }
 
     @Column(name = "auth_content", nullable = false, length = 50)
     private String authContent;
@@ -73,5 +67,17 @@ public class ChallengeEntity extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "challengeEntity", cascade = CascadeType.ALL)
     private List<MemberChallengeEntity> memberChallengeEntities;
+
+    public enum ChallengeDifficulty {
+        UNSET,
+        EASY,
+        NORMAL,
+        HARD
+    }
+
+    public enum ChallengeType {
+        COUNT,
+        GOAL
+    }
 
 }

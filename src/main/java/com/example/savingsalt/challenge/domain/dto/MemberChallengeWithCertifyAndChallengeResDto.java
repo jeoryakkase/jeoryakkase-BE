@@ -34,7 +34,8 @@ public class MemberChallengeWithCertifyAndChallengeResDto {
     private Integer totalSaveMoney;
 
     private List<CertificationChallengeDto> certificationChallengeDtos;
+    // certificationChallengeDto 1개 안에 List<CertificationChallengeImageDto>
 
-    private ChallengeDto challengeDto;
+    private ChallengeDto challengeDto; // badgeDto
 
 }

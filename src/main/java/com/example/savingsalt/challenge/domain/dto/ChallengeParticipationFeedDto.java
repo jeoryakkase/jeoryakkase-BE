@@ -1,6 +1,6 @@
 package com.example.savingsalt.challenge.domain.dto;
 
-import java.time.LocalDate;
+import com.example.savingsalt.member.domain.MemberDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,20 +10,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-public class MemberChallengeJoinResDto {
+@Builder(toBuilder = true)
+public class ChallengeParticipationFeedDto {
 
-    private String challengeTtile;
+    private MemberDto memberDto;
 
-    private String challengeTerm;
-
-    private Boolean isTodayCertification;
-
-    private LocalDate startDate;
-
-    private LocalDate endDate;
-
-    private Long effectiveDate;
+    private MemberChallengeDto memberChallengeDto;
 
     private CertificationChallengeDto certificationChallengeDto;
 }
