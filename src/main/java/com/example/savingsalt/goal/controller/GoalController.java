@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.goal.domain.dto.GoalCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalResponseDto;
-import com.example.savingsalt.goal.domain.dto.GoalUpdateReqDto;
 import com.example.savingsalt.goal.service.GoalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +17,8 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +41,7 @@ public class GoalController {
 
     private final GoalService goalService;
     private final AmazonS3 amazonS3Client; // S3 클라이언트 추가
+    private static final Logger logger = LoggerFactory.getLogger(GoalCertificationController.class);
 
     @Operation(summary = "새로운 목표 생성", description = "제공된 데이터를 기반으로 새로운 목표를 생성합니다.")
     @ApiResponses(value = {
@@ -116,7 +117,14 @@ public class GoalController {
 
     // S3에 이미지 업로드하는 메서드
     private String uploadImageToS3(MultipartFile image) {
+
+        if (image.isEmpty()) {
+            logger.warn("이미지 파일이 비어있습니다.");
+            return null;
+        }
+
         String imageUrl = null;
+
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(image.getContentType());
@@ -135,8 +143,7 @@ public class GoalController {
             imageUrl = String.format("https://s3.ap-southeast-2.amazonaws.com/%s/%s",
                 "my.eliceproject.s3.bucket", fileName);
         } catch (IOException e) {
-            e.printStackTrace();
-            // 예외 처리
+            logger.error("이미지 업로드 중 오류 발생", e); // 예외 로깅
         }
         return imageUrl;
     }
