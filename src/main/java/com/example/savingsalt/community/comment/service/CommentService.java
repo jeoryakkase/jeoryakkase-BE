@@ -12,7 +12,7 @@ import com.example.savingsalt.community.comment.exception.CommentException.Comme
 import com.example.savingsalt.community.comment.exception.CommentException.ValidateAuthorForDelete;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
 import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.savingsalt.member.service;
 
-import com.example.savingsalt.member.domain.RefreshToken;
+import com.example.savingsalt.member.domain.entity.RefreshToken;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,16 +1,18 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.member.domain.dto;
 
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponseDto {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+public class RepresentativeBadgeSetResDto {
+
     private String nickname;
     private Long representativeBadgeId;
-    private String profileImage;
 }

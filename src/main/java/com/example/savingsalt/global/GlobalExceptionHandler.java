@@ -4,6 +4,7 @@ import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundExcept
 import com.example.savingsalt.badge.exception.BadgeException.InvalidRepresentativeBadgeException;
 import com.example.savingsalt.badge.exception.BadgeException.RepresentativeBadgeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeTypeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.community.board.exception.BoardException;
@@ -13,7 +14,9 @@ import com.example.savingsalt.community.bookmark.exception.BookmarkException;
 import com.example.savingsalt.community.comment.exception.CommentException;
 import com.example.savingsalt.community.like.exception.LikeException;
 import com.example.savingsalt.community.poll.exception.PollException;
+import com.example.savingsalt.goal.exception.CertificationNotFoundException;
 import com.example.savingsalt.goal.exception.MaxProceedingGoalsExceededException;
+import com.example.savingsalt.goal.exception.PermissionDeniedException;
 import com.example.savingsalt.member.exception.MemberException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,10 +80,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ChallengeTypeNotFoundException.class)
+    public ResponseEntity<String> handleChallengeTypeNotFoundException(
+        ChallengeTypeNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(InvalidChallengeGoalAndCountException.class)
     public ResponseEntity<String> handleInvalidChallengeGoalAndCountException(
         InvalidChallengeGoalAndCountException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -103,7 +112,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RepresentativeBadgeNotFoundException.class)
     public ResponseEntity<String> handleRepresentativeBadgeNotFoundException(
         RepresentativeBadgeNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MemberChallengeAlreadySucceededException.class)
@@ -185,58 +194,78 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-
     // 투표 관련 예외 처리
     @ExceptionHandler(PollException.PollNotFoundException.class)
-    public ResponseEntity<String> handlePollNotFoundException(PollException.PollNotFoundException ex) {
+    public ResponseEntity<String> handlePollNotFoundException(
+        PollException.PollNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PollException.ChoiceNotFoundException.class)
-    public ResponseEntity<String> handleChoiceNotFoundException(PollException.ChoiceNotFoundException ex) {
+    public ResponseEntity<String> handleChoiceNotFoundException(
+        PollException.ChoiceNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PollException.UnauthorizedPollAccessException.class)
-    public ResponseEntity<String> handleUnauthorizedPollAccessException(PollException.UnauthorizedPollAccessException ex) {
+    public ResponseEntity<String> handleUnauthorizedPollAccessException(
+        PollException.UnauthorizedPollAccessException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(PollException.PollCreationException.class)
-    public ResponseEntity<String> handlePollCreationException(PollException.PollCreationException ex) {
+    public ResponseEntity<String> handlePollCreationException(
+        PollException.PollCreationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PollException.PollParticipationException.class)
-    public ResponseEntity<String> handlePollParticipationException(PollException.PollParticipationException ex) {
+    public ResponseEntity<String> handlePollParticipationException(
+        PollException.PollParticipationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MaxProceedingGoalsExceededException.class)
-    public ResponseEntity<String> handleMaxProceedingGoalsExceeded(MaxProceedingGoalsExceededException ex) {
+    public ResponseEntity<String> handleMaxProceedingGoalsExceeded(
+        MaxProceedingGoalsExceededException ex) {
         // 진행중인 목표가 5개를 초과했을 때 처리
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     // 좋아요 예외 처리
     @ExceptionHandler(LikeException.MemberNotFoundException.class)
-    public ResponseEntity<String> handleMemberNotFoundException(LikeException.MemberNotFoundException ex) {
+    public ResponseEntity<String> handleMemberNotFoundException(
+        LikeException.MemberNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(LikeException.BoardNotFoundException.class)
-    public ResponseEntity<String> handleBoardNotFoundException(LikeException.BoardNotFoundException ex) {
+    public ResponseEntity<String> handleBoardNotFoundException(
+        LikeException.BoardNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     // 북마크 예외 처리
     @ExceptionHandler(BookmarkException.MemberNotFoundException.class)
-    public ResponseEntity<String> handleMemberNotFoundException(BookmarkException.MemberNotFoundException ex) {
+    public ResponseEntity<String> handleMemberNotFoundException(
+        BookmarkException.MemberNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BookmarkException.BoardNotFoundException.class)
-    public ResponseEntity<String> handleBoardNotFoundException(BookmarkException.BoardNotFoundException ex) {
+    public ResponseEntity<String> handleBoardNotFoundException(
+        BookmarkException.BoardNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<String> handlePermissionDenied(PermissionDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CertificationNotFoundException.class)
+    public ResponseEntity<String> handleCertificationNotFoundException(
+        CertificationNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

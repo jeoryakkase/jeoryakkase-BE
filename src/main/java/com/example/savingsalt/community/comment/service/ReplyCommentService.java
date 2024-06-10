@@ -10,7 +10,7 @@ import com.example.savingsalt.community.comment.exception.CommentException.NotFo
 import com.example.savingsalt.community.comment.exception.CommentException.ValidateAuthorForDelete;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
 import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
