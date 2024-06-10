@@ -9,6 +9,7 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.exception.ChallengeException.CertificationChallengeNotFoundException;
@@ -193,7 +194,7 @@ public class MemberChallengeServiceImpl implements
                 foundMemberChallengeEntity, certificationChallengeReqDto, imageUrls);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
-            if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            if ((ChallengeType.GOAL).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -226,7 +227,7 @@ public class MemberChallengeServiceImpl implements
 
             }
             // 챌린지 종류 'Count' > 목표 달성 방식
-            else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            else if ((ChallengeType.COUNT).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = foundMemberChallengeEntity
                     .toBuilder()
