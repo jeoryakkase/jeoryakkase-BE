@@ -10,7 +10,7 @@ import com.example.savingsalt.community.bookmark.exception.BookmarkException.Mem
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,29 +29,37 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public String bookmarkPost(BookmarkDto bookmarkDto) {
-        Long memberId = bookmarkDto.getMemberId();
-        Long boardId = bookmarkDto.getBoardId();
-
-        Optional<BookmarkEntity> bookmarkOpt = bookmarkRepository.findByMemberEntityIdAndBoardEntityId(memberId, boardId);
+    public String bookmarkPost(String email, Long boardId) {
+        MemberEntity memberEntity = memberRepository.findByEmail(email).orElseThrow(
+            MemberNotFoundException::new);
 
         BoardEntity boardEntity = boardRepository.findById(boardId).orElseThrow(
             BoardNotFoundException::new);
 
-        if (bookmarkOpt.isPresent()) {
-            bookmarkRepository.delete(bookmarkOpt.get());
-            return "북마크 취소";
-        } else {
-            MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
-                MemberNotFoundException::new);
-            BookmarkEntity bookmark = new BookmarkEntity(boardEntity, memberEntity);
-            bookmarkRepository.save(bookmark);
+        BookmarkEntity bookmarkEntity = bookmarkRepository.findByMemberEntityAndBoardEntity(memberEntity, boardEntity);
+        if (bookmarkEntity == null) {
+            bookmarkEntity = BookmarkEntity.builder()
+                .memberEntity(memberEntity)
+                .boardEntity(boardEntity)
+                .build();
+            bookmarkRepository.save(bookmarkEntity);
             return "북마크 완료";
+        } else {
+            bookmarkRepository.delete(bookmarkEntity);
+            return "북마크 취소";
         }
     }
 
     @Override
-    public List<BookmarkEntity> getBookmarks(Long memberId) {
-        return bookmarkRepository.findAllByMemberEntityId(memberId);
+    public List<BookmarkDto> getBookmarks(String email) {
+        MemberEntity memberEntity = memberRepository.findByEmail(email).orElseThrow(
+            MemberNotFoundException::new);
+        List<BookmarkEntity> bookmarks = bookmarkRepository.findAllByMemberEntity(memberEntity);
+
+        return bookmarks.stream()
+            .map(bookmark -> BookmarkDto.builder()
+                .boardId(bookmark.getBoardEntity().getId())
+                .build())
+            .collect(Collectors.toList());
     }
 }
