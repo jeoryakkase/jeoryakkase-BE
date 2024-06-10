@@ -7,12 +7,17 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
+import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.CertificationChallengeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
+import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
+import com.example.savingsalt.challenge.mapper.ChallengeMainMapper$CertifiCationChallengeMapperImpl;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -20,6 +25,7 @@ import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -39,24 +45,32 @@ public class MemberChallengeServiceImpl implements
     private final MemberChallengeMapper memberChallengeMapper;
     private final MemberRepository memberRepository;
     private final ChallengeRepository challengeRepository;
-    private final CertificationChallengeServiceImpl certificationChallengeServiceImpl;
+    private final CertificationChallengeServiceImpl certificationChallengeService;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeServiceImpl challengeService;
+    private final EntityManager entityManager;
+    private final ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl;
 
-    public MemberChallengeServiceImpl(MemberChallengeRepository memberChallengeRepository,
-        MemberChallengeMapper memberChallengeMapper
-        , MemberRepository memberRepository, ChallengeRepository challengeRepository,
-        CertificationChallengeServiceImpl certificationChallengeServiceImpl,
+    public MemberChallengeServiceImpl(
+        MemberChallengeRepository memberChallengeRepository,
+        MemberChallengeMapper memberChallengeMapper,
+        MemberRepository memberRepository,
+        ChallengeRepository challengeRepository,
+        CertificationChallengeServiceImpl certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
-        ChallengeServiceImpl challengeService) {
+        ChallengeServiceImpl challengeService,
+        EntityManager entityManager,
+        ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
         this.memberRepository = memberRepository;
         this.challengeRepository = challengeRepository;
-        this.certificationChallengeServiceImpl = certificationChallengeServiceImpl;
         this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
         this.challengeService = challengeService;
+        this.certificationChallengeService = certificationChallengeService;
+        this.entityManager = entityManager;
+        this.certifiCationChallengeMapperImpl = certifiCationChallengeMapperImpl;
     }
 
     // 회원 챌린지 목록 조회
@@ -131,13 +145,19 @@ public class MemberChallengeServiceImpl implements
                 }
             }
 
-            foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
-                .toBuilder()
-                .challengeStatus(ChallengeStatus.CANCELLED)
-                .build();
+            if (Objects.requireNonNull(foundMemberChallengeEntity).getChallengeStatus()
+                .equals(ChallengeStatus.COMPLETED)) {
+                throw new MemberChallengeAlreadySucceededException();
+            } else {
+                foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
+                    .toBuilder()
+                    .challengeStatus(ChallengeStatus.CANCELLED)
+                    .build();
 
-            return memberChallengeMapper.toMemberChallengeAbandonResDto(
-                memberChallengeRepository.save(foundMemberChallengeEntity));
+                return memberChallengeMapper.toMemberChallengeAbandonResDto(
+                    memberChallengeRepository.save(foundMemberChallengeEntity));
+            }
+
         } else {
             throw new MemberNotFoundException();
         }
@@ -145,7 +165,7 @@ public class MemberChallengeServiceImpl implements
 
     // 회원 챌린지 인증
     public MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
-        CertificationChallengeReqDto certificationChallengeReqDto) {
+        CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
 
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
 
@@ -170,11 +190,11 @@ public class MemberChallengeServiceImpl implements
             }
 
             // 챌린지 인증 DTO -> 챌린지 일일 인증 DB로 저장
-            CertificationChallengeDto certificationChallengeDto = certificationChallengeServiceImpl.createCertificationChallenge(
-                foundMemberChallengeEntity, certificationChallengeReqDto);
+            CertificationChallengeDto certificationChallengeDto = certificationChallengeService.createCertificationChallenge(
+                foundMemberChallengeEntity, certificationChallengeReqDto, imageUrls);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
-            if ("Goal".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            if ((ChallengeType.GOAL).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -207,7 +227,7 @@ public class MemberChallengeServiceImpl implements
 
             }
             // 챌린지 종류 'Count' > 목표 달성 방식
-            else if ("Count".equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            else if ((ChallengeType.COUNT).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = foundMemberChallengeEntity
                     .toBuilder()
@@ -260,8 +280,10 @@ public class MemberChallengeServiceImpl implements
                     if (memberChallengeEntity.getChallengeStatus()
                         .equals(ChallengeStatus.IN_PROGRESS)) {
 
-                        Long effectiveDate = ChronoUnit.DAYS.between(now,
-                            memberChallengeEntity.getStartDate());
+
+                        Long effectiveDate = ChronoUnit.DAYS.between(
+                            memberChallengeEntity.getStartDate().toLocalDate(),
+                            now.toLocalDate());
 
                         MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
                             .challengeTtile(
@@ -272,6 +294,7 @@ public class MemberChallengeServiceImpl implements
                             .startDate(memberChallengeEntity.getStartDate().toLocalDate())
                             .endDate(memberChallengeEntity.getEndDate().toLocalDate())
                             .effectiveDate(effectiveDate)
+                            .certificationChallengeDto(certificationChallengeService.getCertifiCationChallenge(memberChallengeEntity))
                             .build();
 
                         memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
@@ -297,8 +320,63 @@ public class MemberChallengeServiceImpl implements
             case "1주" -> startDate.plusDays(7);
             case "2주" -> startDate.plusDays(14);
             case "3주" -> startDate.plusDays(21);
-            case "30일" -> startDate.plusDays(30);
-            default -> null;
+            case "한 달" -> startDate.plusDays(30);
+            default -> throw new InvalidChallengeTermException();
         };
+    }
+
+    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
+    public void resetDailyMemberChallengeAuthentication() {
+        List<MemberEntity> memberEntityList = memberRepository.findAll();
+        for (MemberEntity memberEntity : memberEntityList) {
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
+
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                memberChallengeEntity = memberChallengeEntity.toBuilder()
+                    .isTodayCertification(false)
+                    .build();
+
+                memberChallengeRepository.save(memberChallengeEntity);
+            }
+        }
+    }
+
+    // TODO: 영속성 컨텍스트 문제로 컬럼 삭제가 이루어지지 않는 문제 해결
+    // 챌린지 인증 삭제
+    public void deleteCertificationChallenge(Long memberId, Long memberChallengeId,
+        Long certificationId) {
+        Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
+
+        if (memberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = memberEntityOpt.get();
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
+            MemberChallengeEntity foundMemberChallengeEntity = null;
+
+            List<CertificationChallengeEntity> certificationChallengeEntities;
+
+            if (memberChallengeEntities.isEmpty()) {
+                throw new MemberChallengeNotFoundException();
+            } else {
+                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                    if (memberChallengeEntity.getId().equals(memberChallengeId)) {
+                        foundMemberChallengeEntity = memberChallengeEntity;
+                    }
+                }
+
+                certificationChallengeEntities = Objects.requireNonNull(foundMemberChallengeEntity)
+                    .getCertificationChallengeEntities();
+
+                for (CertificationChallengeEntity certificationChallengeEntity : certificationChallengeEntities) {
+                    if (Objects.equals(certificationChallengeEntity.getId(), certificationId)) {
+
+                        certificationChallengeService.deleteCertificationChallengeById(
+                            certificationChallengeEntity.getId());
+
+                        return;
+                    }
+                }
+                throw new CertificationChallengeNotFoundException();
+            }
+        }
     }
 }

@@ -27,10 +27,9 @@ public interface ChallengeMainMapper {
     interface ChallengeMapper extends
         EntityMapper<ChallengeEntity, ChallengeDto> {
 
+        @Mapping(source = "dto.challengeType", target = "challengeType")
         @Mapping(source = "dto.challengeDifficulty", target = "challengeDifficulty")
         ChallengeEntity toEntity(ChallengeCreateReqDto dto);
-
-        ChallengeEntity toEntity(ChallengeUpdateReqDto dto);
 
         @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
@@ -62,14 +61,24 @@ public interface ChallengeMainMapper {
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
-    interface CertificationChallengeMapper extends
-        EntityMapper<CertificationChallengeEntity, CertificationChallengeDto> {
-
-        CertificationChallengeEntity toEntity(
-            CertificationChallengeReqDto certificationChallengeReqDto);
+    interface CertificationChallengeImageMapper {
+        CertificationChallengeImageDto toDto(CertificationChallengeImageEntity entity);
+        List<CertificationChallengeImageDto> toDtoList(
+            List<CertificationChallengeImageEntity> entities);
     }
 
-    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
+    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE, uses = CertificationChallengeImageMapper.class)
+    interface CertifiCationChallengeMapper {
+
+        CertificationChallengeEntity certificationChallengeDtoToCertificationChallengeEntity(
+            CertificationChallengeReqDto dto);
+
+        @Mapping(source = "certificationChallengeImageEntities", target = "certificationChallengeImageDtos")
+        CertificationChallengeDto toDto(CertificationChallengeEntity entity);
+        List<CertificationChallengeDto> toDtoList(List<CertificationChallengeEntity> entities);
+    }
+
+    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE, uses = CertifiCationChallengeMapper.class)
     interface MemberChallengeWithCertifyAndChallengeMapper extends
         EntityMapper<MemberChallengeEntity, MemberChallengeWithCertifyAndChallengeResDto> {
 
@@ -79,18 +88,9 @@ public interface ChallengeMainMapper {
         @Mapping(source = "challengeEntity.badgeEntity.badgeDesc", target = "challengeDto.badgeDto.badgeDesc")
         @Mapping(source = "challengeEntity.badgeEntity.badgeImage", target = "challengeDto.badgeDto.badgeImage")
         @Mapping(source = "challengeEntity.badgeEntity.badgeType", target = "challengeDto.badgeDto.badgeType")
-        MemberChallengeWithCertifyAndChallengeResDto toDto(
-            MemberChallengeEntity memberChallengeEntity);
-
-        @Mapping(source = "certificationChallengeEntities", target = "certificationChallengeDtos")
-        @Mapping(source = "challengeEntity", target = "challengeDto")
+        MemberChallengeWithCertifyAndChallengeResDto toDto(MemberChallengeEntity entity);
         List<MemberChallengeWithCertifyAndChallengeResDto> toDtoList(
-            List<MemberChallengeEntity> memberChallengeEntities);
-
-    }
-
-    @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
-    interface CertificationChallengeImageMapper extends EntityMapper<CertificationChallengeImageEntity, CertificationChallengeImageDto> {
+            List<MemberChallengeEntity> entities);
     }
 
 }
