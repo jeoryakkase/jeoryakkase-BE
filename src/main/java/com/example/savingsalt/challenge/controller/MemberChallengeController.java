@@ -12,7 +12,6 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAnd
 import com.example.savingsalt.challenge.service.MemberChallengeService;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
-import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,16 +54,7 @@ public class MemberChallengeController {
     public ResponseEntity<List<MemberChallengeWithCertifyAndChallengeResDto>> getAllMemberChallenges(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request) {
 
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtos = memberChallengeService.getMemberChallenges(
             memberEntity.getId());
@@ -81,16 +71,7 @@ public class MemberChallengeController {
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
         @Parameter(description = "ID of the challenge") @PathVariable Long challengeId) {
 
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         MemberChallengeCreateResDto createdMemberChallengeCreateResDto = memberChallengeService.createMemberChallenge(
             memberEntity.getId(), challengeId);
@@ -113,16 +94,7 @@ public class MemberChallengeController {
         @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
         throws IOException {
 
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         List<String> imageUrls = new ArrayList<>();
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -173,16 +145,7 @@ public class MemberChallengeController {
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
         @Parameter(description = "ID of the challengeId") @PathVariable Long challengeId) {
 
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         MemberChallengeAbandonResDto memberChallengeAbandonResDto = memberChallengeService.abandonMemberChallenge(
             memberEntity.getId(), challengeId);
@@ -221,18 +184,10 @@ public class MemberChallengeController {
         @Parameter(description = "챌린지 ID") @PathVariable Long challengeId,
         @Parameter(description = "챌린지 인증 ID") @PathVariable Long certificationId) {
 
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
-
-        memberChallengeService.deleteCertificationChallenge(memberEntity.getId(), challengeId, certificationId);
+        memberChallengeService.deleteCertificationChallenge(memberEntity.getId(), challengeId,
+            certificationId);
 
         return ResponseEntity.ok().build();
     }
