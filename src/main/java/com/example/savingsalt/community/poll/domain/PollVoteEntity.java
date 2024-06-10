@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "votes")
+@Table(name = "poll_votes")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
