@@ -1,6 +1,7 @@
 package com.example.savingsalt.member.mapper;
 
 import com.example.savingsalt.global.EntityMapper;
+import com.example.savingsalt.member.domain.LoginResponseDto;
 import com.example.savingsalt.member.domain.MemberDto;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.MemberUpdateResponseDto;
