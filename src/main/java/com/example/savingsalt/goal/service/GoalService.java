@@ -39,9 +39,10 @@ public class GoalService {
             throw new MaxProceedingGoalsExceededException();
         }
 
-        GoalEntity goalEntity = goalCreateReqDto.toEntity(goalCreateReqDto, memberEntity);
+        GoalEntity goalEntity = goalCreateReqDto.toEntity(memberEntity);
 
         GoalEntity savedGoal = goalRepository.save(goalEntity);
+
         return GoalResponseDto.fromEntity(savedGoal);
     }
 
