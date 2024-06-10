@@ -1,9 +1,9 @@
 package com.example.savingsalt.member.controller;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.LoginResponseDto;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.dto.LoginResponseDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.dto.TokenResponseDto;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;

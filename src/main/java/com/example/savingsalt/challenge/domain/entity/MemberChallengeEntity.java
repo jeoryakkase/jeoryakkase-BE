@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.domain.entity;
 
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -51,7 +52,7 @@ public class MemberChallengeEntity {
     @Column(name = "is_today_certification", nullable = false)
     private Boolean isTodayCertification;
 
-    @Column(name = "challenge_conut", nullable = false)
+    @Column(name = "auth_count", nullable = false)
     private Integer authCount;
 
     @Column(name = "success_count", nullable = false)
@@ -63,7 +64,7 @@ public class MemberChallengeEntity {
     @Column(name = "total_save_money", nullable = false)
     private Integer totalSaveMoney;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

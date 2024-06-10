@@ -1,6 +1,6 @@
 package com.example.savingsalt.member.repository;
 
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.enums.Gender;
 import java.util.List;
 import java.util.Optional;

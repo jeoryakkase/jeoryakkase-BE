@@ -1,4 +1,4 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.member.domain.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -10,16 +10,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberUpdateResponseDto {
+public class MyPageResponseDto {
 
     private String email;
     private String nickname;
     private int age;
     private String gender;
-    private int income;
-    private String savePurpose;
     private String profileImage;
     private List<Long> interests;
     private String about;
-    private Long representativeBadgeId;
 }

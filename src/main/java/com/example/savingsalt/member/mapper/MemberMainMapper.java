@@ -1,13 +1,12 @@
 package com.example.savingsalt.member.mapper;
 
 import com.example.savingsalt.global.EntityMapper;
-import com.example.savingsalt.member.domain.LoginResponseDto;
-import com.example.savingsalt.member.domain.MemberDto;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.MemberUpdateResponseDto;
-import com.example.savingsalt.member.domain.MyPageResponseDto;
+import com.example.savingsalt.member.domain.dto.MemberDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.dto.MemberUpdateResponseDto;
+import com.example.savingsalt.member.domain.dto.MyPageResponseDto;
 import com.example.savingsalt.member.enums.Gender;
-import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
+import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

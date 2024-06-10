@@ -5,7 +5,7 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.domain.entity.BadgeEntity;
-import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
+import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
 import java.util.List;
 
 public interface BadgeService {
@@ -21,7 +21,7 @@ public interface BadgeService {
         Long memberId);
 
     // 회원 챌린지 대표 뱃지 등록
-    RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, Long badgeId);
+    RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, String badgeName);
 
     // 뱃지 생성
     BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto);

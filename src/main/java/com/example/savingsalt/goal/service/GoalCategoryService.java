@@ -4,13 +4,14 @@ import com.example.savingsalt.goal.domain.dto.GoalCategoryCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCategoryResDto;
 import com.example.savingsalt.goal.domain.entity.GoalCategoryEntity;
 import com.example.savingsalt.goal.repository.GoalCategoryRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -19,6 +20,7 @@ public class GoalCategoryService {
     private final GoalCategoryRepository goalCategoryRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public void createGoalCategory(GoalCategoryCreateReqDto goalCategoryCreateReqDto,
         String email) {
         // email 을 이용해 MemberEntity 조회
@@ -35,6 +37,7 @@ public class GoalCategoryService {
         goalCategoryRepository.save(goalCategory);
     }
 
+    @Transactional
     public List<GoalCategoryResDto> getGoalCategoriesByUser(String email) {
         // email 을 이용해 MemberEntity 조회
         MemberEntity memberEntity = memberRepository.findByEmail(email)

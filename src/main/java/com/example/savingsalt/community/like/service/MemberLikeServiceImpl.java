@@ -7,7 +7,7 @@ import com.example.savingsalt.community.like.exception.LikeException.MemberNotFo
 import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.domain.MemberLikeEntity;
 import com.example.savingsalt.community.like.repository.MemberLikeRepository;
-import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
