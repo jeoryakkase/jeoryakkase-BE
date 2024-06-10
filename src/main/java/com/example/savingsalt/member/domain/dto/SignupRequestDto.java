@@ -1,18 +1,12 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.member.domain.dto;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class MemberUpdateRequestDto {
+public class SignupRequestDto {
 
     private String email;
     private String password;
@@ -24,5 +18,4 @@ public class MemberUpdateRequestDto {
     private String profileImage;
     private List<Long> interests;
     private String about;
-    private Long representativeBadgeId;
 }

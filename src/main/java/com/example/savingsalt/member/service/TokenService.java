@@ -1,11 +1,10 @@
 package com.example.savingsalt.member.service;
 
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
-import com.example.savingsalt.member.domain.MemberEntity;
-import com.example.savingsalt.member.domain.TokenResponseDto;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.domain.dto.TokenResponseDto;
 import com.example.savingsalt.member.exception.MemberException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;

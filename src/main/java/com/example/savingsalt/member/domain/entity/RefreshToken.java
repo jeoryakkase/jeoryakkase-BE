@@ -1,4 +1,4 @@
-package com.example.savingsalt.member.domain;
+package com.example.savingsalt.member.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
