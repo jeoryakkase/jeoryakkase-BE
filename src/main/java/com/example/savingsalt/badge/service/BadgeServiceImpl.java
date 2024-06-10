@@ -33,6 +33,7 @@ public class BadgeServiceImpl implements BadgeService {
     private final MemberChallengeRepository memberChallengeRepository;
     private final BadgeMainMapper badgeMainMapper;
     private final MemberMapper memberMapper;
+    private final Integer successCheckNumber = 1;
 
     public BadgeServiceImpl(BadgeRepository badgeRepository, MemberRepository memberRepository,
         MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper,
@@ -91,7 +92,7 @@ public class BadgeServiceImpl implements BadgeService {
             for (int i = 0; i < memberChallengeEntity.size(); i++) {
                 if ((memberChallengeEntity.get(i).getChallengeStatus()
                     == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessCount()
-                    == 1)) {
+                    == successCheckNumber)) {
                     BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                         .getBadgeEntity();
                     memberChallengeBadgeResDto.add(
@@ -104,8 +105,9 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 회원 챌린지 대표 뱃지 등록
-    public RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, Long badgeId) {
-        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
+    public RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId,
+        String badgeName) {
+        BadgeEntity badgeEntity = badgeRepository.findByName(badgeName)
             .orElseThrow(BadgeNotFoundException::new);
         MemberEntity member = memberRepository.findById(memberId)
             .orElseThrow(MemberNotFoundException::new);
@@ -121,14 +123,14 @@ public class BadgeServiceImpl implements BadgeService {
                 == 1)) {
                 BadgeEntity membeBadgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                     .getBadgeEntity();
-                if (membeBadgeEntity.getId() == badgeId) {
+                if (membeBadgeEntity.getId() == badgeEntity.getId()) {
                     checkBadge = true;
                 }
             }
         }
         RepresentativeBadgeSetResDto representativeBadgeSetResDto = null;
         if (checkBadge) {
-            member.setRepresentativeBadgeId(badgeId);
+            member.setRepresentativeBadgeId(badgeEntity.getId());
             representativeBadgeSetResDto = memberMapper.toRepresentativeBadgeSetResDto(member);
         } else {
             throw new InvalidRepresentativeBadgeException();

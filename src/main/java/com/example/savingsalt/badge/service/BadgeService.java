@@ -21,7 +21,7 @@ public interface BadgeService {
         Long memberId);
 
     // 회원 챌린지 대표 뱃지 등록
-    RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, Long badgeId);
+    RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, String badgeName);
 
     // 뱃지 생성
     BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto);

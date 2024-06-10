@@ -1,5 +1,6 @@
 package com.example.savingsalt.challenge.domain.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -44,7 +45,7 @@ public class CertificationChallengeEntity {
     @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "certificationChallenge")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "certificationChallenge", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CertificationChallengeImageEntity> certificationChallengeImageEntities;
 
 }
