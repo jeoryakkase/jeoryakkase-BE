@@ -29,6 +29,7 @@ public class GoalEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "goal_id", nullable = false, updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,4 +57,22 @@ public class GoalEntity {
     @Enumerated(EnumType.STRING) // Enum을 String 형태로 저장
     @Column(name = "goal_status")
     private GoalStatus goalStatus;
+
+    // 인증 금액을 추가하는 메소드
+    public void updateGoalStatus(GoalStatus goalStatus) {
+        this.goalStatus = goalStatus;
+    }
+
+    // 인증 금액을 차감하는 메소드
+    public void subtractCertificationMoney(Long amount) {
+        this.currentAmount -= amount;
+    }
+
+    // currentAmount 에 돈을 누적하는 메소드
+    public void addCertificationMoney(Long certificationMoney) {
+        if (this.currentAmount == null) {
+            this.currentAmount = 0L;
+        }
+        this.currentAmount += certificationMoney;
+    }
 }
