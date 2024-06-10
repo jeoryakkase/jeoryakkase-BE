@@ -27,10 +27,9 @@ public interface ChallengeMainMapper {
     interface ChallengeMapper extends
         EntityMapper<ChallengeEntity, ChallengeDto> {
 
+        @Mapping(source = "dto.challengeType", target = "challengeType")
         @Mapping(source = "dto.challengeDifficulty", target = "challengeDifficulty")
         ChallengeEntity toEntity(ChallengeCreateReqDto dto);
-
-        ChallengeEntity toEntity(ChallengeUpdateReqDto dto);
 
         @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")

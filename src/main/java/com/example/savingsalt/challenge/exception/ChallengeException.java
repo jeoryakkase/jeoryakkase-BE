@@ -16,6 +16,13 @@ public class ChallengeException {
         }
     }
 
+    public static class ChallengeTypeNotFoundException extends RuntimeException {
+
+        public ChallengeTypeNotFoundException(String keyword) {
+            super(keyword + ChallengeExceptionType.NOT_FOUND_CHALLENGE_TYPE.getExceptionMessage());
+        }
+    }
+
     public static class MemberChallengeNotFoundException extends RuntimeException {
 
         public MemberChallengeNotFoundException() {
@@ -24,18 +31,21 @@ public class ChallengeException {
     }
 
     public static class MemberChallengeAlreadySucceededException extends RuntimeException {
+
         public MemberChallengeAlreadySucceededException() {
             super(ChallengeExceptionType.ALREADY_SUCCEEDED.getExceptionMessage());
         }
     }
 
     public static class CertificationChallengeNotFoundException extends RuntimeException {
+
         public CertificationChallengeNotFoundException() {
             super(ChallengeExceptionType.NOT_FOUND_CERTIFICATION_CHALLENGE.getExceptionMessage());
         }
     }
 
     public static class InvalidChallengeTermException extends RuntimeException {
+
         public InvalidChallengeTermException() {
             super(ChallengeExceptionType.INVALID_CHALLENGE_TERM.getExceptionMessage());
         }
