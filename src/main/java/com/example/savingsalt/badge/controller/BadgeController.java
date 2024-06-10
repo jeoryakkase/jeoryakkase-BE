@@ -5,10 +5,16 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.service.BadgeServiceImpl;
+import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.domain.RepresentativeBadgeSetResDto;
+import com.example.savingsalt.member.exception.MemberException;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
+import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -23,16 +29,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// Todo: member 시큐리티 검증 적용 및 그에 따른 API 수정
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Badge", description = "Badge API")
 public class BadgeController {
 
     private final BadgeServiceImpl badgeService;
+    private final JwtTokenProvider tokenProvider;
+    private final MemberService memberService;
+    private final MemberMapper memberMapper;
 
-    public BadgeController(BadgeServiceImpl badgeService) {
+
+    public BadgeController(BadgeServiceImpl badgeService, JwtTokenProvider tokenProvider,
+        MemberService memberService, MemberMapper memberMapper) {
         this.badgeService = badgeService;
+        this.tokenProvider = tokenProvider;
+        this.memberService = memberService;
+        this.memberMapper = memberMapper;
     }
 
     // 모든 뱃지 조회
@@ -47,12 +60,23 @@ public class BadgeController {
 
     // 회원 챌린지 달성 뱃지 정보 조회
     @Operation(summary = "회원 챌린지 달성 뱃지 목록 조회", description = "해당 회원의 모든 회원 챌린지 달성 뱃지 목록을 조회하는 API")
-    @GetMapping("/members/{memberId}/challenges/badges")
+    @GetMapping("/members/challenges/badges")
     public ResponseEntity<List<MemberChallengeBadgeResDto>> getMemberChallengeBadges(
         @Parameter(description = "회원 대표 뱃지 검색 유무(true를 하면 대표 뱃지만 보여줌)") @RequestParam(name = "IsRepresentative", defaultValue = "false") boolean isRepresentative,
-        @Parameter(description = "회원 ID") @PathVariable Long memberId) {
+        @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request) {
+        String token = tokenProvider.resolveToken(request);
+        if (token == null || !tokenProvider.validateToken(token)) {
+            throw new MemberException.InvalidTokenException();
+        }
+
+        String email = tokenProvider.getEmailFromToken(token);
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
+        if (memberEntity == null) {
+            throw new MemberException.MemberNotFoundException("email", email);
+        }
+
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = badgeService.getMemberChallengeBadges(
-            isRepresentative, memberId);
+            isRepresentative, memberEntity.getId());
 
         return memberChallengeBadgeResDto.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build() : ResponseEntity.ok(memberChallengeBadgeResDto);
@@ -60,12 +84,23 @@ public class BadgeController {
 
     // 회원 챌린지 대표 뱃지 등록
     @Operation(summary = "회원 챌린지 대표 뱃지 등록", description = "해당 회원의 모든 챌린지 성공 뱃지중에 대표 뱃지를 등록하는 API")
-    @PutMapping("/members/{memberId}/challenges/badges")
+    @PutMapping("/members/challenges/badges")
     public ResponseEntity<RepresentativeBadgeSetResDto> setMemberRepresentativeBadge(
-        @Parameter(description = "회원 ID") @PathVariable Long memberId,
-        @Parameter(description = "대표 뱃지로 지정할 뱃지 ID") @RequestParam Long badgeId) {
+        @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
+        @Parameter(description = "대표 뱃지로 지정할 뱃지 이름") @RequestParam String badgeName) {
+        String token = tokenProvider.resolveToken(request);
+        if (token == null || !tokenProvider.validateToken(token)) {
+            throw new MemberException.InvalidTokenException();
+        }
+
+        String email = tokenProvider.getEmailFromToken(token);
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
+        if (memberEntity == null) {
+            throw new MemberException.MemberNotFoundException("email", email);
+        }
+
         RepresentativeBadgeSetResDto memberRepresentativeBadge = badgeService.setMemberRepresentativeBadge(
-            memberId, badgeId);
+            memberEntity.getId(), badgeName);
 
         return (memberRepresentativeBadge == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .build()
