@@ -48,8 +48,6 @@ public class MemberChallengeServiceImpl implements
     private final CertificationChallengeServiceImpl certificationChallengeService;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeServiceImpl challengeService;
-    private final EntityManager entityManager;
-    private final ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl;
 
     public MemberChallengeServiceImpl(
         MemberChallengeRepository memberChallengeRepository,
@@ -69,8 +67,6 @@ public class MemberChallengeServiceImpl implements
         this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
         this.challengeService = challengeService;
         this.certificationChallengeService = certificationChallengeService;
-        this.entityManager = entityManager;
-        this.certifiCationChallengeMapperImpl = certifiCationChallengeMapperImpl;
     }
 
     // 회원 챌린지 목록 조회
@@ -194,7 +190,8 @@ public class MemberChallengeServiceImpl implements
                 foundMemberChallengeEntity, certificationChallengeReqDto, imageUrls);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
-            if ((ChallengeType.GOAL).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            if ((ChallengeType.GOAL).equals(
+                Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -227,7 +224,8 @@ public class MemberChallengeServiceImpl implements
 
             }
             // 챌린지 종류 'Count' > 목표 달성 방식
-            else if ((ChallengeType.COUNT).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            else if ((ChallengeType.COUNT).equals(
+                Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = foundMemberChallengeEntity
                     .toBuilder()
