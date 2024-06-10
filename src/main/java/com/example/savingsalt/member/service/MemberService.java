@@ -1,7 +1,20 @@
 package com.example.savingsalt.member.service;
 
+import com.example.savingsalt.challenge.controller.MemberChallengeController;
+import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
+import com.example.savingsalt.challenge.service.MemberChallengeServiceImpl;
+import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
+import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.bookmark.controller.BookmarkController;
+import com.example.savingsalt.community.bookmark.domain.BookmarkEntity;
+import com.example.savingsalt.community.bookmark.repository.BookmarkRepository;
+import com.example.savingsalt.community.bookmark.service.BookmarkServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.goal.controller.GoalController;
+import com.example.savingsalt.goal.repository.GoalRepository;
+import com.example.savingsalt.goal.service.GoalService;
 import com.example.savingsalt.member.domain.dto.LoginRequestDto;
+import com.example.savingsalt.member.domain.dto.MyPageResponseDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.domain.dto.MemberDto;
 import com.example.savingsalt.member.domain.dto.SignupRequestDto;
@@ -34,6 +47,10 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final MemberChallengeServiceImpl memberChallengeService;
+    private final BookmarkServiceImpl bookmarkService;
+    private final GoalService goalService;
 
     // 회원가입
     @Transactional
@@ -137,8 +154,7 @@ public class MemberService {
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, String gender,
-        int income, String savePurpose, String profileImage, List<Long> interests, String about,
-        Long representativeBadgeId) {
+        int income, String savePurpose, String profileImage, List<Long> interests, String about) {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
@@ -169,7 +185,6 @@ public class MemberService {
         memberEntity.setProfileImage(profileImage);
         memberEntity.setInterests(interests);
         memberEntity.setAbout(about);
-        memberEntity.setRepresentativeBadgeId(representativeBadgeId);
 
         return memberRepository.save(memberEntity);
     }
@@ -223,6 +238,28 @@ public class MemberService {
 
         // 회원 삭제
         memberRepository.delete(memberEntity);
+    }
+
+    // 마이페이지 정보 가져오기
+    public MyPageResponseDto getMyPage(Long memberId) {
+        MemberEntity memberEntity = memberMapper.toEntity(findMemberById(memberId));
+
+        List<MyPageBoardDto> bookmarkBoards = bookmarkService.getBookmarks(memberId).stream()
+            .map(BookmarkEntity::getBoardEntity)
+            .map(BoardEntity::toMyPageBoardDto)
+            .collect(Collectors.toList());
+
+        MyPageResponseDto myPageResponseDto = MyPageResponseDto.builder()
+            .memberId(memberId)
+            .profileImage(memberEntity.getProfileImage())
+            .about(memberEntity.getAbout())
+            .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
+            .memberChallenges(memberChallengeService.getMemberChallenges(memberId))
+            .goals(goalService.getAllGoals(memberEntity))
+            .bookmarks(bookmarkBoards)
+            .build();
+
+        return myPageResponseDto;
     }
 
     // 모든 회원 찾기
