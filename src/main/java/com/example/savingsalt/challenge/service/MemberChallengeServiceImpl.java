@@ -275,8 +275,9 @@ public class MemberChallengeServiceImpl implements
                     if (memberChallengeEntity.getChallengeStatus()
                         .equals(ChallengeStatus.IN_PROGRESS)) {
 
-                        Long effectiveDate = ChronoUnit.DAYS.between(now,
-                            memberChallengeEntity.getStartDate());
+                        Long effectiveDate = ChronoUnit.DAYS.between(
+                            memberChallengeEntity.getStartDate().toLocalDate(),
+                            now.toLocalDate());
 
                         MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
                             .challengeTtile(
