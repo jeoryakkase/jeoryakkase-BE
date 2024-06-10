@@ -69,4 +69,8 @@ public class CertificationChallengeServiceImpl {
         return certificationChallengeDto;
     }
 
+    // 챌린지 인증 삭제
+    public void deleteCertificationChallengeById(Long certificationChallengeId) {
+        certificationChallengeRepository.deleteById(certificationChallengeId);
+    }
 }

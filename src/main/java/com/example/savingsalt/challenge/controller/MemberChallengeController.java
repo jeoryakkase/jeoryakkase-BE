@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -219,5 +220,29 @@ public class MemberChallengeController {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    // 회원 챌린지 인증 삭제
+    @Operation(summary = "회원 챌린지 인증 삭제", description = "챌린지 인증 컬럼 삭제와 챌린지 인증 시 업로드한 이미지 경로 정보들도 전부 삭제")
+    @DeleteMapping(value = "/members/challenges/{challengeId}/certify/{certificationId}")
+    public ResponseEntity<Void> certifyDailyMemberChallenge(
+        @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId,
+        @Parameter(description = "챌린지 인증 ID") @PathVariable Long certificationId) {
+
+        String token = tokenProvider.resolveToken(request);
+        if (token == null || !tokenProvider.validateToken(token)) {
+            throw new MemberException.InvalidTokenException();
+        }
+
+        String email = tokenProvider.getEmailFromToken(token);
+        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
+        if (memberEntity == null) {
+            throw new MemberException.MemberNotFoundException("email", email);
+        }
+
+        memberChallengeService.deleteCertificationChallenge(memberEntity.getId(), challengeId, certificationId);
+
+        return ResponseEntity.ok().build();
     }
 }
