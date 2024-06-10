@@ -1,88 +1,59 @@
 package com.example.savingsalt.community.poll.controller;
 
-import com.example.savingsalt.community.poll.domain.PollChoiceDto;
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
-import com.example.savingsalt.community.poll.domain.PollDto;
-import com.example.savingsalt.community.poll.domain.PollParticipateReqDto;
-import com.example.savingsalt.community.poll.domain.PollReadReqDto;
+import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
+import com.example.savingsalt.community.poll.domain.PollVoteReqDto;
 import com.example.savingsalt.community.poll.service.PollService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/votes")
-@Tag(name = "Poll", description = "Poll API")
+@RequestMapping("/api/polls")
+@Tag(name = "Poll", description = "투표 API")
 public class PollController {
 
     @Autowired
     private PollService pollService;
 
-    @Operation(summary = "Create a new Poll", description = "Creates a new Poll associated with a vote ID")
-    @PostMapping("/poll")
+    @Operation(summary = "투표 생성", description = "특정 게시글에 대해 투표를 생성합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Poll created successfully"),
-        @ApiResponse(responseCode = "500", description = "Failed to create poll")
+        @ApiResponse(responseCode = "201", description = "투표 생성 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
-    public ResponseEntity<PollDto> createPoll(@RequestBody PollCreateReqDto pollCreateReqDto) {
-        PollDto response = pollService.createPoll(pollCreateReqDto);
-        return ResponseEntity.ok(response);
+    @PostMapping
+    public ResponseEntity<PollEntity> createPoll(@RequestBody PollCreateReqDto pollCreateReqDto) {
+        PollEntity createdPoll = pollService.createPollForBoard(pollCreateReqDto.getBoardId(), pollCreateReqDto.getStartTime(), pollCreateReqDto.getEndTime());
+        return new ResponseEntity<>(createdPoll, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Delete a Poll", description = "Deletes an existing Poll by ID")
-    @DeleteMapping("/{boardId}/poll/{pollId}")
+    @Operation(summary = "투표하기", description = "특정 투표에 대해 회원이 투표합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Poll deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Poll not found")
+        @ApiResponse(responseCode = "200", description = "투표 성공"),
+        @ApiResponse(responseCode = "404", description = "투표 또는 회원을 찾을 수 없음"),
+        @ApiResponse(responseCode = "409", description = "사용자가 이미 투표함"),
+        @ApiResponse(responseCode = "400", description = "투표가 활성 상태가 아님")
     })
-    public ResponseEntity<Void> deletePoll(@PathVariable Long boardId, @PathVariable Long pollId) {
-        pollService.deletePoll(boardId, pollId);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{pollId}/vote")
+    public ResponseEntity<Void> vote(@PathVariable Long pollId, @RequestBody PollVoteReqDto pollVoteReqDto) {
+        pollService.vote(pollId, pollVoteReqDto.getMemberId(), pollVoteReqDto.getPollVoteChoice());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "Get a Poll", description = "Gets an existing Poll by ID")
-    @GetMapping("/{boardId}/poll/{pollId}")
+    @Operation(summary = "투표 결과 조회", description = "특정 투표의 결과를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Poll retrieved successfully"),
-        @ApiResponse(responseCode = "404", description = "Poll not found")
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "투표를 찾을 수 없음")
     })
-    public ResponseEntity<PollDto> getPoll(@RequestBody PollReadReqDto pollReadReqDto) {
-        PollDto response = pollService.getPoll(pollReadReqDto.getBoardId(),
-            pollReadReqDto.getPollId());
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "Participate in a Poll", description = "Participate in an existing Poll by choosing an option")
-    @PostMapping("/{boardId}/poll/{pollId}/participate")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Participation successful"),
-        @ApiResponse(responseCode = "404", description = "Poll or choice not found"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized access")
-    })
-    public ResponseEntity<PollResultDto> participateInPoll(@RequestBody PollParticipateReqDto pollParticipateReqDto) {
-        PollResultDto response = pollService.participateInPoll(pollParticipateReqDto.getBoardId(), pollParticipateReqDto.getPollId(), pollParticipateReqDto.getChoice());
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "Get Poll Results", description = "Gets the results of a Poll")
-    @GetMapping("/{voteId}/poll/{pollId}/result")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Results retrieved successfully"),
-        @ApiResponse(responseCode = "404", description = "Poll not found")
-    })
-    public ResponseEntity<List<PollChoiceDto>> getPollResults(@PathVariable Long voteId, @PathVariable Long pollId) {
-        List<PollChoiceDto> response = pollService.getPollResults(voteId, pollId);
-        return ResponseEntity.ok(response);
+    @GetMapping("/{pollId}/results")
+    public ResponseEntity<PollResultDto> getPollResults(@PathVariable Long pollId) {
+        PollResultDto pollResultDto = pollService.getPollResults(pollId);
+        return new ResponseEntity<>(pollResultDto, HttpStatus.OK);
     }
 }

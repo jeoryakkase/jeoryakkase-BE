@@ -13,8 +13,6 @@ import com.example.savingsalt.community.comment.repository.ReplyCommentRepositor
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -40,33 +38,27 @@ public class ReplyCommentService {
     }
 
     @Transactional
-    public ResponseEntity<String> updateReplyComment(Long replyId, ReplyCommentReqDto requestDto,
+    public ReplyCommentResDto updateReplyComment(Long replyId, ReplyCommentReqDto requestDto,
         MemberEntity member) {
-
-        CommentEntity parentComment = commentRepository.findById(requestDto.getParentCommentId())
-            .orElseThrow(() -> new NotFoundParentComment());
 
         ReplyCommentEntity replyComment = findReply(replyId);
 
-        // 작성자만 수정 가능
         if (!replyComment.getMemberEntity().getId().equals(member.getId())) {
             throw new CommentException.ValidateAuthorForUpdate();
         }
-
         replyComment.update(requestDto);
-        return new ResponseEntity<>("대댓글이 수정되었습니다.", HttpStatus.OK);
+
+        return convertToReplyDto(replyComment);
     }
 
     @Transactional
-    public ResponseEntity<String> deleteReplyComment(Long replyId, MemberEntity member) {
+    public void deleteReplyComment(Long replyId, MemberEntity member) {
         ReplyCommentEntity reply = findReply(replyId);
 
         if (!reply.getMemberEntity().getId().equals(member.getId())) {
             throw new ValidateAuthorForDelete();
         }
         replyCommentRepository.delete(reply);
-
-        return new ResponseEntity<>("대댓글이 삭제되었습니다.", HttpStatus.OK);
     }
 
     // 선택한 대댓글 존재 여부

@@ -201,29 +201,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PollException.ChoiceNotFoundException.class)
-    public ResponseEntity<String> handleChoiceNotFoundException(
-        PollException.ChoiceNotFoundException ex) {
+    @ExceptionHandler(PollException.MemberNotFoundException.class)
+    public ResponseEntity<String> handleMemberNotFoundException(PollException.MemberNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PollException.UnauthorizedPollAccessException.class)
-    public ResponseEntity<String> handleUnauthorizedPollAccessException(
-        PollException.UnauthorizedPollAccessException ex) {
+    @ExceptionHandler(PollException.UserAlreadyVotedException.class)
+    public ResponseEntity<String> handleUserAlreadyVotedException(PollException.UserAlreadyVotedException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(PollException.PollCreationException.class)
-    public ResponseEntity<String> handlePollCreationException(
-        PollException.PollCreationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(PollException.PollNotActiveException.class)
+    public ResponseEntity<String> handlePollNotActiveException(PollException.PollNotActiveException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(PollException.PollParticipationException.class)
-    public ResponseEntity<String> handlePollParticipationException(
-        PollException.PollParticipationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(MaxProceedingGoalsExceededException.class)
     public ResponseEntity<String> handleMaxProceedingGoalsExceeded(

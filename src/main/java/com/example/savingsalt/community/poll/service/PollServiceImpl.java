@@ -1,31 +1,24 @@
 package com.example.savingsalt.community.poll.service;
 
+
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.repository.BoardRepository;
-import com.example.savingsalt.community.poll.domain.PollChoiceEntity;
-import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
-import com.example.savingsalt.community.poll.domain.PollDto;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
-import com.example.savingsalt.community.poll.domain.PollChoiceDto;
-import com.example.savingsalt.community.poll.domain.PollResultEntity;
+import com.example.savingsalt.community.poll.domain.PollVoteEntity;
+import com.example.savingsalt.community.poll.enums.PollVoteChoice;
 import com.example.savingsalt.community.poll.exception.PollException;
-import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollChoiceMapper;
-import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollMapper;
-import com.example.savingsalt.community.poll.mapper.PollMainMapper.PollResultMapper;
+import com.example.savingsalt.community.poll.exception.PollException.MemberNotFoundException;
+import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
 import com.example.savingsalt.community.poll.repository.PollRepository;
-import com.example.savingsalt.community.poll.repository.PollChoiceRepository;
-import com.example.savingsalt.community.poll.repository.PollResultRepository;
+import com.example.savingsalt.community.poll.repository.PollVoteRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -35,97 +28,88 @@ public class PollServiceImpl implements PollService {
     private PollRepository pollRepository;
 
     @Autowired
-    private PollChoiceRepository pollChoiceRepository;
-
-    @Autowired
-    private PollResultRepository pollResultRepository;
-
-    @Autowired
-    private BoardRepository boardRepository;
+    private PollVoteRepository pollVoteRepository;
 
     @Autowired
     private MemberRepository memberRepository;
 
     @Autowired
-    private PollMapper pollMapper;
+    private BoardRepository boardRepository;
 
-    @Autowired
-    private PollChoiceMapper pollChoiceMapper;
-
-    @Autowired
-    private PollResultMapper pollResultMapper;
-
-    @Override
     @Transactional
-    public PollDto createPoll(PollCreateReqDto pollCreateReqDto) {
-        BoardEntity board = boardRepository.findById(pollCreateReqDto.getBoardId())
-            .orElseThrow(() -> new PollException.PollCreationException("투표 생성에 실패하였습니다."));
+    public PollEntity createPollForBoard(Long boardId, LocalDateTime startTime, LocalDateTime endTime) {
+        BoardEntity boardEntity = boardRepository.findById(boardId)
+            .orElseThrow(PollNotFoundException::new);
 
-        PollEntity poll = pollCreateReqDto.toEntity(board);
-
-        PollEntity savedPoll = pollRepository.save(poll);
-
-        return pollMapper.toDto(savedPoll);
+        PollEntity pollEntity = PollEntity.builder()
+            .boardEntity(boardEntity)
+            .yesCount(0)
+            .noCount(0)
+            .startTime(startTime)
+            .endTime(endTime)
+            .build();
+        return pollRepository.save(pollEntity);
     }
 
-    @Override
     @Transactional
-    public void deletePoll(Long voteId, Long pollId) {
-        PollEntity poll = pollRepository.findById(pollId)
-            .orElseThrow(() -> new PollException.PollNotFoundException("해당 투표를 찾을 수 없습니다."));
-        pollRepository.delete(poll);
+    public void vote(Long pollId, Long memberId, PollVoteChoice pollVoteChoice) {
+        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
+            PollNotFoundException::new);
+        MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
+            MemberNotFoundException::new);
+
+        if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberId)) {
+            throw new PollException.UserAlreadyVotedException();
+        }
+
+        if (!pollEntity.isActive()) {
+            throw new PollException.PollNotActiveException();
+        }
+
+        PollVoteEntity pollVoteEntity = PollVoteEntity.builder()
+            .pollEntity(pollEntity)
+            .memberEntity(memberEntity)
+            .pollVoteChoice(pollVoteChoice)
+            .build();
+        pollVoteRepository.save(pollVoteEntity);
+
+        if (pollVoteChoice == PollVoteChoice.YES) {
+            pollEntity = PollEntity.builder()
+                .yesCount(pollEntity.getYesCount() + 1)
+                .noCount(pollEntity.getNoCount())
+                .boardEntity(pollEntity.getBoardEntity())
+                .build();
+        } else {
+            pollEntity = PollEntity.builder()
+                .yesCount(pollEntity.getYesCount())
+                .noCount(pollEntity.getNoCount() + 1)
+                .boardEntity(pollEntity.getBoardEntity())
+                .build();
+        }
+
+        pollRepository.save(pollEntity);
     }
 
-    @Override
-    public PollDto getPoll(Long voteId, Long pollId) {
-        PollEntity poll = pollRepository.findById(pollId)
-            .orElseThrow(() -> new PollException.PollNotFoundException("해당 투표를 찾을 수 없습니다."));
-        return pollMapper.toDto(poll);
-    }
+    @Transactional(readOnly = true)
+    public PollResultDto getPollResults(Long pollId) {
+        PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
+            PollNotFoundException::new);
 
-    @Override
-    @Transactional
-    public PollResultDto participateInPoll(Long voteId, Long pollId, PollChoiceDto choiceDto) {
-        PollEntity poll = pollRepository.findById(pollId)
-            .orElseThrow(() -> new PollException.PollNotFoundException("해당 투표를 찾을 수 없습니다."));
-        PollChoiceEntity choice = pollChoiceRepository.findById(choiceDto.getId())
-            .orElseThrow(() -> new PollException.ChoiceNotFoundException("선택지를 찾을 수 없습니다."));
+        if (pollEntity.isNotStarted()) {
+            return PollResultDto.builder()
+                .yesCount(0)
+                .noCount(0)
+                .isFinished(false)
+                .build();
+        }
 
-        choice.incrementCount();
-        pollChoiceRepository.save(choice);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        MemberEntity member = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new PollException.UnauthorizedPollAccessException("해당 투표에 접근할 권한이 없습니다."));
-        PollResultEntity result = new PollResultEntity(null, poll, choice, member);
-        PollResultEntity savedResult = pollResultRepository.save(result);
-
-        return pollResultMapper.toDto(savedResult);
-    }
-
-    @Override
-    public List<PollChoiceDto> getPollResults(Long voteId, Long pollId) {
-        PollEntity poll = pollRepository.findById(pollId)
-            .orElseThrow(() -> new PollException.PollNotFoundException("해당 투표를 찾을 수 없습니다."));
-        List<PollChoiceEntity> choices = pollChoiceRepository.findByPollEntity(poll);
-        return choices.stream()
-            .map(choice -> pollChoiceMapper.toDto(choice))
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public PollResDto findPollByBoardId(Long boardId) {
-        PollEntity pollEntity = pollRepository.findByBoardId(boardId)
-            .orElseThrow(() -> new PollException.PollNotFoundException("해당 투표를 찾을 수 없습니다."));
-        List<PollChoiceDto> choices = pollEntity.getChoices().stream()
-            .map(pollChoiceMapper::toDto)
-            .collect(Collectors.toList());
-
-        return PollResDto.builder()
-            .id(pollEntity.getId())
-            .boardId(pollEntity.getBoard().getId())
-            .choices(choices)
+        return PollResultDto.builder()
+            .yesCount(pollEntity.getYesCount())
+            .noCount(pollEntity.getNoCount())
+            .isFinished(pollEntity.isFinished())
             .build();
     }
+
+    /// 없앨예정
+    public PollResDto findPollByBoardId(Long boardId){return null;}
 }

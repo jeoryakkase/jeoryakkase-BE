@@ -2,6 +2,7 @@ package com.example.savingsalt.community.board.domain.dto;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.enums.BoardCategory;
+import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardTypeTipCreateReqDto {
+public class BoardTypeTipCreateReqDto extends BaseEntity{
 
     private String title;
     private String contents;
@@ -25,6 +26,7 @@ public class BoardTypeTipCreateReqDto {
             .title(title)
             .contents(contents)
             .imageUrls(imageUrls)
+            .category(category)
             .build();
     }
 

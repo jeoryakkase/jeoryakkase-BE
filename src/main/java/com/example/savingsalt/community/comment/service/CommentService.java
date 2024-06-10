@@ -16,8 +16,6 @@ import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,7 +39,7 @@ public class CommentService {
 
 
     @Transactional
-    public ResponseEntity<String> updateComment(Long commentId, CommentReqDto requestDto,
+    public CommentResDto updateComment(Long commentId, CommentReqDto requestDto,
         MemberEntity member) {
         CommentEntity comment = findComment(commentId);
 
@@ -55,11 +53,12 @@ public class CommentService {
         }
 
         comment.update(requestDto);
-        return new ResponseEntity<>("댓글이 수정되었습니다.", HttpStatus.OK);
+
+        return convertToDto(comment);
     }
 
     @Transactional
-    public ResponseEntity<String> deleteComment(Long commentId, MemberEntity member) {
+    public void deleteComment(Long commentId, MemberEntity member) {
         CommentEntity comment = findComment(commentId);
 
         // 작성자만 삭제 가능
@@ -73,7 +72,7 @@ public class CommentService {
 
         // 댓글 삭제
         commentRepository.delete(comment);
-        return new ResponseEntity<>("댓글이 삭제되었습니다.", HttpStatus.OK);
+
     }
 
     // 선택한 댓글 존재 여부
