@@ -4,6 +4,8 @@ import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.dto.LoginResponseDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.domain.dto.TokenResponseDto;
+import com.example.savingsalt.member.domain.entity.TokenEntity;
+import com.example.savingsalt.member.repository.TokenRepository;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +42,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,109 +54,42 @@ import org.springframework.web.client.RestTemplate;
 @Tag(name = "OAuth 2.0 Authentication", description = "OAuth2 API")
 public class OAuth2AuthController {
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String kakaoClientId;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
-    private String kakaoClientSecret;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    private String kakaoRedirectUri;
-
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String googleClientId;
-
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private String googleClientSecret;
-
-    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-    private String googleRedirectUri;
-
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final ClientRegistrationRepository clientRegistrationRepository;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenRepository tokenRepository;
     private final ObjectMapper objectMapper;
 
-    @Operation(summary = "카카오 코드 인가", description = "Exchanges the authorization code for an access token and retrieves the user information from Kakao.")
+    private static final int ACCESS_TOKEN_EXPIRE_TIME = 2 * 60 * 60 * 1000; // 2시간
+
+    @Operation(summary = "카카오 토큰 검증", description = "Validates the token provided by Kakao and authenticates the user.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request or Kakao token exchange failed"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping("/kakao-authcode")
-    public ResponseEntity<?> kakaoAuthCode(@RequestParam String code) {
-        return authenticateWithKakao(code);
+    @PostMapping("/kakao-auth")
+    public ResponseEntity<?> kakaoAuthToken(@RequestHeader("Authorization") String authorizationHeader) {
+        return authenticateWithToken(authorizationHeader, "kakao");
     }
 
-    @Operation(summary = "구글 코드 인가", description = "Exchanges the authorization code for an access token and retrieves the user information from Google.")
+    @Operation(summary = "구글 토큰 검증", description = "Validates the token provided by Google and authenticates the user.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request or Google token exchange failed"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/google-authcode")
-    public ResponseEntity<?> googleAuthCode(@RequestParam String code) {
-        return authenticateWithGoogle(code);
+    public ResponseEntity<?> googleAuthToken(@RequestHeader("Authorization") String authorizationHeader) {
+        return authenticateWithToken(authorizationHeader, "google");
     }
 
-    private ResponseEntity<?> authenticateWithKakao(String code) {
+    private ResponseEntity<?> authenticateWithToken(String authorizationHeader, String registrationId) {
         try {
-            // Kakao OAuth2 token exchange
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("grant_type", "authorization_code");
-            params.add("client_id", kakaoClientId);
-            params.add("client_secret", kakaoClientSecret);
-            params.add("redirect_uri", kakaoRedirectUri);
-            params.add("code", code);
-
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-            ResponseEntity<KakaoTokenResponse> response = restTemplate.postForEntity(
-                "https://kauth.kakao.com/oauth/token",
-                request,
-                KakaoTokenResponse.class
-            );
-
-            KakaoTokenResponse tokenResponse = response.getBody();
-            String accessToken = tokenResponse.getAccessToken();
-
-            return authenticateUser(accessToken, "kakao");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Kakao authentication failed");
-        }
-    }
-
-    private ResponseEntity<?> authenticateWithGoogle(String code) {
-        try {
-            GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY,
-                "https://oauth2.googleapis.com/token",
-                googleClientId,
-                googleClientSecret,
-                code,
-                googleRedirectUri)
-                .execute();
-
-            String accessToken = tokenResponse.getAccessToken();
-
-            return authenticateUser(accessToken, "google");
-        } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Google authentication failed");
-        }
-    }
-
-    private ResponseEntity<?> authenticateUser(String accessToken, String registrationId) {
-        try {
+            String accessToken = authorizationHeader.replace("Bearer ", "");
             ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(registrationId);
+
             OAuth2AccessToken oAuth2AccessToken = new OAuth2AccessToken(
                 OAuth2AccessToken.TokenType.BEARER,
                 accessToken,
@@ -168,49 +104,25 @@ public class OAuth2AuthController {
 
             OAuth2User user = oAuth2UserCustomService.loadUser(userRequest);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
-                user.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
+            // DB에 저장
+            saveTokenToDatabase(user, accessToken);
 
-            MemberEntity memberEntity = (MemberEntity) authentication.getPrincipal();
-            LoginResponseDto loginResponseDto = LoginResponseDto.builder()
-                .nickname(memberEntity.getNickname())
-                .profileImage(memberEntity.getProfileImage())
-                .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
-                .build();
-
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set(HttpHeaders.AUTHORIZATION,
-                "Bearer " + tokenResponseDto.getAccessToken());
-
-            Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("refreshToken", tokenResponseDto.getRefreshToken());
-            responseBody.put("user", objectMapper.writeValueAsString(loginResponseDto));
-
-            return ResponseEntity.status(HttpStatus.OK)
-                .headers(responseHeaders)
-                .body(responseBody);
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Authentication failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
         }
     }
 
-    @Getter
-    static class KakaoTokenResponse {
+    private void saveTokenToDatabase(OAuth2User user, String accessToken) {
+        TokenEntity tokenEntity = new TokenEntity();
+        tokenEntity.setUserId(user.getName());
+        tokenEntity.setAccessToken(accessToken);
+        tokenEntity.setExpiresAt(Instant.now().plusSeconds(ACCESS_TOKEN_EXPIRE_TIME));
 
-        @JsonProperty("access_token")
-        private String accessToken;
-        @JsonProperty("token_type")
-        private String tokenType;
-        @JsonProperty("refresh_token")
-        private String refreshToken;
-        @JsonProperty("expires_in")
-        private Long expiresIn;
-        @JsonProperty("scope")
-        private String scope;
+        tokenRepository.save(tokenEntity);
     }
 }
