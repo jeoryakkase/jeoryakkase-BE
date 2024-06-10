@@ -299,4 +299,22 @@ public class MemberService {
 
         return memberRepository.findAllByAgeBetween(startAge, endAge);
     }
+
+    // 헤더 요청 토큰값을 이용한 멤버 엔티티 반환
+    public MemberEntity getMemberFromRequest(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            throw new MemberException.InvalidTokenException();
+        }
+
+        String email = jwtTokenProvider.getEmailFromToken(token);
+
+        MemberEntity memberEntity = memberMapper.toEntity(findMemberByEmail(email));
+
+        if (memberEntity == null) {
+            throw new MemberException.MemberNotFoundException("email", email);
+        }
+
+        return memberEntity;
+    }
 }

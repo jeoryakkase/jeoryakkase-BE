@@ -201,16 +201,7 @@ public class MemberChallengeController {
     public ResponseEntity<List<MemberChallengeJoinResDto>> getjoinMemberChallenge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request) {
 
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         List<MemberChallengeJoinResDto> memberChallengeJoinResDtos = memberChallengeService.getJoiningMemberChallenge(
             memberEntity.getId());
