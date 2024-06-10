@@ -140,8 +140,12 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 생성
-    public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
+    public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto, String imageUrl) {
         BadgeEntity badgeEntity = badgeMainMapper.toEntity(badgeCreateReqDto);
+
+        badgeEntity = badgeEntity.toBuilder()
+            .badgeImage(imageUrl)
+            .build();
         BadgeEntity createdBadge = badgeRepository.save(badgeEntity);
 
         BadgeDto createdBadgeDto = badgeMainMapper.toDto(createdBadge);

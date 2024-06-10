@@ -1,5 +1,8 @@
 package com.example.savingsalt.badge.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
@@ -13,8 +16,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +29,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -33,11 +40,13 @@ public class BadgeController {
 
     private final BadgeServiceImpl badgeService;
     private final MemberService memberService;
+    private final AmazonS3 amazonS3Client;
 
     public BadgeController(BadgeServiceImpl badgeService,
-        MemberService memberService) {
+        MemberService memberService, AmazonS3 amazonS3Client) {
         this.badgeService = badgeService;
         this.memberService = memberService;
+        this.amazonS3Client = amazonS3Client;
     }
 
     // 모든 뱃지 조회
@@ -83,10 +92,32 @@ public class BadgeController {
 
     // 뱃지 생성
     @Operation(summary = "뱃지 생성", description = "뱃지를 생성하는 API")
-    @PostMapping("/badges")
+    @PostMapping(value = "/badges", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BadgeDto> createBadge(
-        @Parameter(description = "생성할 뱃지의 정보") @Valid @RequestBody BadgeCreateReqDto badgeCreateReqDto) {
-        BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto);
+        @Parameter(description = "생성할 뱃지의 정보") @Valid @RequestPart BadgeCreateReqDto badgeCreateReqDto,
+        @RequestPart("uploadFile") MultipartFile multipartFile) throws IOException {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
+
+        String uploadFileName = multipartFile.getOriginalFilename() + "/" + timestamp;
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(
+            "my.eliceproject.s3.bucket",
+            uploadFileName,
+            multipartFile.getInputStream(),
+            objectMetadata
+        );
+
+        amazonS3Client.putObject(putObjectRequest);
+
+        String imageUrl = String.format(
+            "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
+                + uploadFileName);
+
+        BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto, imageUrl);
 
         return (createdBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             : ResponseEntity.status(HttpStatus.CREATED).body(createdBadgeDto);
