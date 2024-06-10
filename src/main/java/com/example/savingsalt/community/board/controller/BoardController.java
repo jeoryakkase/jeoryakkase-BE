@@ -8,6 +8,8 @@ import com.example.savingsalt.community.board.exception.BoardException.EmptyBoar
 import com.example.savingsalt.community.board.service.BoardService;
 import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.MemberEntity;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
+import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,6 +40,10 @@ public class BoardController {
 
     private final BoardService boardService;
 
+    private final MemberService memberService;
+
+    private final MemberMapper memberMapper;
+
     @Operation(summary = "팁 게시글 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "게시글 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
@@ -46,11 +53,13 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<BoardTypeTipReadResDto> createTipBoard(
         @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -97,11 +106,13 @@ public class BoardController {
     @PatchMapping("/{boardId}")
     public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable Long boardId,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId, requestDto,
             member);
@@ -118,11 +129,13 @@ public class BoardController {
     })
     @DeleteMapping("/{boardId}")
     public ResponseEntity<String> deleteTipBoard(@PathVariable Long boardId,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
         boardService.deleteTipBoard(boardId, member);
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
@@ -138,11 +151,13 @@ public class BoardController {
     @PostMapping("/votes")
     public ResponseEntity<BoardTypeVoteReadResDto> createVoteBoard(
         @RequestBody BoardTypeVoteCreateReqDto requestDto,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -191,11 +206,13 @@ public class BoardController {
     @PatchMapping("/{boardId}/votes")
     public ResponseEntity<?> updateVoteBoard(@PathVariable Long boardId,
         @RequestBody BoardTypeVoteCreateReqDto requestDto,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(boardId,
             requestDto, member);
@@ -212,11 +229,13 @@ public class BoardController {
     })
     @DeleteMapping("/{boardId}/votes")
     public ResponseEntity<String> deleteVoteBoard(@PathVariable Long boardId,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
         boardService.deleteVoteBoard(boardId, member);
 

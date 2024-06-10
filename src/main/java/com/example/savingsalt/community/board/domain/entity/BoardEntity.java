@@ -67,6 +67,7 @@ public class BoardEntity extends BaseEntity {
     public void updateTipBoard(BoardTypeTipCreateReqDto requestDto) {
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
+        this.imageUrls = requestDto.getImageUrls();
     }
 
     public void updateVoteBoard(BoardTypeVoteCreateReqDto requestDto) {

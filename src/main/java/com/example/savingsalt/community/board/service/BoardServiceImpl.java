@@ -17,7 +17,6 @@ import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity
 import com.example.savingsalt.community.comment.repository.CommentRepository;
 import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
 import com.example.savingsalt.community.poll.domain.PollResDto;
-import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.service.PollService;
 import com.example.savingsalt.member.domain.MemberEntity;
 import java.util.List;
@@ -37,8 +36,6 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
 
     private final PollService pollService;
-
-    private final PollRepository pollRepository;
 
     private final CommentRepository commentRepository;
 
@@ -244,6 +241,8 @@ public class BoardServiceImpl implements BoardService {
             .contents(boardEntity.getContents())
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
+            .imageUrls(boardEntity.getImageUrls())
+            .createdAt(boardEntity.getCreatedAt())
             .build();
     }
 
