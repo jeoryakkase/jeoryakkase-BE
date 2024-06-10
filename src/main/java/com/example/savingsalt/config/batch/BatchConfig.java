@@ -2,6 +2,7 @@ package com.example.savingsalt.config.batch;
 
 import com.example.savingsalt.challenge.service.MemberChallengeServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.DuplicateJobException;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -18,6 +19,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class BatchConfig extends DefaultBatchConfiguration {
 
     @Autowired
@@ -40,7 +42,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     public Tasklet certificationTasklet() {
         return (((contribution, chunkContext) -> {
-            System.out.println("***** 챌린지 인증 초기화 *****");
+            log.info("***** 챌린지 인증 초기화 *****");
             memberChallengeService.resetDailyMemberChallengeAuthentication();
             return RepeatStatus.FINISHED;
         }));

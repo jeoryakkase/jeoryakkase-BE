@@ -28,7 +28,7 @@ public class ChallengeCreateReqDto {
     private int challengeCount;
 
     @NotBlank(message = "챌린지 유형은 필수입력 사항입니다.")
-    @Size(min = 1, max = 50, message = "챌린지 유형은 1 ~ 20자 이여야 합니다!")
+    @Pattern(regexp = "COUNT|GOAL", message = "챌린지 유형은 COUNT(횟수), GOAL(모으기) 중 하나여야 합니다.")
     private String challengeType;
 
     @NotBlank(message = "챌린지 기간은 필수입력 사항입니다.")

@@ -8,8 +8,10 @@ import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeDifficulty;
+import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeTypeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeGoalAndCountException;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.ChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -64,7 +66,13 @@ public class ChallengeServiceImpl implements ChallengeService {
                 pageable = PageRequest.of(0, 8);
                 challengeEntities = challengeRepository.findChallengesWithMostMembers(pageable);
             } else {
-                challengeEntities = challengeRepository.findAllByChallengeTypeContaining(keyword,
+                ChallengeType challengeType;
+                try {
+                    challengeType = ChallengeType.valueOf(keyword.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new ChallengeTypeNotFoundException(keyword);
+                }
+                challengeEntities = challengeRepository.findByChallengeType(challengeType,
                     pageable);
             }
         } else {
@@ -143,12 +151,12 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .orElse(challengeEntity.getChallengeGoal()))
             .challengeCount(Optional.ofNullable(updatedChallengeDto.getChallengeCount())
                 .orElse(challengeEntity.getChallengeCount()))
-            .challengeType(Optional.ofNullable(updatedChallengeDto.getChallengeType())
-                .orElse(challengeEntity.getChallengeType()))
+            .challengeType(ChallengeType.valueOf(Optional.ofNullable(updatedChallengeDto.getChallengeType())
+                .orElse(String.valueOf(challengeEntity.getChallengeType()))))
             .challengeTerm(Optional.ofNullable(updatedChallengeDto.getChallengeTerm())
                 .orElse(challengeEntity.getChallengeTerm()))
-            .challengeDifficulty(Optional.ofNullable(updatedChallengeDto.getChallengeDifficulty())
-                .orElse(challengeEntity.getChallengeDifficulty()))
+            .challengeDifficulty(ChallengeDifficulty.valueOf(Optional.ofNullable(updatedChallengeDto.getChallengeDifficulty())
+                .orElse(String.valueOf(challengeEntity.getChallengeDifficulty()))))
             .authContent(Optional.ofNullable(updatedChallengeDto.getAuthContent())
                 .orElse(challengeEntity.getAuthContent()))
             .badgeEntity(Optional.ofNullable(badgeEntity).orElse(challengeEntity.getBadgeEntity()))

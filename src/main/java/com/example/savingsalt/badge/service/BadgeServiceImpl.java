@@ -33,6 +33,7 @@ public class BadgeServiceImpl implements BadgeService {
     private final MemberChallengeRepository memberChallengeRepository;
     private final BadgeMainMapper badgeMainMapper;
     private final MemberMapper memberMapper;
+    private final Integer successCheckNumber = 1;
 
     public BadgeServiceImpl(BadgeRepository badgeRepository, MemberRepository memberRepository,
         MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper,
@@ -91,7 +92,7 @@ public class BadgeServiceImpl implements BadgeService {
             for (int i = 0; i < memberChallengeEntity.size(); i++) {
                 if ((memberChallengeEntity.get(i).getChallengeStatus()
                     == ChallengeStatus.COMPLETED) && (memberChallengeEntity.get(i).getSuccessCount()
-                    == 1)) {
+                    == successCheckNumber)) {
                     BadgeEntity badgeEntity = memberChallengeEntity.get(i).getChallengeEntity()
                         .getBadgeEntity();
                     memberChallengeBadgeResDto.add(
