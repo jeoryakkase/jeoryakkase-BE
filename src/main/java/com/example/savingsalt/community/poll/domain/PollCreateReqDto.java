@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PollCreateReqDto {
-    private Long boardId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }

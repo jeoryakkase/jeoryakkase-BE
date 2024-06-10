@@ -20,8 +20,6 @@ public class BoardTypeVoteCreateReqDto {
     private String contents;
     private BoardCategory category = BoardCategory.VOTE;
     private PollCreateReqDto pollReqDto; // 투표 데이터 포함
-    private LocalDateTime startTime; // 투표 기간 설정 필드 추가
-    private LocalDateTime endTime;
 
     public BoardEntity toEntity(MemberEntity member) {
         return BoardEntity.builder()
