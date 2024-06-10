@@ -23,6 +23,7 @@ import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class MemberChallengeServiceImpl implements
     private final CertificationChallengeServiceImpl certificationChallengeService;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeServiceImpl challengeService;
+    private final EntityManager entityManager;
 
     public MemberChallengeServiceImpl(
         MemberChallengeRepository memberChallengeRepository,
@@ -53,7 +55,8 @@ public class MemberChallengeServiceImpl implements
         ChallengeRepository challengeRepository,
         CertificationChallengeServiceImpl certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
-        ChallengeServiceImpl challengeService) {
+        ChallengeServiceImpl challengeService,
+        EntityManager entityManager) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
@@ -62,6 +65,7 @@ public class MemberChallengeServiceImpl implements
         this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
         this.challengeService = challengeService;
         this.certificationChallengeService = certificationChallengeService;
+        this.entityManager = entityManager;
     }
 
     // 회원 챌린지 목록 조회
@@ -329,6 +333,7 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
+    // TODO: 영속성 컨텍스트 문제로 컬럼 삭제가 이루어지지 않는 문제 해결
     // 챌린지 인증 삭제
     public void deleteCertificationChallenge(Long memberId, Long memberChallengeId,
         Long certificationId) {
@@ -355,8 +360,10 @@ public class MemberChallengeServiceImpl implements
 
                 for (CertificationChallengeEntity certificationChallengeEntity : certificationChallengeEntities) {
                     if (Objects.equals(certificationChallengeEntity.getId(), certificationId)) {
+
                         certificationChallengeService.deleteCertificationChallengeById(
                             certificationChallengeEntity.getId());
+
                         return;
                     }
                 }

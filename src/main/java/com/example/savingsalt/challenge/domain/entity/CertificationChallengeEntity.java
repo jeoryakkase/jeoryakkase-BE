@@ -45,7 +45,7 @@ public class CertificationChallengeEntity {
     @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "certificationChallenge", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "certificationChallenge", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CertificationChallengeImageEntity> certificationChallengeImageEntities;
 
 }
