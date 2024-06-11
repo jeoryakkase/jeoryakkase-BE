@@ -342,7 +342,7 @@ public class BoardServiceImpl implements BoardService {
         return CommentResDto.builder()
             .id(comment.getId())
             .content(comment.getContent())
-            .nickname(comment.getNickname())
+            .nickname(comment.getMemberEntity().getNickname())
             .replyComments(replyDtos)
             .build();
     }

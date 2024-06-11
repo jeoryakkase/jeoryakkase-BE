@@ -5,6 +5,8 @@ import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
 import com.example.savingsalt.community.comment.service.ReplyCommentService;
 import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
+import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
+import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +34,10 @@ public class ReplyCommentController {
 
     private final ReplyCommentService replyCommentService;
 
+    private final MemberService memberService;
+
+    private final MemberMapper memberMapper;
+
     @Operation(summary = "대댓글 작성", description = "로그인된 사용자가 댓글에 대댓글을 작성합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "대댓글 작성 성공", content = @Content(schema = @Schema(implementation = ReplyCommentResDto.class))),
@@ -40,11 +47,14 @@ public class ReplyCommentController {
     @PostMapping
     public ResponseEntity<ReplyCommentResDto> createReplyComment(
         @RequestBody ReplyCommentReqDto requestDto,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
+
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         ReplyCommentResDto responseDto = replyCommentService.createReplyComment(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -57,17 +67,20 @@ public class ReplyCommentController {
         @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "403", description = "대댓글 수정 권한 없음")
     })
-    @PatchMapping("/{replyId}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ReplyCommentResDto> updateReplyComment(
-        @PathVariable Long replyId,
+        @PathVariable("id") Long id,
         @RequestBody ReplyCommentReqDto requestDto,
-        @AuthenticationPrincipal MemberEntity member) {
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        ReplyCommentResDto replyCommentResDto = replyCommentService.updateReplyComment(replyId,
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
+
+        ReplyCommentResDto replyCommentResDto = replyCommentService.updateReplyComment(id,
             requestDto, member);
         return ResponseEntity.ok(replyCommentResDto);
     }
@@ -79,16 +92,19 @@ public class ReplyCommentController {
         @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "403", description = "대댓글 삭제 권한 없음")
     })
-    @DeleteMapping("/{replyId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteReplyComment(
-        @PathVariable Long replyId,
-        @AuthenticationPrincipal MemberEntity member) {
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (member == null) {
+        if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        replyCommentService.deleteReplyComment(replyId, member);
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
+
+        replyCommentService.deleteReplyComment(id, member);
 
         return ResponseEntity.ok("대댓글이 삭제되었습니다.");
     }

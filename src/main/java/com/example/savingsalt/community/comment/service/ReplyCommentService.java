@@ -71,7 +71,10 @@ public class ReplyCommentService {
         return ReplyCommentResDto.builder()
             .id(replyComment.getId())
             .parentCommentId(replyComment.getParentComment().getId())
-            .memberId(replyComment.getMemberEntity().getId())
+            .nickname(replyComment.getMemberEntity().getNickname())
+            .content(replyComment.getContent())
+            .createdAt(replyComment.getCreatedAt())
+            .modifiedAt(replyComment.getModifiedAt())
             .build();
     }
 

@@ -13,21 +13,22 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Table(name = "comments")
 @Getter
+@Builder(toBuilder = true)
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 public class CommentEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotNull
-    private String nickname;
 
     @NotNull
     private String content;
@@ -41,14 +42,10 @@ public class CommentEntity extends BaseEntity {
     private MemberEntity memberEntity;
 
     public CommentEntity(CommentReqDto requestDto, BoardEntity saveBoard, MemberEntity member) {
-        this.nickname = member.getNickname();
         this.content = requestDto.getContent();
         this.boardEntity = saveBoard;
         this.memberEntity = member;
     }
 
-    public void update(CommentReqDto requestDto) {
-        this.content = requestDto.getContent();
-    }
 
 }
