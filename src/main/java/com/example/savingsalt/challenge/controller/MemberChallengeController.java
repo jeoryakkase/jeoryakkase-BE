@@ -1,24 +1,19 @@
 package com.example.savingsalt.challenge.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.service.MemberChallengeService;
-import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
-import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,9 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberChallengeController {
 
     private final MemberChallengeService memberChallengeService;
-    private final AmazonS3 amazonS3Client;
-    private final JwtTokenProvider tokenProvider;
-    private final MemberMapper memberMapper;
+    private final S3Service s3Service;
     private final MemberService memberService;
 
     // 회원 챌린지 목록 조회
@@ -95,35 +88,7 @@ public class MemberChallengeController {
 
         MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
-        List<String> imageUrls = new ArrayList<>();
-        String timestamp = String.valueOf(System.currentTimeMillis());
-
-        for (MultipartFile file : multipartFiles) {
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentType(file.getContentType());
-            objectMetadata.setContentLength(file.getSize());
-
-            PutObjectRequest putObjectRequest;
-
-            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
-            // test01.jpg/0043885293124
-            // https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/test01.jpg/0043885293124
-
-            putObjectRequest = new PutObjectRequest(
-                "my.eliceproject.s3.bucket",
-                uploadFileName,
-                file.getInputStream(),
-                objectMetadata
-            );
-
-            amazonS3Client.putObject(putObjectRequest);
-
-            String imageUrl = String.format(
-                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
-                    + uploadFileName);
-
-            imageUrls.add(imageUrl);
-        }
+        List<String> imageUrls = s3Service.uploads(multipartFiles);
 
         MemberChallengeDto memberChallengeDto = memberChallengeService.certifyDailyMemberChallenge(
             memberEntity.getId(), challengeId,
