@@ -19,6 +19,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -106,11 +108,10 @@ public class GoalCertificationController {
             content = @Content(mediaType = "application/json"))
     })
     @GetMapping("/goals/{goalId}/certifications")
-    public ResponseEntity<List<GoalCertificationResponseDto>> getCertificationsByGoal(
+    public ResponseEntity<Page<GoalCertificationResponseDto>> getCertificationsByGoal(
         @Parameter(description = "인증을 조회할 목표의 ID", required = true) @PathVariable Long goalId,
-        @AuthenticationPrincipal UserDetails userDetails) {
-        List<GoalCertificationResponseDto> certifications = certificationService.getCertificationsByGoal(
-            goalId, userDetails);
+        @AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        Page<GoalCertificationResponseDto> certifications = certificationService.getCertificationsByGoal(goalId, userDetails, pageable);
         return ResponseEntity.ok(certifications);
     }
 
