@@ -4,6 +4,7 @@ import com.example.savingsalt.badge.domain.entity.BadgeEntity;
 import com.example.savingsalt.badge.repository.BadgeRepository;
 import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
+import com.example.savingsalt.challenge.domain.dto.ChallengeMainResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
@@ -20,6 +21,7 @@ import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundExcept
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -83,6 +85,32 @@ public class ChallengeServiceImpl implements ChallengeService {
             challengeMapper::toChallengesReadResDto);
 
         return challengesReadResDto;
+    }
+
+    //  챌린지 메인페이지 조회
+    public ChallengeMainResDto getChallengeMain() {
+        List<ChallengeEntity> challengeAllEntities = challengeRepository.findAll();
+        List<ChallengeEntity> challengePopularityEntities = challengeRepository.findChallengesWithMostMembers();
+
+        if(challengeAllEntities.isEmpty() || challengePopularityEntities.isEmpty()) {
+            return null;
+        }
+        ChallengeMainResDto challengeMainResDto= ChallengeMainResDto.builder().build();
+
+
+        List<ChallengeReadResDto> challengeALlReadResDto = challengeAllEntities.stream()
+            .map(challengeMapper::toChallengesReadResDto)
+            .collect(Collectors.toList());
+        List<ChallengeReadResDto> challengePopularityReadResDto = challengePopularityEntities.stream()
+            .map(challengeMapper::toChallengesReadResDto)
+            .collect(Collectors.toList());
+
+        challengeMainResDto = challengeMainResDto.toBuilder()
+            .challengesReadResDto(challengeALlReadResDto.subList(0,5))
+            .challengesPopularityReadResDto(challengePopularityReadResDto.subList(0,8))
+            .build();
+
+        return challengeMainResDto;
     }
 
     // 챌린지 생성

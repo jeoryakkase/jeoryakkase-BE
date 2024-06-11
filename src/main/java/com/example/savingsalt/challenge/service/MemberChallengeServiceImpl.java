@@ -17,7 +17,6 @@ import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNo
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeAlreadySucceededException;
 import com.example.savingsalt.challenge.exception.ChallengeException.MemberChallengeNotFoundException;
-import com.example.savingsalt.challenge.mapper.ChallengeMainMapper$CertifiCationChallengeMapperImpl;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
@@ -25,7 +24,6 @@ import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
-import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -48,8 +46,6 @@ public class MemberChallengeServiceImpl implements
     private final CertificationChallengeServiceImpl certificationChallengeService;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeServiceImpl challengeService;
-    private final EntityManager entityManager;
-    private final ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl;
 
     public MemberChallengeServiceImpl(
         MemberChallengeRepository memberChallengeRepository,
@@ -58,9 +54,7 @@ public class MemberChallengeServiceImpl implements
         ChallengeRepository challengeRepository,
         CertificationChallengeServiceImpl certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
-        ChallengeServiceImpl challengeService,
-        EntityManager entityManager,
-        ChallengeMainMapper$CertifiCationChallengeMapperImpl certifiCationChallengeMapperImpl) {
+        ChallengeServiceImpl challengeService) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
@@ -69,8 +63,6 @@ public class MemberChallengeServiceImpl implements
         this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
         this.challengeService = challengeService;
         this.certificationChallengeService = certificationChallengeService;
-        this.entityManager = entityManager;
-        this.certifiCationChallengeMapperImpl = certifiCationChallengeMapperImpl;
     }
 
     // 회원 챌린지 목록 조회
@@ -194,7 +186,8 @@ public class MemberChallengeServiceImpl implements
                 foundMemberChallengeEntity, certificationChallengeReqDto, imageUrls);
 
             // 챌린지 종류 'Goal' > 금액 달성 방식
-            if ((ChallengeType.GOAL).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            if ((ChallengeType.GOAL).equals(
+                Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = Objects.requireNonNull(foundMemberChallengeEntity)
                     .toBuilder()
@@ -227,7 +220,8 @@ public class MemberChallengeServiceImpl implements
 
             }
             // 챌린지 종류 'Count' > 목표 달성 방식
-            else if ((ChallengeType.COUNT).equals(Objects.requireNonNull(challengeEntity).getChallengeType())) {
+            else if ((ChallengeType.COUNT).equals(
+                Objects.requireNonNull(challengeEntity).getChallengeType())) {
 
                 foundMemberChallengeEntity = foundMemberChallengeEntity
                     .toBuilder()
@@ -265,7 +259,9 @@ public class MemberChallengeServiceImpl implements
 
     // 참여 중인 챌린지 목록 조회
     public List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId) {
+
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+
         List<MemberChallengeEntity> memberChallengeEntities;
         List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
