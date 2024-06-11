@@ -1,5 +1,6 @@
 package com.example.savingsalt.member.domain.dto;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
@@ -21,9 +22,10 @@ import lombok.Setter;
 public class MyPageResponseDto {
 
     private Long memberId;
+    private String nickname;
     private String profileImage;
     private String about;
-    private Long representativeBadgeId;
+    private BadgeDto representativeBadge;
     private List<MemberChallengeWithCertifyAndChallengeResDto> memberChallenges;
     private List<GoalResponseDto> goals;
     private List<MyPageBoardDto> bookmarks;
