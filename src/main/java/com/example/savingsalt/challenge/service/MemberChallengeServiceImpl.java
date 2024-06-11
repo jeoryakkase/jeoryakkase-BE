@@ -43,18 +43,18 @@ public class MemberChallengeServiceImpl implements
     private final MemberChallengeMapper memberChallengeMapper;
     private final MemberRepository memberRepository;
     private final ChallengeRepository challengeRepository;
-    private final CertificationChallengeServiceImpl certificationChallengeService;
+    private final CertificationChallengeService certificationChallengeService;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
-    private final ChallengeServiceImpl challengeService;
+    private final ChallengeService challengeService;
 
     public MemberChallengeServiceImpl(
         MemberChallengeRepository memberChallengeRepository,
         MemberChallengeMapper memberChallengeMapper,
         MemberRepository memberRepository,
         ChallengeRepository challengeRepository,
-        CertificationChallengeServiceImpl certificationChallengeService,
+        CertificationChallengeService certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
-        ChallengeServiceImpl challengeService) {
+        ChallengeService challengeService) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;

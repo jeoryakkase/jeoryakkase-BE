@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
-public class CertificationChallengeServiceImpl {
+public class CertificationChallengeServiceImpl implements CertificationChallengeService {
 
     private final CertificationChallengeRepository certificationChallengeRepository;
     private final CertifiCationChallengeMapper certificationChallengeMapper;
