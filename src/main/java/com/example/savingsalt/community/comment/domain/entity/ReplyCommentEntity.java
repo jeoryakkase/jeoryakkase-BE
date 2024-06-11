@@ -37,7 +37,8 @@ public class ReplyCommentEntity extends BaseEntity {
     private MemberEntity memberEntity;
 
 
-    public ReplyCommentEntity(String content, CommentEntity parentComment, MemberEntity memberEntity) {
+    public ReplyCommentEntity(String content, CommentEntity parentComment,
+        MemberEntity memberEntity) {
         this.content = content;
         this.parentComment = parentComment;
         this.memberEntity = memberEntity;

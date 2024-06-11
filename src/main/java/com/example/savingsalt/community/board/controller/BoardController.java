@@ -87,8 +87,7 @@ public class BoardController {
     @Operation(summary = "팁 게시글 조회", description = "게시글 ID를 통해 팁 게시판의 게시글을 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음")
     })
     @GetMapping("/{id}")
     public ResponseEntity<BoardTypeTipReadResDto> getTipBoardById(@PathVariable("id") Long id) {
@@ -186,8 +185,7 @@ public class BoardController {
     @Operation(summary = "투표 게시글 조회", description = "게시글 ID를 통해 투표 게시판의 게시글을 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음")
     })
     @GetMapping("/{id}/votes")
     public ResponseEntity<BoardTypeVoteReadResDto> getVoteBoardById(@PathVariable("id") Long id) {
