@@ -4,7 +4,6 @@ import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +25,7 @@ public class BoardTypeVoteCreateReqDto {
             .memberEntity(member)
             .title(title)
             .contents(contents)
+            .category(category)
             .build();
     }
 /* no usage상태 + 에러 때문에 임의로 주석처리

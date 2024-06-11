@@ -4,6 +4,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDt
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.community.board.exception.BoardException.EmptyBoardException;
 import com.example.savingsalt.community.board.service.BoardService;
 import com.example.savingsalt.global.UnauthorizedException;
@@ -72,7 +73,7 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/tips")
-    public ResponseEntity<Page<BoardTypeTipReadResDto>> getTipBoards(
+    public ResponseEntity<Page<BoardTypeTipReadResDto>> getAllTipBoards(
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "5") int size) {
 
@@ -89,9 +90,9 @@ public class BoardController {
         @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @GetMapping("/{boardId}")
-    public ResponseEntity<BoardTypeTipReadResDto> getTipBoardById(@PathVariable Long boardId) {
-        BoardTypeTipReadResDto tipBoardById = boardService.findTipBoardById(boardId);
+    @GetMapping("/{id}")
+    public ResponseEntity<BoardTypeTipReadResDto> getTipBoardById(@PathVariable("id") Long id) {
+        BoardTypeTipReadResDto tipBoardById = boardService.findTipBoardById(id);
 
         return ResponseEntity.ok(tipBoardById);
     }
@@ -103,8 +104,8 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable Long boardId,
+    @PatchMapping("/{id}")
+    public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable("id") Long id,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -114,7 +115,7 @@ public class BoardController {
 
         MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
-        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId, requestDto,
+        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
             member);
         return ResponseEntity.ok(responseDto);
 
@@ -127,8 +128,8 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteTipBoard(@PathVariable Long boardId,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTipBoard(@PathVariable("id") Long id,
         @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
@@ -137,7 +138,7 @@ public class BoardController {
 
         MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
-        boardService.deleteTipBoard(boardId, member);
+        boardService.deleteTipBoard(id, member);
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
     }
@@ -188,10 +189,10 @@ public class BoardController {
         @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @GetMapping("/{boardId}/votes")
-    public ResponseEntity<BoardTypeVoteReadResDto> getVoteBoardById(@PathVariable Long boardId) {
+    @GetMapping("/{id}/votes")
+    public ResponseEntity<BoardTypeVoteReadResDto> getVoteBoardById(@PathVariable("id") Long id) {
 
-        BoardTypeVoteReadResDto VoteBoardById = boardService.findVoteBoardById(boardId);
+        BoardTypeVoteReadResDto VoteBoardById = boardService.findVoteBoardById(id);
 
         return ResponseEntity.ok(VoteBoardById);
     }
@@ -203,9 +204,9 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{boardId}/votes")
-    public ResponseEntity<?> updateVoteBoard(@PathVariable Long boardId,
-        @RequestBody BoardTypeVoteCreateReqDto requestDto,
+    @PatchMapping("/{id}/votes")
+    public ResponseEntity<?> updateVoteBoard(@PathVariable("id") Long id,
+        @RequestBody BoardTypeVoteUpdateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
@@ -214,7 +215,7 @@ public class BoardController {
 
         MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
-        BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(boardId,
+        BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(id,
             requestDto, member);
 
         return ResponseEntity.ok(responseDto);
@@ -227,8 +228,8 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @DeleteMapping("/{boardId}/votes")
-    public ResponseEntity<String> deleteVoteBoard(@PathVariable Long boardId,
+    @DeleteMapping("/{id}/votes")
+    public ResponseEntity<String> deleteVoteBoard(@PathVariable("id") Long id,
         @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
@@ -237,7 +238,7 @@ public class BoardController {
 
         MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
 
-        boardService.deleteVoteBoard(boardId, member);
+        boardService.deleteVoteBoard(id, member);
 
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
