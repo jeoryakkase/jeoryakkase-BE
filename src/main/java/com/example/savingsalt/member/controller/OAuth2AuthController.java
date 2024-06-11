@@ -84,7 +84,7 @@ public class OAuth2AuthController {
         @ApiResponse(responseCode = "400", description = "Invalid request or Google token exchange failed"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping("/google-authcode")
+    @PostMapping("/google-auth")
     public ResponseEntity<?> googleAuthToken(@RequestHeader("Authorization") String authorizationHeader) {
         return authenticateWithToken(authorizationHeader, "google");
     }
