@@ -1,4 +1,4 @@
-package com.example.savingsalt.config;
+package com.example.savingsalt.config.s3;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
