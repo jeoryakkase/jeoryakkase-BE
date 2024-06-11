@@ -27,7 +27,7 @@ public interface BadgeService {
     BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto, String imageUrl);
 
     // 뱃지 정보 수정
-    BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto);
+    BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto, String imageUrl);
 
     // 뱃지 삭제
     void deleteBadge(Long badgeId);

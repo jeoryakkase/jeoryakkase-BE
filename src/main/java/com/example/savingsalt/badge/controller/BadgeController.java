@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -104,11 +103,14 @@ public class BadgeController {
 
     // 뱃지 정보 수정
     @Operation(summary = "뱃지 정보 수정", description = "해당 뱃지의 뱃지 정보를 수정하는 API")
-    @PutMapping("/badges/{badgeId}")
+    @PutMapping(value = "/badges/{badgeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BadgeDto> updateBadge(
         @Parameter(description = "뱃지 ID") @PathVariable Long badgeId,
-        @Parameter(description = "수정할 뱃지의 정보") @Valid @RequestBody BadgeUpdateReqDto badgeUpdateReqDto) {
-        BadgeDto updatedBadgeDto = badgeService.updateBadge(badgeId, badgeUpdateReqDto);
+        @Parameter(description = "수정할 뱃지의 정보") @Valid @RequestPart BadgeUpdateReqDto badgeUpdateReqDto,
+        @RequestPart("uploadFile") MultipartFile multipartFile) throws IOException {
+        String imageUrl = s3Service.upload(multipartFile);
+
+        BadgeDto updatedBadgeDto = badgeService.updateBadge(badgeId, badgeUpdateReqDto, imageUrl);
 
         return (updatedBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             : ResponseEntity.ok(updatedBadgeDto);
