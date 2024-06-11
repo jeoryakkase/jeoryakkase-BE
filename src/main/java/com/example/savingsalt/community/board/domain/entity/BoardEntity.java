@@ -2,6 +2,7 @@ package com.example.savingsalt.community.board.domain.entity;
 
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
+import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.global.BaseEntity;
@@ -82,8 +83,22 @@ public class BoardEntity extends BaseEntity {
     public void decrementLikes() {
         this.totalLike--;
     }
+
     public void incrementView() {
         this.view++;
+    }
+
+    public MyPageBoardDto toMyPageBoardDto() {
+        MyPageBoardDto dto = new MyPageBoardDto();
+        dto.setId(this.id);
+        dto.setMemberId(this.memberEntity.getId());
+        dto.setTitle(this.title);
+        dto.setContents(this.contents);
+        dto.setTotalLike(this.totalLike);
+        dto.setView(this.view);
+        dto.setCategory(this.category);
+        dto.setImageUrls(this.imageUrls);
+        return dto;
     }
 
 }
