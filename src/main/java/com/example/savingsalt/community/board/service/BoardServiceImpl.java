@@ -344,6 +344,8 @@ public class BoardServiceImpl implements BoardService {
             .content(comment.getContent())
             .nickname(comment.getMemberEntity().getNickname())
             .replyComments(replyDtos)
+            .createdAt(comment.getCreatedAt())
+            .modifiedAt(comment.getModifiedAt())
             .build();
     }
 
@@ -352,6 +354,8 @@ public class BoardServiceImpl implements BoardService {
             .id(replyComment.getId())
             .content(replyComment.getContent())
             .nickname(replyComment.getMemberEntity().getNickname())
+            .createdAt(replyComment.getCreatedAt())
+            .modifiedAt(replyComment.getModifiedAt())
             .build();
     }
 

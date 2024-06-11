@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.comment.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,5 +17,7 @@ public class CommentResDto {
     private String content;
     private String nickname;
     private List<ReplyCommentResDto> replyComments;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
 }
