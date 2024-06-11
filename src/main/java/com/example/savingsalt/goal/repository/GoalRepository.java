@@ -4,6 +4,8 @@ import com.example.savingsalt.goal.domain.entity.GoalEntity;
 import com.example.savingsalt.goal.enums.GoalStatus;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +19,5 @@ public interface GoalRepository extends JpaRepository<GoalEntity, Long> {
     long countByMemberEntityAndGoalStatus(@Param("member") MemberEntity member,
         @Param("status") GoalStatus status);
 
-    List<GoalEntity> findAllByMemberEntity(MemberEntity member);
+    Page<GoalEntity> findAllByMemberEntity(MemberEntity member, Pageable pageable);
 }
