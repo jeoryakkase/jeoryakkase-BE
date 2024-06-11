@@ -1,5 +1,6 @@
 package com.example.savingsalt.config.s3;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -74,5 +75,23 @@ public class S3Service {
         }
 
         return imageUrls;
+    }
+
+    public void deleteFile(String imageUrl) throws IOException {
+        try {
+            amazonS3Client.deleteObject("my.eliceproject.s3.bucket", imageUrl);
+        } catch (SdkClientException e) {
+            throw new IOException("S3 " + imageUrl + " 객체 삭제에 에러가 발생했습니다.", e);
+        }
+    }
+
+    public void deleteFiles(List<String> imageUrls) throws IOException {
+        for (String imageUrl : imageUrls) {
+            try {
+                amazonS3Client.deleteObject("my.eliceproject.s3.bucket", imageUrl);
+            } catch (SdkClientException e) {
+                throw new IOException("S3 " + imageUrl + " 객체 삭제에 에러가 발생했습니다.", e);
+            }
+        }
     }
 }
