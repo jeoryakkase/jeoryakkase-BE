@@ -1,5 +1,8 @@
 package com.example.savingsalt.config;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.mapper.BadgeMainMapperImpl;
+import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.dto.LoginResponseDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
@@ -24,12 +27,18 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final BadgeServiceImpl badgeService;
+    private final BadgeMainMapperImpl badgeMainMapper;
+
     public CustomUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager,
         ObjectMapper objectMapper,
-        JwtTokenProvider jwtTokenProvider) {
+        JwtTokenProvider jwtTokenProvider, BadgeServiceImpl badgeService,
+        BadgeMainMapperImpl badgeMainMapper) {
         super.setAuthenticationManager(authenticationManager);
         this.objectMapper = objectMapper;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.badgeService = badgeService;
+        this.badgeMainMapper = badgeMainMapper;
         setFilterProcessesUrl("/api/login");
     }
 
@@ -87,10 +96,17 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         MemberEntity memberEntity = (MemberEntity) authResult.getPrincipal();
+
+        Long representativeBadgeId = memberEntity.getRepresentativeBadgeId();
+        BadgeDto badgeDto = null;
+        if (representativeBadgeId != null) {
+            badgeDto = badgeMainMapper.toDto(badgeService.findById(representativeBadgeId));
+        }
+
         LoginResponseDto loginResponseDto = LoginResponseDto.builder()
             .nickname(memberEntity.getNickname())
             .profileImage(memberEntity.getProfileImage())
-            .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
+            .badge(badgeDto)
             .build();
 
         // 응답 바디에 refresh token 설정

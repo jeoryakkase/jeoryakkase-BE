@@ -1,5 +1,8 @@
 package com.example.savingsalt.member.service;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.mapper.BadgeMainMapperImpl;
+import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import com.example.savingsalt.challenge.controller.MemberChallengeController;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.challenge.service.MemberChallengeServiceImpl;
@@ -51,6 +54,8 @@ public class MemberService {
     private final MemberChallengeServiceImpl memberChallengeService;
     private final BookmarkServiceImpl bookmarkService;
     private final GoalService goalService;
+    private final BadgeServiceImpl badgeService;
+    private final BadgeMainMapperImpl badgeMainMapper;
 
     // 회원가입
     @Transactional
@@ -244,6 +249,12 @@ public class MemberService {
     public MyPageResponseDto getMyPage(Long memberId) {
         MemberEntity memberEntity = memberMapper.toEntity(findMemberById(memberId));
 
+        Long representativeBadgeId = memberEntity.getRepresentativeBadgeId();
+        BadgeDto badgeDto = null;
+        if (representativeBadgeId != null) {
+            badgeDto = badgeMainMapper.toDto(badgeService.findById(representativeBadgeId));
+        }
+
         List<MyPageBoardDto> bookmarkBoards = bookmarkService.getBookmarks(memberId).stream()
             .map(BookmarkEntity::getBoardEntity)
             .map(BoardEntity::toMyPageBoardDto)
@@ -251,9 +262,10 @@ public class MemberService {
 
         MyPageResponseDto myPageResponseDto = MyPageResponseDto.builder()
             .memberId(memberId)
+            .nickname(memberEntity.getNickname())
             .profileImage(memberEntity.getProfileImage())
             .about(memberEntity.getAbout())
-            .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
+            .representativeBadge(badgeDto)
             .memberChallenges(memberChallengeService.getMemberChallenges(memberId))
             .goals(goalService.getAllGoals(memberEntity))
             .bookmarks(bookmarkBoards)

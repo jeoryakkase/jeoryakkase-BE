@@ -1,5 +1,8 @@
 package com.example.savingsalt.member.controller;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.mapper.BadgeMainMapperImpl;
+import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.dto.LoginResponseDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
@@ -59,7 +62,8 @@ public class OAuth2AuthController {
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final TokenRepository tokenRepository;
-    private final ObjectMapper objectMapper;
+    private final BadgeMainMapperImpl badgeMainMapper;
+    private final BadgeServiceImpl badgeService;
 
     private static final int ACCESS_TOKEN_EXPIRE_TIME = 2 * 60 * 60 * 1000; // 2시간
 
@@ -110,7 +114,21 @@ public class OAuth2AuthController {
             // DB에 저장
             saveTokenToDatabase(user, accessToken);
 
-            return ResponseEntity.status(HttpStatus.OK).build();
+            // 로그인 응답 DTO 생성
+            MemberEntity memberEntity = (MemberEntity) authentication.getPrincipal();
+            Long representativeBadgeId = memberEntity.getRepresentativeBadgeId();
+            BadgeDto badgeDto = null;
+            if (representativeBadgeId != null) {
+                badgeDto = badgeMainMapper.toDto(badgeService.findById(representativeBadgeId));
+            }
+
+            LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .nickname(memberEntity.getNickname())
+                .profileImage(memberEntity.getProfileImage())
+                .badge(badgeDto)
+                .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
