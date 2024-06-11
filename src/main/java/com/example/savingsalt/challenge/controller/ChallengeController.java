@@ -88,8 +88,13 @@ public class ChallengeController {
             MemberDto memberDto = memberService.findMemberByEmail(email);
             List<MemberChallengeJoinResDto> memberChallengesJoinResDto = memberChallengeService.getJoiningMemberChallenge(
                 memberDto.getId());
+
+            List<MemberChallengeJoinResDto> memberChallengesJoinSubList =
+                memberChallengesJoinResDto.size() >= 3 ? memberChallengesJoinResDto.subList(0, 3)
+                    : memberChallengesJoinResDto;
+
             challengeMainResDto = challengeMainResDto.toBuilder()
-                .memberChallengesJoinResDto(memberChallengesJoinResDto.subList(0, 3))
+                .memberChallengesJoinResDto(memberChallengesJoinSubList)
                 .build();
         }
         return (challengeMainResDto == null) ? ResponseEntity.status(HttpStatus.NO_CONTENT)
