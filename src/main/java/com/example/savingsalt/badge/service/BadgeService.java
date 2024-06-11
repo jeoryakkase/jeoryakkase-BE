@@ -24,7 +24,7 @@ public interface BadgeService {
     RepresentativeBadgeSetResDto setMemberRepresentativeBadge(Long memberId, String badgeName);
 
     // 뱃지 생성
-    BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto);
+    BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto, String imageUrl);
 
     // 뱃지 정보 수정
     BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto);
