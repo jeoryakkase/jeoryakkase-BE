@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public interface PollService {
     PollEntity createPollForBoard(Long boardId, LocalDateTime startTime, LocalDateTime endTime);
-    void vote(Long pollId, Long memberId, PollVoteChoice pollVoteChoice);
+    void vote(Long pollId, String email, PollVoteChoice pollVoteChoice);
     PollResultDto getPollResults(Long pollId);
 
     ///이건 없앨예정!!

@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PollVoteReqDto {
-    private Long memberId;
     private PollVoteChoice pollVoteChoice;
 }
