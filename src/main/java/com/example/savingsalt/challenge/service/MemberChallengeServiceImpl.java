@@ -66,6 +66,7 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 목록 조회
+    @Transactional(readOnly = true)
     public List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId) {
 
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
@@ -80,7 +81,58 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
+    // 참여 중인 챌린지 목록 조회
+    @Transactional(readOnly = true)
+    public List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId) {
+
+        Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+
+        List<MemberChallengeEntity> memberChallengeEntities;
+        List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        if (MemberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = MemberEntityOpt.get();
+            memberChallengeEntities = memberChallengeRepository.findAllByMemberEntity(memberEntity);
+            if (memberChallengeEntities.isEmpty()) {
+                throw new MemberChallengeNotFoundException();
+            } else {
+                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                    if (memberChallengeEntity.getChallengeStatus()
+                        .equals(ChallengeStatus.IN_PROGRESS)) {
+
+                        Long effectiveDate = ChronoUnit.DAYS.between(
+                            memberChallengeEntity.getStartDate().toLocalDate(),
+                            now.toLocalDate());
+
+                        MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
+                            .challengeTtile(
+                                memberChallengeEntity.getChallengeEntity().getChallengeTitle())
+                            .challengeTerm(
+                                memberChallengeEntity.getChallengeEntity().getChallengeTerm())
+                            .isTodayCertification(memberChallengeEntity.getIsTodayCertification())
+                            .startDate(memberChallengeEntity.getStartDate().toLocalDate())
+                            .endDate(memberChallengeEntity.getEndDate().toLocalDate())
+                            .effectiveDate(effectiveDate)
+                            .certificationChallengeDto(
+                                certificationChallengeService.getCertifiCationChallenge(
+                                    memberChallengeEntity))
+                            .build();
+
+                        memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
+                    }
+
+                }
+                return memberChallengeJoinResDtoList;
+            }
+
+        } else {
+            throw new MemberNotFoundException();
+        }
+    }
+
     // 회원 챌린지 생성
+    @Transactional
     public MemberChallengeCreateResDto createMemberChallenge(
         Long memberId, Long ChallengeId) {
 
@@ -121,6 +173,7 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 포기
+    @Transactional
     public MemberChallengeAbandonResDto abandonMemberChallenge(Long memberId,
         Long memberChallengeId) {
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
@@ -156,6 +209,7 @@ public class MemberChallengeServiceImpl implements
     }
 
     // 회원 챌린지 인증
+    @Transactional
     public MemberChallengeDto certifyDailyMemberChallenge(Long memberId, Long memberChallengeId,
         CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
 
@@ -257,71 +311,8 @@ public class MemberChallengeServiceImpl implements
         return null;
     }
 
-    // 참여 중인 챌린지 목록 조회
-    public List<MemberChallengeJoinResDto> getJoiningMemberChallenge(Long memberId) {
-
-        Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
-
-        List<MemberChallengeEntity> memberChallengeEntities;
-        List<MemberChallengeJoinResDto> memberChallengeJoinResDtoList = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
-
-        if (MemberEntityOpt.isPresent()) {
-            MemberEntity memberEntity = MemberEntityOpt.get();
-            memberChallengeEntities = memberChallengeRepository.findAllByMemberEntity(memberEntity);
-            if (memberChallengeEntities.isEmpty()) {
-                throw new MemberChallengeNotFoundException();
-            } else {
-                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-                    if (memberChallengeEntity.getChallengeStatus()
-                        .equals(ChallengeStatus.IN_PROGRESS)) {
-
-
-                        Long effectiveDate = ChronoUnit.DAYS.between(
-                            memberChallengeEntity.getStartDate().toLocalDate(),
-                            now.toLocalDate());
-
-                        MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
-                            .challengeTtile(
-                                memberChallengeEntity.getChallengeEntity().getChallengeTitle())
-                            .challengeTerm(
-                                memberChallengeEntity.getChallengeEntity().getChallengeTerm())
-                            .isTodayCertification(memberChallengeEntity.getIsTodayCertification())
-                            .startDate(memberChallengeEntity.getStartDate().toLocalDate())
-                            .endDate(memberChallengeEntity.getEndDate().toLocalDate())
-                            .effectiveDate(effectiveDate)
-                            .certificationChallengeDto(certificationChallengeService.getCertifiCationChallenge(memberChallengeEntity))
-                            .build();
-
-                        memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
-                    }
-
-                }
-                return memberChallengeJoinResDtoList;
-            }
-
-        } else {
-            throw new MemberNotFoundException();
-        }
-    }
-
-    private static LocalDateTime getLocalEndDateTime(ChallengeEntity challengeEntity,
-        LocalDateTime startDate) {
-
-        return switch (challengeEntity
-            .getChallengeTerm()) {
-            case "1일" -> startDate.plusDays(1);
-            case "3일" -> startDate.plusDays(3);
-            case "5일" -> startDate.plusDays(5);
-            case "1주" -> startDate.plusDays(7);
-            case "2주" -> startDate.plusDays(14);
-            case "3주" -> startDate.plusDays(21);
-            case "한 달" -> startDate.plusDays(30);
-            default -> throw new InvalidChallengeTermException();
-        };
-    }
-
     // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
+    @Transactional
     public void resetDailyMemberChallengeAuthentication() {
         List<MemberEntity> memberEntityList = memberRepository.findAll();
         for (MemberEntity memberEntity : memberEntityList) {
@@ -339,6 +330,7 @@ public class MemberChallengeServiceImpl implements
 
     // TODO: 영속성 컨텍스트 문제로 컬럼 삭제가 이루어지지 않는 문제 해결
     // 챌린지 인증 삭제
+    @Transactional
     public void deleteCertificationChallenge(Long memberId, Long memberChallengeId,
         Long certificationId) {
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
@@ -374,5 +366,22 @@ public class MemberChallengeServiceImpl implements
                 throw new CertificationChallengeNotFoundException();
             }
         }
+    }
+
+    // 챌린지 시작 시간과 챌린지 기간을 이용해 챌린지 종료 시간을 반환
+    private static LocalDateTime getLocalEndDateTime(ChallengeEntity challengeEntity,
+        LocalDateTime startDate) {
+
+        return switch (challengeEntity
+            .getChallengeTerm()) {
+            case "1일" -> startDate.plusDays(1);
+            case "3일" -> startDate.plusDays(3);
+            case "5일" -> startDate.plusDays(5);
+            case "1주" -> startDate.plusDays(7);
+            case "2주" -> startDate.plusDays(14);
+            case "3주" -> startDate.plusDays(21);
+            case "한 달" -> startDate.plusDays(30);
+            default -> throw new InvalidChallengeTermException();
+        };
     }
 }
