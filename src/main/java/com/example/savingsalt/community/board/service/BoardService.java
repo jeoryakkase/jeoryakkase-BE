@@ -4,6 +4,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDt
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import org.springframework.data.domain.Page;
 
@@ -36,7 +37,7 @@ public interface BoardService {
     BoardTypeVoteReadResDto findVoteBoardById(Long id);
 
     // 투표 게시글 수정
-    BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteCreateReqDto boardDto, MemberEntity member);
+    BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteUpdateReqDto boardDto, MemberEntity member);
 
     // 투표 게시글 삭제
     void deleteVoteBoard(Long id, MemberEntity member);

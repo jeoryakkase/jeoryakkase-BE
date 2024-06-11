@@ -4,6 +4,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDt
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.exception.BoardException;
@@ -17,15 +18,20 @@ import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity
 import com.example.savingsalt.community.comment.repository.CommentRepository;
 import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
-import com.example.savingsalt.community.poll.domain.PollResDto;
-import com.example.savingsalt.community.poll.service.PollService;
+import com.example.savingsalt.community.poll.domain.PollEntity;
+import com.example.savingsalt.community.poll.domain.PollResultDto;
+import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
+import com.example.savingsalt.community.poll.repository.PollRepository;
+import com.example.savingsalt.community.poll.service.PollServiceImpl;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,11 +42,13 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    private final PollService pollService;
+    private final PollServiceImpl pollService;
 
     private final CommentRepository commentRepository;
 
     private final ReplyCommentRepository replyCommentRepository;
+
+    private final PollRepository pollRepository;
 
 
     // 절약팁 게시글 작성
@@ -51,7 +59,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity boardEntity = requestDto.toEntity(member);
         try {
             BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
-            return toTipReadDto(savedBoardEntity);
+            return convertToTipReadResDto(savedBoardEntity);
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글을 작성하는 중 오류가 발생했습니다.", e);
         }
@@ -62,12 +70,12 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Page<BoardTypeTipReadResDto> findAllTipBoard(int page, int size) {
         BoardCategory category = BoardCategory.TIPS;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         try {
             Page<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
                 category, pageable);
 
-            return boards.map(this::toTipReadDto);
+            return boards.map(this::convertToTipReadResDto);
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글 목록을 조회하는 중 오류가 발생했습니다.", e);
         }
@@ -83,19 +91,20 @@ public class BoardServiceImpl implements BoardService {
             .orElseThrow(() -> new BoardNotFoundException());
 
         boardEntity.incrementView();
-        try {
-            boardRepository.save(boardEntity);
 
-            List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
-                boardEntity.getId());
-            List<CommentResDto> commentDtos = comments.stream()
-                .map(this::toCommentResDto)
-                .collect(Collectors.toList());
+        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+            boardEntity.getId());
 
-            return toTipReadDto(boardEntity, commentDtos);
-        } catch (Exception e) {
-            throw new BoardServiceException("팁 게시글을 조회하는 중 오류가 발생했습니다.", e);
+        if (comments == null) {
+            return convertToTipReadResDto(boardEntity);
         }
+
+        List<CommentResDto> commentDtos = comments.stream()
+            .map(this::toCommentResDto)
+            .collect(Collectors.toList());
+
+        return convertToTipReadResDto(boardEntity, commentDtos);
+
     }
 
     // 절약팁 게시글 수정
@@ -109,9 +118,15 @@ public class BoardServiceImpl implements BoardService {
             throw new BoardException.UnauthorizedPostUpdateException();
         }
 
+        BoardEntity updateBoard = board.toBuilder()
+            .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
+            .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
+            .imageUrls(Optional.ofNullable(requestDto.getImageUrls()).orElse(board.getImageUrls()))
+            .build();
+
         try {
-            board.updateTipBoard(requestDto);
-            return toTipReadDto(board);
+            BoardEntity updatedBoard = boardRepository.save(updateBoard);
+            return convertToTipReadResDto(updatedBoard);
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
@@ -147,9 +162,10 @@ public class BoardServiceImpl implements BoardService {
             boardRepository.save(board);
 
             PollCreateReqDto pollReqDto = requestDto.getPollReqDto();
-            pollService.createPollForBoard(board.getId(), pollReqDto.getStartTime(), pollReqDto.getEndTime());
+            pollService.createPollForBoard(board.getId(), pollReqDto.getStartTime(),
+                pollReqDto.getEndTime());
 
-            return toVoteReadDto(board);
+            return convertToVoteReadResDto(board);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 작성하는 중 오류가 발생했습니다.", e);
         }
@@ -164,7 +180,7 @@ public class BoardServiceImpl implements BoardService {
         try {
             Page<BoardEntity> boards = boardRepository.findAllByCategoryOrderByCreatedAtDesc(
                 category, pageable);
-            return boards.map(this::toVoteReadDto);
+            return boards.map(this::convertToVoteReadResDto);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글 목록을 조회 중 오류가 발생했습니다.", e);
         }
@@ -181,25 +197,32 @@ public class BoardServiceImpl implements BoardService {
 
         boardEntity.incrementView();
 
-        try {
-            boardRepository.save(boardEntity);
+        PollEntity pollEntity = pollRepository.findByBoardEntityId(id);
+        if (pollEntity == null) {
+            throw new PollNotFoundException();
 
-            List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
-                boardEntity.getId());
-            List<CommentResDto> commentDtos = comments.stream()
-                .map(this::toCommentResDto)
-                .collect(Collectors.toList());
-
-            return toVoteReadDto(boardEntity, commentDtos);
-        } catch (Exception e) {
-            throw new BoardServiceException("투표 게시글을 조회하는 중 오류가 발생했습니다.", e);
         }
+        pollService.getPollResults(pollEntity.getId());
+
+        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+            boardEntity.getId());
+
+        if (comments == null) {
+            return convertToVoteReadResDto(boardEntity);
+        }
+
+        List<CommentResDto> commentDtos = comments.stream()
+            .map(this::toCommentResDto)
+            .collect(Collectors.toList());
+
+        return convertToVoteReadResDto(boardEntity, commentDtos);
+
     }
 
     // 투표 게시글 수정
     @Transactional
     @Override
-    public BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteCreateReqDto requestDto,
+    public BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteUpdateReqDto requestDto,
         MemberEntity member) {
 
         BoardEntity board = findBoard(id, requestDto.getCategory());
@@ -208,9 +231,15 @@ public class BoardServiceImpl implements BoardService {
             throw new BoardException.UnauthorizedPostUpdateException();
         }
 
+        BoardEntity updateBoard = board.toBuilder()
+            .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
+            .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
+            .build();
+
+        BoardEntity updatedBoard = boardRepository.save(updateBoard);
+
         try {
-            board.updateVoteBoard(requestDto);
-            return toVoteReadDto(board);
+            return convertToVoteReadResDto(updatedBoard);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
@@ -234,9 +263,8 @@ public class BoardServiceImpl implements BoardService {
         }
     }
 
-
     // BoardEntity를 BoardTypeTipReadResDto로 변환
-    private BoardTypeTipReadResDto toTipReadDto(BoardEntity boardEntity) {
+    private BoardTypeTipReadResDto convertToTipReadResDto(BoardEntity boardEntity) {
         return BoardTypeTipReadResDto.builder()
             .nickname(boardEntity.getMemberEntity().getNickname())
             .title(boardEntity.getTitle())
@@ -245,10 +273,11 @@ public class BoardServiceImpl implements BoardService {
             .view(boardEntity.getView())
             .imageUrls(boardEntity.getImageUrls())
             .createdAt(boardEntity.getCreatedAt())
+            .modifiedAt(boardEntity.getModifiedAt())
             .build();
     }
 
-    private BoardTypeTipReadResDto toTipReadDto(BoardEntity boardEntity,
+    private BoardTypeTipReadResDto convertToTipReadResDto(BoardEntity boardEntity,
         List<CommentResDto> comments) {
         return BoardTypeTipReadResDto.builder()
             .nickname(boardEntity.getMemberEntity().getNickname())
@@ -257,11 +286,17 @@ public class BoardServiceImpl implements BoardService {
             .comments(comments)
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
+            .imageUrls(boardEntity.getImageUrls())
+            .createdAt(boardEntity.getCreatedAt())
+            .modifiedAt(boardEntity.getModifiedAt())
             .build();
     }
 
-    private BoardTypeVoteReadResDto toVoteReadDto(BoardEntity boardEntity) {
-        PollResDto pollResDto = pollService.findPollByBoardId(boardEntity.getId());
+    private BoardTypeVoteReadResDto convertToVoteReadResDto(BoardEntity boardEntity) {
+
+        PollEntity pollbyBoardEntityId = pollRepository.findByBoardEntityId(
+            boardEntity.getId());
+        PollResultDto pollResults = pollService.getPollResults(pollbyBoardEntityId.getId());
 
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
@@ -269,13 +304,19 @@ public class BoardServiceImpl implements BoardService {
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .view(boardEntity.getView())
-            .pollResDto(pollResDto)
+            .totalLike(boardEntity.getTotalLike())
+            .createdAt(boardEntity.getCreatedAt())
+            .modifiedAt(boardEntity.getModifiedAt())
+            .pollResultDto(pollResults)
             .build();
     }
 
-    private BoardTypeVoteReadResDto toVoteReadDto(BoardEntity boardEntity,
+    private BoardTypeVoteReadResDto convertToVoteReadResDto(BoardEntity boardEntity,
         List<CommentResDto> comments) {
-        PollResDto pollResDto = pollService.findPollByBoardId(boardEntity.getId());
+
+        PollEntity pollbyBoardEntityId = pollRepository.findByBoardEntityId(
+            boardEntity.getId());
+        PollResultDto pollResults = pollService.getPollResults(pollbyBoardEntityId.getId());
 
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
@@ -284,7 +325,10 @@ public class BoardServiceImpl implements BoardService {
             .contents(boardEntity.getContents())
             .comments(comments)
             .view(boardEntity.getView())
-            .pollResDto(pollResDto)
+            .totalLike(boardEntity.getTotalLike())
+            .createdAt(boardEntity.getCreatedAt())
+            .modifiedAt(boardEntity.getModifiedAt())
+            .pollResultDto(pollResults)
             .build();
     }
 

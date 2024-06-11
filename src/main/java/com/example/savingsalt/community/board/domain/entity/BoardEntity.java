@@ -1,7 +1,5 @@
 package com.example.savingsalt.community.board.domain.entity;
 
-import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.global.BaseEntity;
@@ -29,7 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @Entity
 public class BoardEntity extends BaseEntity {
 
@@ -63,17 +61,6 @@ public class BoardEntity extends BaseEntity {
 
     @OneToOne(mappedBy = "boardEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private PollEntity pollEntity;
-
-    public void updateTipBoard(BoardTypeTipCreateReqDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.contents = requestDto.getContents();
-        this.imageUrls = requestDto.getImageUrls();
-    }
-
-    public void updateVoteBoard(BoardTypeVoteCreateReqDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.contents = requestDto.getContents();
-    }
 
     public void incrementLikes() {
         this.totalLike++;
