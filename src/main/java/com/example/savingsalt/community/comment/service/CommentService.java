@@ -34,6 +34,8 @@ public class CommentService {
 
         CommentEntity comment = new CommentEntity(requestDto, savedboard, member);
 
+        commentRepository.save(comment);
+
         return convertToDto(comment);
     }
 
@@ -52,9 +54,13 @@ public class CommentService {
             throw new CommentException.CannotUpdateCommentWithReplies();
         }
 
-        comment.update(requestDto);
+        CommentEntity updateComment = comment.toBuilder()
+            .content(requestDto.getContent())
+            .build();
 
-        return convertToDto(comment);
+        commentRepository.save(updateComment);
+
+        return convertToDto(updateComment);
     }
 
     @Transactional
@@ -86,7 +92,7 @@ public class CommentService {
         return CommentResDto.builder()
             .id(comment.getId())
             .content(comment.getContent())
-            .nickname(comment.getNickname())
+            .nickname(comment.getMemberEntity().getNickname())
             .build();
     }
 }
