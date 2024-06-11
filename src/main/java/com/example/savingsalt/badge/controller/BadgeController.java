@@ -1,13 +1,11 @@
 package com.example.savingsalt.badge.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.badge.domain.dto.BadgeCreateReqDto;
 import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.service.BadgeServiceImpl;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.service.MemberService;
@@ -40,13 +38,13 @@ public class BadgeController {
 
     private final BadgeServiceImpl badgeService;
     private final MemberService memberService;
-    private final AmazonS3 amazonS3Client;
+    private final S3Service s3Service;
 
     public BadgeController(BadgeServiceImpl badgeService,
-        MemberService memberService, AmazonS3 amazonS3Client) {
+        MemberService memberService, S3Service s3Service) {
         this.badgeService = badgeService;
         this.memberService = memberService;
-        this.amazonS3Client = amazonS3Client;
+        this.s3Service = s3Service;
     }
 
     // 모든 뱃지 조회
@@ -96,26 +94,7 @@ public class BadgeController {
     public ResponseEntity<BadgeDto> createBadge(
         @Parameter(description = "생성할 뱃지의 정보") @Valid @RequestPart BadgeCreateReqDto badgeCreateReqDto,
         @RequestPart("uploadFile") MultipartFile multipartFile) throws IOException {
-        String timestamp = String.valueOf(System.currentTimeMillis());
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());
-        objectMetadata.setContentLength(multipartFile.getSize());
-
-        String uploadFileName = multipartFile.getOriginalFilename() + "/" + timestamp;
-
-        PutObjectRequest putObjectRequest = new PutObjectRequest(
-            "my.eliceproject.s3.bucket",
-            uploadFileName,
-            multipartFile.getInputStream(),
-            objectMetadata
-        );
-
-        amazonS3Client.putObject(putObjectRequest);
-
-        String imageUrl = String.format(
-            "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
-                + uploadFileName);
+        String imageUrl = s3Service.upload(multipartFile);
 
         BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto, imageUrl);
 
