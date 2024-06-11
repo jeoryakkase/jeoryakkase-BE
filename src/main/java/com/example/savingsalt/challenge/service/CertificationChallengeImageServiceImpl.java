@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class CertificationChallengeImageServiceImpl {
+public class CertificationChallengeImageServiceImpl implements CertificationChallengeImageService {
 
     private final CertificationChallengeImageRepository certificationChallengeImageRepository;
     private final CertificationChallengeRepository certificationChallengeRepository;

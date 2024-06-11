@@ -127,7 +127,7 @@ public class MemberChallengeController {
     @DeleteMapping(value = "/members/challenges/{challengeId}/certify/{certificationId}")
     public ResponseEntity<Void> certifyDailyMemberChallenge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
-        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId,
+        @Parameter(description = "회원 챌린지 ID") @PathVariable Long challengeId,
         @Parameter(description = "챌린지 인증 ID") @PathVariable Long certificationId) {
 
         MemberEntity memberEntity = memberService.getMemberFromRequest(request);
