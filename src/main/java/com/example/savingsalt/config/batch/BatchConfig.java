@@ -18,6 +18,9 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Autowired
     private ResetMemberChallengeAuthenticationTasklet ChallengeTasklet;
 
+    @Autowired
+    private UpdateExpiredGoalsTasklet GoalsTasklet;
+
     @Bean
     public Job resetMemberChallengeJob(JobRepository jobRepository,
         PlatformTransactionManager transactionManager) throws DuplicateJobException {
@@ -27,10 +30,30 @@ public class BatchConfig extends DefaultBatchConfiguration {
         return job;
     }
 
+    @Bean
     public Step resetMemberChallengeStep(JobRepository jobRepository,
         PlatformTransactionManager transactionManager) {
         Step step = new StepBuilder("resetMemberChallengeStep", jobRepository)
             .tasklet(ChallengeTasklet, transactionManager)
+            .build();
+
+        return step;
+    }
+
+    @Bean
+    public Job updateExpiredGoalsJob(JobRepository jobRepository,
+        PlatformTransactionManager transactionManager) throws DuplicateJobException {
+        Job job = new JobBuilder("updateExpiredGoalsJob", jobRepository)
+            .start(updateExpiredGoalsStep(jobRepository, transactionManager))
+            .build();
+        return job;
+    }
+
+    @Bean
+    public Step updateExpiredGoalsStep(JobRepository jobRepository,
+        PlatformTransactionManager transactionManager) {
+        Step step = new StepBuilder("updateExpiredGoalsStep", jobRepository)
+            .tasklet(GoalsTasklet, transactionManager)
             .build();
 
         return step;
