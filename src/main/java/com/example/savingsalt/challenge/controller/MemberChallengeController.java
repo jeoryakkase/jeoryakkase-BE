@@ -7,7 +7,6 @@ import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
-import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.service.MemberChallengeService;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
@@ -153,24 +152,6 @@ public class MemberChallengeController {
         if (memberChallengeAbandonResDto != null) {
             return ResponseEntity.status(HttpStatus.OK)
                 .body(memberChallengeAbandonResDto);
-        }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    // 참여 중인 챌린지 목록 조회
-    @Operation(summary = "참여 중인 회원 챌린지 목록 조회", description = "참여 중인 회원 챌린지의 정보를 리스트로 응답 받는 API")
-    @GetMapping("/members/challenges/join")
-    public ResponseEntity<List<MemberChallengeJoinResDto>> getjoinMemberChallenge(
-        @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request) {
-
-        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
-
-        List<MemberChallengeJoinResDto> memberChallengeJoinResDtos = memberChallengeService.getJoiningMemberChallenge(
-            memberEntity.getId());
-
-        if (!memberChallengeJoinResDtos.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body(memberChallengeJoinResDtos);
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
