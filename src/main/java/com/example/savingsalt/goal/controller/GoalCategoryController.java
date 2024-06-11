@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,11 +61,10 @@ public class GoalCategoryController {
         @ApiResponse(responseCode = "404", description = "Not Found")
     })
     @GetMapping("/goal/categories")
-    public ResponseEntity<List<GoalCategoryResDto>> getGoalCategoriesByUser(
-        @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Page<GoalCategoryResDto>> getGoalCategoriesByUser(
+        @AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
         String userEmail = userDetails.getUsername(); // 인증된 사용자 정보
-        List<GoalCategoryResDto> goalCategories = goalCategoryService.getGoalCategoriesByUser(
-            userEmail);
+        Page<GoalCategoryResDto> goalCategories = goalCategoryService.getGoalCategoriesByUser(userEmail, pageable);
         return ResponseEntity.ok(goalCategories);
     }
 }
