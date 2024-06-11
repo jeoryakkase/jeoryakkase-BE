@@ -52,13 +52,13 @@ public class PollServiceImpl implements PollService {
     }
 
     @Transactional
-    public void vote(Long pollId, Long memberId, PollVoteChoice pollVoteChoice) {
+    public void vote(Long pollId, String email, PollVoteChoice pollVoteChoice) {
         PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
             PollNotFoundException::new);
-        MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
+        MemberEntity memberEntity = memberRepository.findByEmail(email).orElseThrow(
             MemberNotFoundException::new);
 
-        if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberId)) {
+        if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberEntity.getId())) {
             throw new PollException.UserAlreadyVotedException();
         }
 
