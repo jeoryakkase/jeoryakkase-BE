@@ -47,6 +47,7 @@ public class MemberChallengeServiceImpl implements
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeService challengeService;
 
+
     public MemberChallengeServiceImpl(
         MemberChallengeRepository memberChallengeRepository,
         MemberChallengeMapper memberChallengeMapper,

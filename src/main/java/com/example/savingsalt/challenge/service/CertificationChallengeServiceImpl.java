@@ -6,6 +6,8 @@ import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEnti
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCationChallengeMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,15 +20,19 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
     private final CertificationChallengeRepository certificationChallengeRepository;
     private final CertifiCationChallengeMapper certificationChallengeMapper;
     private final CertificationChallengeImageServiceImpl certificationChallengeImageService;
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     public CertificationChallengeServiceImpl(
         CertificationChallengeRepository certificationChallengeRepository,
         CertifiCationChallengeMapper certificationChallengeMapper,
-        CertificationChallengeImageServiceImpl certificationChallengeImageService) {
+        CertificationChallengeImageServiceImpl certificationChallengeImageService,
+        EntityManager entityManager) {
 
         this.certificationChallengeRepository = certificationChallengeRepository;
         this.certificationChallengeMapper = certificationChallengeMapper;
         this.certificationChallengeImageService = certificationChallengeImageService;
+        this.entityManager = entityManager;
     }
 
     // 챌린지 인증 내용 조회
@@ -71,6 +77,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
 
     // 챌린지 인증 삭제
     public void deleteCertificationChallengeById(Long certificationChallengeId) {
+        entityManager.clear();
         certificationChallengeRepository.deleteById(certificationChallengeId);
     }
 }
