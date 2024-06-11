@@ -33,14 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Challenge", description = "Challenge API")
-public class ChallengeServiceController {
+public class ChallengeController {
 
     private final ChallengeServiceImpl challengeService;
     private final MemberChallengeServiceImpl memberChallengeService;
     private final MemberService memberService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public ChallengeServiceController(ChallengeServiceImpl challengeService,
+    public ChallengeController(ChallengeServiceImpl challengeService,
         MemberChallengeServiceImpl memberChallengeService, JwtTokenProvider jwtTokenProvider,
         MemberService memberService) {
         this.challengeService = challengeService;
