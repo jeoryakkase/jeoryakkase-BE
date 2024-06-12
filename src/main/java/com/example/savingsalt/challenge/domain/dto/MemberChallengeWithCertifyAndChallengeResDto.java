@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MemberChallengeWithCertifyAndChallengeResDto {
 
+    private Long id;
+
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;

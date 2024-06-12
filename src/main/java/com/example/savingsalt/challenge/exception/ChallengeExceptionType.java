@@ -12,7 +12,8 @@ public enum ChallengeExceptionType {
     INVALID_CHALLENGE_TYPE("챌린지 목표 금액, 챌린지 목표 횟수 중 하나만 꼭 존재해야 됩니다."),
     NOT_FOUND_CHALLENGE_TYPE("라는 챌린지 유형은 존재하지 않습니다.(GOAL, COUNT 존재)."),
     INVALID_CHALLENGE_TERM("챌린지 기간은 '1일', '3일', '5일', '1주', '2주', '3주', '한 달' 중 하나로 설정되어 있어야 합니다."),
-    ALREADY_SUCCEEDED("이미 완료된 챌린지 입니다.");
+    ALREADY_SUCCEEDED("이미 완료된 챌린지 입니다."),
+    ALREADY_IN_PROGRESS_CHALLENGE("이미 진행 중인 챌린지 입니다.");
 
     private final String exceptionMessage;
 }
