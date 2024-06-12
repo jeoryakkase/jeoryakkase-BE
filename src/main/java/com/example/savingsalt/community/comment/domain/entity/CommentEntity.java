@@ -2,6 +2,7 @@ package com.example.savingsalt.community.comment.domain.entity;
 
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.comment.domain.dto.CommentReqDto;
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.Entity;
@@ -41,10 +42,29 @@ public class CommentEntity extends BaseEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    public CommentEntity(CommentReqDto requestDto, BoardEntity saveBoard, MemberEntity member) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private CommentEntity parentComment;
+
+    private int depth;
+
+    private Long level;
+
+    public CommentEntity(CommentReqDto requestDto, BoardEntity saveBoard, MemberEntity member, CommentEntity parentComent, int depth, Long level) {
         this.content = requestDto.getContent();
         this.boardEntity = saveBoard;
         this.memberEntity = member;
+        this.parentComment = parentComent;
+        this.depth = depth;
+        this.level = level;
+    }
+
+    public void updateCotent(String content) {
+        this.content = content;
+    }
+
+    public void updateReply(ReplyCommentReqDto requestDto) {
+        this.content = requestDto.getContent();
     }
 
 

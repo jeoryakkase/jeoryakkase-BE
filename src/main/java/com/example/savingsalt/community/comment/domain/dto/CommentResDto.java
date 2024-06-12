@@ -16,8 +16,10 @@ public class CommentResDto {
     private Long id;
     private String content;
     private String nickname;
-    private List<ReplyCommentResDto> replyComments;
+    private List<CommentResDto> replyComments;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private int depth;
+    private Long level;
 
 }
