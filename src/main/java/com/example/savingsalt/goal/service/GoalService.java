@@ -54,7 +54,8 @@ public class GoalService {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);
 
-        Page<GoalEntity> goalEntities = goalRepository.findAllByMemberEntity(memberEntity, pageable);
+        Page<GoalEntity> goalEntities = goalRepository.findAllByMemberEntity(memberEntity,
+            pageable);
         return goalEntities.map(GoalResponseDto::fromEntity);
     }
 

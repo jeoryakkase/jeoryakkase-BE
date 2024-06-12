@@ -62,9 +62,11 @@ public class GoalCategoryController {
     })
     @GetMapping("/goal/categories")
     public ResponseEntity<Page<GoalCategoryResDto>> getGoalCategoriesByUser(
-        @AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Parameter(description = "페이지네이션 파라미터: 페이지 번호(page), 페이지 크기(size), 정렬(sort)") Pageable pageable) {
         String userEmail = userDetails.getUsername(); // 인증된 사용자 정보
-        Page<GoalCategoryResDto> goalCategories = goalCategoryService.getGoalCategoriesByUser(userEmail, pageable);
+        Page<GoalCategoryResDto> goalCategories = goalCategoryService.getGoalCategoriesByUser(
+            userEmail, pageable);
         return ResponseEntity.ok(goalCategories);
     }
 }

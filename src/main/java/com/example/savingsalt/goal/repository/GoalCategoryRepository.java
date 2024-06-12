@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GoalCategoryRepository extends JpaRepository<GoalCategoryEntity, Long> {
+
     Page<GoalCategoryEntity> findByMemberEntity(MemberEntity memberEntity, Pageable pageable);
 }

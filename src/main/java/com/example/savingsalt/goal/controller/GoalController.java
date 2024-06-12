@@ -90,7 +90,7 @@ public class GoalController {
     @GetMapping("/goals")
     public ResponseEntity<Page<GoalResponseDto>> getAllGoals(
         @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails,
-        Pageable pageable) {
+        @Parameter(description = "페이지네이션 파라미터: 페이지 번호(page), 페이지 크기(size), 정렬(sort)") Pageable pageable) {
         Page<GoalResponseDto> goals = goalService.getAllGoals(userDetails, pageable);
         return ResponseEntity.ok(goals);
     }

@@ -24,7 +24,8 @@ public class GoalStatusScheduler {
         List<GoalEntity> goals = goalRepository.findAll();
 
         for (GoalEntity goal : goals) {
-            if (goal.getGoalStatus() == GoalStatus.PROCEEDING && LocalDate.now().isAfter(goal.getGoalEndDate())) {
+            if (goal.getGoalStatus() == GoalStatus.PROCEEDING && LocalDate.now()
+                .isAfter(goal.getGoalEndDate())) {
                 if (goal.getCurrentAmount() < goal.getGoalAmount()) {
                     goal.updateGoalStatus(GoalStatus.FAILURE);
                     goalRepository.save(goal);

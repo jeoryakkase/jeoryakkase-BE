@@ -110,8 +110,10 @@ public class GoalCertificationController {
     @GetMapping("/goals/{goalId}/certifications")
     public ResponseEntity<Page<GoalCertificationResponseDto>> getCertificationsByGoal(
         @Parameter(description = "인증을 조회할 목표의 ID", required = true) @PathVariable Long goalId,
-        @AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
-        Page<GoalCertificationResponseDto> certifications = certificationService.getCertificationsByGoal(goalId, userDetails, pageable);
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Parameter(description = "페이지네이션 파라미터: 페이지 번호(page), 페이지 크기(size), 정렬(sort)") Pageable pageable) {
+        Page<GoalCertificationResponseDto> certifications = certificationService.getCertificationsByGoal(
+            goalId, userDetails, pageable);
         return ResponseEntity.ok(certifications);
     }
 
