@@ -109,7 +109,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
             .badge(badgeDto)
             .build();
 
-        // 응답 바디에 refresh token 설정
+        // 응답 바디에 refresh token 및 user 정보 설정
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("refreshToken", refreshToken);
         String loginResponseJson = objectMapper.writeValueAsString(loginResponseDto);
