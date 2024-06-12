@@ -81,12 +81,29 @@ public class MemberChallengeServiceImpl implements
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
+            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
 
-            return memberChallengeWithCertifyAndChallengeMapper.toDto(
-                memberChallengeRepository.findByMemberEntity(memberEntity));
+            Optional<MemberChallengeEntity> memberChallengeEntityOpt = memberChallengeRepository.findById(
+                memberChallengeId);
+
+            if (memberChallengeEntityOpt.isPresent()) {
+                MemberChallengeEntity foundMemberChallenge = memberChallengeEntityOpt.get();
+
+                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                    if (memberChallengeEntity.getId().equals(foundMemberChallenge.getId())) {
+                        return memberChallengeWithCertifyAndChallengeMapper.toDto(
+                            foundMemberChallenge);
+                    }
+                }
+
+            } else {
+                throw new MemberChallengeNotFoundException();
+            }
+
         } else {
             throw new MemberNotFoundException();
         }
+        return null;
     }
 
     // 회원 챌린지 목록 조회
