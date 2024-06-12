@@ -13,6 +13,9 @@ public interface MemberChallengeService {
     // 회원 챌린지 목록 조회
     List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId);
 
+    // 회원 챌린지 단일 조회
+    MemberChallengeWithCertifyAndChallengeResDto getMemberChallenge(Long memberId, Long memberChallengeId);
+
     // 회원 챌린지 생성
     MemberChallengeCreateResDto createMemberChallenge(Long memberId, Long ChallengeId);
 

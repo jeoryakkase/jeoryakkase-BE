@@ -21,4 +21,10 @@ public class CertificationChallengeDto {
     private String content;
 
     private String saveMoney;
+
+    private String nickname;
+
+    private String profileImage;
+
+    private Long representativeBadgeId;
 }
