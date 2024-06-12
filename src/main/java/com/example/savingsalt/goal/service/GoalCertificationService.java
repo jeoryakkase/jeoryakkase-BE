@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
+import com.example.savingsalt.goal.domain.dto.GoalCertificationStatisticsResDto;
 import com.example.savingsalt.goal.domain.entity.GoalCertificationEntity;
 import com.example.savingsalt.goal.domain.entity.GoalEntity;
 import com.example.savingsalt.goal.enums.GoalStatus;
@@ -124,5 +125,14 @@ public class GoalCertificationService {
             goalEntity.updateGoalStatus(GoalStatus.COMPLETE);
         }
         goalRepository.save(goalEntity);
+    }
+
+    public GoalCertificationStatisticsResDto getTotalCertificationStatistics(
+        UserDetails userDetails) {
+        MemberEntity member = memberRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(() -> new MemberNotFoundException());
+
+        Long totalAmount = certificationRepository.sumAllCertificationMoneyByMember(member);
+        return new GoalCertificationStatisticsResDto(totalAmount);
     }
 }

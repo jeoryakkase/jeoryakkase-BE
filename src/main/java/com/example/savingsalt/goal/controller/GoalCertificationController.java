@@ -3,6 +3,7 @@ package com.example.savingsalt.goal.controller;
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
+import com.example.savingsalt.goal.domain.dto.GoalCertificationStatisticsResDto;
 import com.example.savingsalt.goal.service.GoalCertificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -106,5 +107,29 @@ public class GoalCertificationController {
         Page<GoalCertificationResponseDto> certifications = certificationService.getCertificationsByGoal(
             goalId, userDetails, pageable);
         return ResponseEntity.ok(certifications);
+    }
+
+    // 목표 인증 통계
+    @Operation(summary = "모든 목표 인증 통계 조회", description = "사용자의 모든 목표 인증에 대한 일일, 월간 및 총 인증 금액을 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "인증 통계가 성공적으로 조회됨",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = GoalCertificationStatisticsResDto.class))),
+        @ApiResponse(responseCode = "401", description = "인증 실패",
+            content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "서버 오류",
+            content = @Content(mediaType = "application/json"))
+    })
+    @GetMapping("/goals/certifications/statistics")
+    public ResponseEntity<GoalCertificationStatisticsResDto> getAllCertificationStatistics(
+        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            GoalCertificationStatisticsResDto statistics = certificationService.getTotalCertificationStatistics(
+                userDetails);
+            return ResponseEntity.ok(statistics);
+        } catch (Exception e) {
+            logger.error("Error retrieving all certification statistics", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
