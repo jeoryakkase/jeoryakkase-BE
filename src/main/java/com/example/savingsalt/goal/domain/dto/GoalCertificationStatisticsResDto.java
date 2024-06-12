@@ -38,4 +38,7 @@ public class GoalCertificationStatisticsResDto {
 
     // 오늘 날짜
     private LocalDate todayDate;
+
+    // 현재 년도와 달
+    private String yearMonth;
 }

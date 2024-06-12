@@ -169,6 +169,7 @@ public class GoalCertificationService {
             .monthlyCertifications(uniqueMonthlyContents)
             .monthlyCertificationPercentages(percentages)
             .todayDate(today)
+            .yearMonth("" + today.getYear() + ". " + today.getMonthValue())
             .build();
     }
 }
