@@ -8,13 +8,10 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     List<CommentEntity> findAllByBoardEntityIdOrderByCreatedAtAsc(Long boardId);
 
-
-    List<CommentEntity> findAllByParentComment(CommentEntity parentComment);
-
     boolean existsByParentComment(CommentEntity parentComment);
 
-//    List<CommentEntity> findAllByParentCommentOrderByCreatedAtAsc(CommentEntity parentComment);
-//
-//    List<CommentEntity> findAllByBoardEntityId(Long boardId);
+    List<CommentEntity> findAllByParentCommentOrderByCreatedAtAsc(CommentEntity parentComment);
+
+    List<CommentEntity> findAllByBoardEntityId(Long boardId);
 }
 
