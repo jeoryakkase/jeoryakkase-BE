@@ -1,8 +1,6 @@
 package com.example.savingsalt.community.like.service;
 
-import com.example.savingsalt.community.like.domain.MemberLikeDto;
-
 public interface MemberLikeService {
-    String likePost(MemberLikeDto memberLikeDto);
+    String likePost(String email, Long boardId);
     int countLikes(Long boardId);
 }

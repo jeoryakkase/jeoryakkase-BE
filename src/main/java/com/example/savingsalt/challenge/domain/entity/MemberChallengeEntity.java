@@ -64,7 +64,7 @@ public class MemberChallengeEntity {
     @Column(name = "total_save_money", nullable = false)
     private Integer totalSaveMoney;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "memberChallengeEntity", cascade = CascadeType.ALL)
     private List<CertificationChallengeEntity> certificationChallengeEntities = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

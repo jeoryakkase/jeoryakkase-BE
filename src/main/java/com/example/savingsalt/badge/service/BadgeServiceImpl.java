@@ -140,8 +140,12 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 생성
-    public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto) {
+    public BadgeDto createBadge(BadgeCreateReqDto badgeCreateReqDto, String imageUrl) {
         BadgeEntity badgeEntity = badgeMainMapper.toEntity(badgeCreateReqDto);
+
+        badgeEntity = badgeEntity.toBuilder()
+            .badgeImage(imageUrl)
+            .build();
         BadgeEntity createdBadge = badgeRepository.save(badgeEntity);
 
         BadgeDto createdBadgeDto = badgeMainMapper.toDto(createdBadge);
@@ -150,14 +154,15 @@ public class BadgeServiceImpl implements BadgeService {
     }
 
     // 뱃지 정보 수정
-    public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto) {
+    public BadgeDto updateBadge(Long badgeId, BadgeUpdateReqDto badgeUpdateReqDto,
+        String imageUrl) {
         BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
         BadgeEntity updateBadgeEntity = badgeEntity.toBuilder()
             .name(Optional.ofNullable(badgeUpdateReqDto.getName()).orElse(badgeEntity.getName()))
             .badgeDesc(Optional.ofNullable(badgeUpdateReqDto.getBadgeDesc())
                 .orElse(badgeEntity.getBadgeDesc()))
-            .badgeImage(Optional.ofNullable(badgeUpdateReqDto.getBadgeImage())
+            .badgeImage(Optional.ofNullable(imageUrl)
                 .orElse(badgeEntity.getBadgeImage()))
             .badgeType(Optional.ofNullable(badgeUpdateReqDto.getBadgeType()).orElse(
                 badgeEntity.getBadgeType()))
