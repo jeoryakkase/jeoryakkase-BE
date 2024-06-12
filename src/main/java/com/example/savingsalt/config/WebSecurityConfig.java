@@ -3,6 +3,8 @@ package com.example.savingsalt.config;
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.example.savingsalt.badge.mapper.BadgeMainMapperImpl;
+import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.handler.CustomAuthenticationFailureHandler;
 import com.example.savingsalt.handler.CustomAuthenticationSuccessHandler;
@@ -48,6 +50,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
+    private final BadgeServiceImpl badgeService;
+    private final BadgeMainMapperImpl badgeMainMapper;
 
     @Lazy // 순환 참조 방지
     @Autowired
@@ -82,7 +86,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         CustomUsernamePasswordAuthenticationFilter customFilter = new CustomUsernamePasswordAuthenticationFilter(
             authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)),
-            objectMapper, jwtTokenProvider);
+            objectMapper, jwtTokenProvider, badgeService, badgeMainMapper);
         customFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
         customFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
 
