@@ -61,7 +61,7 @@ public class MemberChallengeController {
     @PostMapping("/members/challenges/{challengeId}")
     public ResponseEntity<MemberChallengeCreateResDto> createMemberChallenge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
-        @Parameter(description = "ID of the challenge") @PathVariable Long challengeId) {
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
 
         MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
@@ -81,7 +81,7 @@ public class MemberChallengeController {
     @PostMapping(value = "/members/challenges/{challengeId}/certify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MemberChallengeDto> certifyDailyMemberChallenge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
-        @Parameter(description = "ID of the challengeId") @PathVariable Long challengeId,
+        @Parameter(description = "회원 챌린지 ID") @PathVariable Long challengeId,
         @RequestPart CertificationChallengeReqDto certificationChallengeReqDto,
         @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
         throws IOException {
@@ -107,7 +107,7 @@ public class MemberChallengeController {
     @PutMapping("/members/challenges/{challengeId}/abandon")
     public ResponseEntity<MemberChallengeAbandonResDto> abandonMemberChallenge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
-        @Parameter(description = "ID of the challengeId") @PathVariable Long challengeId) {
+        @Parameter(description = "회원 챌린지 ID") @PathVariable Long challengeId) {
 
         MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
