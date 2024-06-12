@@ -60,6 +60,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
         String nickname = memberEntity.getNickname();
         String profileImage = memberEntity.getProfileImage();
         Long representativeBadgeId = memberEntity.getRepresentativeBadgeId();
+        Long challengeId = memberChallengeEntity.getChallengeEntity().getId();
 
         CertificationChallengeDto createCertificationChallengeDto = CertificationChallengeDto.builder()
             .content(certificationChallengeReqDto.getContent())
@@ -68,6 +69,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
             .profileImage(profileImage)
             .representativeBadgeId(representativeBadgeId)
             .certificationDate(currentDateTime)
+            .challengeId(challengeId)
             .build();
 
         CertificationChallengeEntity certificationChallengeEntity =

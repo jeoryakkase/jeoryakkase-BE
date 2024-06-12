@@ -50,6 +50,9 @@ public class CertificationChallengeEntity {
     @Column(name = "representative_badge_id")
     private Long representativeBadgeId;
 
+    @Column(name = "challenge_id")
+    private Long challengeId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;

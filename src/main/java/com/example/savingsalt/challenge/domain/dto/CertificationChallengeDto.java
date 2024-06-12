@@ -28,5 +28,7 @@ public class CertificationChallengeDto {
 
     private Long representativeBadgeId;
 
+    private Long challengeId;
+
     private List<CertificationChallengeImageDto> certificationChallengeImageDtos;
 }
