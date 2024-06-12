@@ -17,9 +17,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +34,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Board", description = "게시판 API")
 @RequiredArgsConstructor
@@ -45,22 +50,56 @@ public class BoardController {
 
     private final MemberMapper memberMapper;
 
+//    private final AmazonS3 amazonS3Client;
+
     @Operation(summary = "팁 게시글 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "게시글 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
         @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardTypeTipReadResDto> createTipBoard(
         @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles) throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
+
+//        // S3
+//        List<String> imageUrls = new ArrayList<>();
+//        String timestamp = String.valueOf(System.currentTimeMillis());
+//
+//        for (MultipartFile file : multipartFiles) {
+//            ObjectMetadata objectMetadata = new ObjectMetadata();
+//            objectMetadata.setContentType(file.getContentType());
+//            objectMetadata.setContentLength(file.getSize());
+//
+//            PutObjectRequest putObjectRequest;
+//
+//            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
+//
+//            putObjectRequest = new PutObjectRequest(
+//                "my.eliceproject.s3.bucket",
+//                uploadFileName,
+//                file.getInputStream(),
+//                objectMetadata
+//            );
+//
+//            amazonS3Client.putObject(putObjectRequest);
+//
+//            String imageUrl = String.format(
+//                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
+//                + uploadFileName);
+//
+//            imageUrls.add(imageUrl);
+//        }
+
 
         BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -112,7 +151,8 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
             member);
@@ -135,7 +175,8 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         boardService.deleteTipBoard(id, member);
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
@@ -157,7 +198,8 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -211,7 +253,8 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(id,
             requestDto, member);
@@ -234,7 +277,8 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         boardService.deleteVoteBoard(id, member);
 
