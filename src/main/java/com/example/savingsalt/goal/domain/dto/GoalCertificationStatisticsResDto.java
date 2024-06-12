@@ -15,6 +15,9 @@ import lombok.ToString;
 @Builder
 public class GoalCertificationStatisticsResDto {
 
+    // 일일 인증 금액
+    private Long dailyAmount;
+
     // 월간 인증 금액
     private Long monthlyAmount;
 

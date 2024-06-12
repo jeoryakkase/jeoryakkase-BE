@@ -134,13 +134,17 @@ public class GoalCertificationService {
             .orElseThrow(() -> new MemberNotFoundException());
 
         LocalDate today = LocalDate.now();
-        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member, today.getMonthValue(), today.getYear());
+        Long dailyAmount = certificationRepository.sumDailyCertificationMoneyByMember(member,
+            today);
+        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member,
+            today.getMonthValue(), today.getYear());
 
         Long totalAmount = certificationRepository.sumAllCertificationMoneyByMember(member);
 
         return GoalCertificationStatisticsResDto.builder()
             .totalAmount(totalAmount)
             .monthlyAmount(monthlyAmount)
+            .dailyAmount(dailyAmount)
             .build();
     }
 }
