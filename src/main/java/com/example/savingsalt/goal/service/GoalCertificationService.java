@@ -16,6 +16,7 @@ import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.io.IOException;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -132,7 +133,14 @@ public class GoalCertificationService {
         MemberEntity member = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new MemberNotFoundException());
 
+        LocalDate today = LocalDate.now();
+        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member, today.getMonthValue(), today.getYear());
+
         Long totalAmount = certificationRepository.sumAllCertificationMoneyByMember(member);
-        return new GoalCertificationStatisticsResDto(totalAmount);
+
+        return GoalCertificationStatisticsResDto.builder()
+            .totalAmount(totalAmount)
+            .monthlyAmount(monthlyAmount)
+            .build();
     }
 }

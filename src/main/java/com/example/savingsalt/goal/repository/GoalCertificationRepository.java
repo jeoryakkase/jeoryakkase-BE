@@ -17,6 +17,9 @@ public interface GoalCertificationRepository extends JpaRepository<GoalCertifica
     Page<GoalCertificationEntity> findAllByGoalEntityOrderByCertificationDateDesc(
         GoalEntity goalEntity, Pageable pageable);
 
+    @Query("SELECT SUM(gc.certificationMoney) FROM GoalCertificationEntity gc WHERE gc.memberEntity = :member AND MONTH(gc.certificationDate) = :month AND YEAR(gc.certificationDate) = :year")
+    Long sumMonthlyCertificationMoneyByMember(MemberEntity member, int month, int year);
+
     @Query("SELECT SUM(gc.certificationMoney) FROM GoalCertificationEntity gc WHERE gc.memberEntity = :member")
     Long sumAllCertificationMoneyByMember(MemberEntity member);
 }
