@@ -1,11 +1,13 @@
 package com.example.savingsalt.challenge.controller;
 
+import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeMainResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
+import com.example.savingsalt.challenge.service.CertificationChallengeService;
 import com.example.savingsalt.challenge.service.ChallengeServiceImpl;
 import com.example.savingsalt.challenge.service.MemberChallengeServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
@@ -38,15 +40,18 @@ public class ChallengeController {
     private final ChallengeServiceImpl challengeService;
     private final MemberChallengeServiceImpl memberChallengeService;
     private final MemberService memberService;
+    private final CertificationChallengeService certificationChallengeService;
     private final JwtTokenProvider jwtTokenProvider;
 
     public ChallengeController(ChallengeServiceImpl challengeService,
         MemberChallengeServiceImpl memberChallengeService, JwtTokenProvider jwtTokenProvider,
-        MemberService memberService) {
+        MemberService memberService,
+        CertificationChallengeService certificationChallengeService) {
         this.challengeService = challengeService;
         this.memberChallengeService = memberChallengeService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.memberService = memberService;
+        this.certificationChallengeService = certificationChallengeService;
     }
 
     // 챌린지 상세 정보 조회
@@ -58,6 +63,18 @@ public class ChallengeController {
 
         return (challengesDto == null) ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build() : ResponseEntity.ok(challengesDto);
+    }
+
+    // 선택된 챌린지의 참여 중인 인증 전체 조회
+    @Operation(summary = "챌린지 인증 전체 조회", description = "해당 챌린지 아이디로 부터 생성된 모든 회원 챌린지의 인증 테이블들을 조회하는 API")
+    @GetMapping("chllenges/{challengeId}/certify")
+    public ResponseEntity<List<CertificationChallengeDto>> getCertifiCationChallenges(
+        @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
+        List<CertificationChallengeDto> certificationChallengeDtos = certificationChallengeService.getCertifiCationChallenges(
+            challengeId);
+
+        return certificationChallengeDtos.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .build() : ResponseEntity.ok(certificationChallengeDtos);
     }
 
     // 챌린지 전체 목록 및 키워드 검색(인기 챌린지 목록 조회 포함)
@@ -134,4 +151,5 @@ public class ChallengeController {
 
         return ResponseEntity.ok().build();
     }
+
 }
