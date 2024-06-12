@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,6 +55,26 @@ public class MemberChallengeController {
         return memberChallengeWithCertifyAndChallengeResDtos.isEmpty() ? ResponseEntity.status(
             HttpStatus.NO_CONTENT).build()
             : ResponseEntity.ok(memberChallengeWithCertifyAndChallengeResDtos);
+    }
+
+    // 회원 챌린지 단일 조회
+    @Operation(summary = "회원 챌린지 단일 조회", description = "회원 챌린지를 조회하는 API")
+    @GetMapping("/members/challenges/{challengeId}")
+    public ResponseEntity<MemberChallengeWithCertifyAndChallengeResDto> getAllMemberChallenge(
+        @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
+        @Parameter(description = "회원 챌린지 ID") @RequestParam Long challengeId) {
+
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
+
+        MemberChallengeWithCertifyAndChallengeResDto memberChallengeWithCertifyAndChallengeResDto
+            = memberChallengeService.getMemberChallenge(
+            memberEntity.getId(), challengeId);
+
+        if (memberChallengeWithCertifyAndChallengeResDto == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.ok(memberChallengeWithCertifyAndChallengeResDto);
     }
 
     // 회원 챌린지 생성

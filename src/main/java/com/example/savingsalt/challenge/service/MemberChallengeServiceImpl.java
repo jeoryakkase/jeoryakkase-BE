@@ -72,6 +72,21 @@ public class MemberChallengeServiceImpl implements
         this.s3Service = s3Service;
     }
 
+    // 회원 챌린지 단일 조회
+    @Transactional(readOnly = true)
+    public MemberChallengeWithCertifyAndChallengeResDto getMemberChallenge(Long memberId, Long memberChallengeId) {
+        Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+
+        if (MemberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = MemberEntityOpt.get();
+
+            return memberChallengeWithCertifyAndChallengeMapper.toDto(
+                memberChallengeRepository.findByMemberEntity(memberEntity));
+        } else {
+            throw new MemberNotFoundException();
+        }
+    }
+
     // 회원 챌린지 목록 조회
     @Transactional(readOnly = true)
     public List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId) {
