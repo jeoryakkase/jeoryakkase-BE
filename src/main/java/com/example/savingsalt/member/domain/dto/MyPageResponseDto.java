@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 @Getter
 @Builder
@@ -27,6 +28,6 @@ public class MyPageResponseDto {
     private String about;
     private BadgeDto representativeBadge;
     private List<MemberChallengeWithCertifyAndChallengeResDto> memberChallenges;
-    private List<GoalResponseDto> goals;
+    private Page<GoalResponseDto> goals;
     private List<MyPageBoardDto> bookmarks;
 }

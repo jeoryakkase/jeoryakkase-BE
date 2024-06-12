@@ -8,12 +8,15 @@ import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.challenge.service.MemberChallengeServiceImpl;
 import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.bookmark.controller.BookmarkController;
+import com.example.savingsalt.community.bookmark.domain.BookmarkDto;
 import com.example.savingsalt.community.bookmark.domain.BookmarkEntity;
 import com.example.savingsalt.community.bookmark.repository.BookmarkRepository;
 import com.example.savingsalt.community.bookmark.service.BookmarkServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.goal.controller.GoalController;
+import com.example.savingsalt.goal.domain.dto.GoalResponseDto;
 import com.example.savingsalt.goal.repository.GoalRepository;
 import com.example.savingsalt.goal.service.GoalService;
 import com.example.savingsalt.member.domain.dto.LoginRequestDto;
@@ -31,8 +34,12 @@ import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +63,7 @@ public class MemberService {
     private final GoalService goalService;
     private final BadgeServiceImpl badgeService;
     private final BadgeMainMapperImpl badgeMainMapper;
+    private final BoardRepository boardRepository;
 
     // 회원가입
     @Transactional
@@ -255,10 +263,16 @@ public class MemberService {
             badgeDto = badgeMainMapper.toDto(badgeService.findById(representativeBadgeId));
         }
 
-        List<MyPageBoardDto> bookmarkBoards = bookmarkService.getBookmarks(memberId).stream()
-            .map(BookmarkEntity::getBoardEntity)
+        List<MyPageBoardDto> bookmarkBoards = bookmarkService.getBookmarks(memberEntity.getEmail()).stream()
+            .map(BookmarkDto::getBoardId)
+            .map(boardRepository::findById)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .map(BoardEntity::toMyPageBoardDto)
             .collect(Collectors.toList());
+
+        Pageable pageable = PageRequest.of(0, 3); // 첫 페이지, 페이지 당 3개의 항목
+        Page<GoalResponseDto> goals = goalService.getAllGoals(memberEntity, pageable);
 
         MyPageResponseDto myPageResponseDto = MyPageResponseDto.builder()
             .memberId(memberId)
@@ -267,7 +281,7 @@ public class MemberService {
             .about(memberEntity.getAbout())
             .representativeBadge(badgeDto)
             .memberChallenges(memberChallengeService.getMemberChallenges(memberId))
-//            .goals(goalService.getAllGoals(memberEntity))
+            .goals(goals)
             .bookmarks(bookmarkBoards)
             .build();
 
