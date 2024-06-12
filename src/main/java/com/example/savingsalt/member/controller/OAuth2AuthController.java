@@ -7,8 +7,6 @@ import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.dto.LoginResponseDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.domain.dto.TokenResponseDto;
-import com.example.savingsalt.member.domain.entity.TokenEntity;
-import com.example.savingsalt.member.repository.TokenRepository;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
