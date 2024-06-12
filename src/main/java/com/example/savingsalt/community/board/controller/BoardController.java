@@ -4,6 +4,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDt
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
+import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.community.board.exception.BoardException.EmptyBoardException;
 import com.example.savingsalt.community.board.service.BoardService;
 import com.example.savingsalt.global.UnauthorizedException;
@@ -16,9 +17,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +34,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Board", description = "게시판 API")
 @RequiredArgsConstructor
@@ -44,22 +50,56 @@ public class BoardController {
 
     private final MemberMapper memberMapper;
 
+//    private final AmazonS3 amazonS3Client;
+
     @Operation(summary = "팁 게시글 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "게시글 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
         @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardTypeTipReadResDto> createTipBoard(
         @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles) throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
+
+//        // S3
+//        List<String> imageUrls = new ArrayList<>();
+//        String timestamp = String.valueOf(System.currentTimeMillis());
+//
+//        for (MultipartFile file : multipartFiles) {
+//            ObjectMetadata objectMetadata = new ObjectMetadata();
+//            objectMetadata.setContentType(file.getContentType());
+//            objectMetadata.setContentLength(file.getSize());
+//
+//            PutObjectRequest putObjectRequest;
+//
+//            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
+//
+//            putObjectRequest = new PutObjectRequest(
+//                "my.eliceproject.s3.bucket",
+//                uploadFileName,
+//                file.getInputStream(),
+//                objectMetadata
+//            );
+//
+//            amazonS3Client.putObject(putObjectRequest);
+//
+//            String imageUrl = String.format(
+//                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
+//                + uploadFileName);
+//
+//            imageUrls.add(imageUrl);
+//        }
+
 
         BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -72,7 +112,7 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/tips")
-    public ResponseEntity<Page<BoardTypeTipReadResDto>> getTipBoards(
+    public ResponseEntity<Page<BoardTypeTipReadResDto>> getAllTipBoards(
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "5") int size) {
 
@@ -86,12 +126,11 @@ public class BoardController {
     @Operation(summary = "팁 게시글 조회", description = "게시글 ID를 통해 팁 게시판의 게시글을 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음")
     })
-    @GetMapping("/{boardId}")
-    public ResponseEntity<BoardTypeTipReadResDto> getTipBoardById(@PathVariable Long boardId) {
-        BoardTypeTipReadResDto tipBoardById = boardService.findTipBoardById(boardId);
+    @GetMapping("/{id}")
+    public ResponseEntity<BoardTypeTipReadResDto> getTipBoardById(@PathVariable("id") Long id) {
+        BoardTypeTipReadResDto tipBoardById = boardService.findTipBoardById(id);
 
         return ResponseEntity.ok(tipBoardById);
     }
@@ -103,8 +142,8 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable Long boardId,
+    @PatchMapping("/{id}")
+    public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable("id") Long id,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -112,9 +151,10 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
-        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(boardId, requestDto,
+        BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
             member);
         return ResponseEntity.ok(responseDto);
 
@@ -127,17 +167,18 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteTipBoard(@PathVariable Long boardId,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTipBoard(@PathVariable("id") Long id,
         @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
-        boardService.deleteTipBoard(boardId, member);
+        boardService.deleteTipBoard(id, member);
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
     }
@@ -157,7 +198,8 @@ public class BoardController {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
         BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -185,13 +227,12 @@ public class BoardController {
     @Operation(summary = "투표 게시글 조회", description = "게시글 ID를 통해 투표 게시판의 게시글을 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeVoteReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음")
     })
-    @GetMapping("/{boardId}/votes")
-    public ResponseEntity<BoardTypeVoteReadResDto> getVoteBoardById(@PathVariable Long boardId) {
+    @GetMapping("/{id}/votes")
+    public ResponseEntity<BoardTypeVoteReadResDto> getVoteBoardById(@PathVariable("id") Long id) {
 
-        BoardTypeVoteReadResDto VoteBoardById = boardService.findVoteBoardById(boardId);
+        BoardTypeVoteReadResDto VoteBoardById = boardService.findVoteBoardById(id);
 
         return ResponseEntity.ok(VoteBoardById);
     }
@@ -203,18 +244,19 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{boardId}/votes")
-    public ResponseEntity<?> updateVoteBoard(@PathVariable Long boardId,
-        @RequestBody BoardTypeVoteCreateReqDto requestDto,
+    @PatchMapping("/{id}/votes")
+    public ResponseEntity<?> updateVoteBoard(@PathVariable("id") Long id,
+        @RequestBody BoardTypeVoteUpdateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
-        BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(boardId,
+        BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(id,
             requestDto, member);
 
         return ResponseEntity.ok(responseDto);
@@ -227,17 +269,18 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @DeleteMapping("/{boardId}/votes")
-    public ResponseEntity<String> deleteVoteBoard(@PathVariable Long boardId,
+    @DeleteMapping("/{id}/votes")
+    public ResponseEntity<String> deleteVoteBoard(@PathVariable("id") Long id,
         @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
-        MemberEntity member = memberMapper.toEntity(memberService.findMemberByEmail(userDetails.getUsername()));
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
 
-        boardService.deleteVoteBoard(boardId, member);
+        boardService.deleteVoteBoard(id, member);
 
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
