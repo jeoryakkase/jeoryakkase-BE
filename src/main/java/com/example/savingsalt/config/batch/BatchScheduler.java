@@ -40,7 +40,7 @@ public class BatchScheduler {
                 "challengeResetTime", challengeTime);
             jobLauncher.run(challengeJob, jobParam.toJobParameters());
 
-            Job goalJob = jobRegistry.getJob("resetMemberChallengeJob"); // job 이름
+            Job goalJob = jobRegistry.getJob("updateExpiredGoalsJob"); // job 이름
             JobParametersBuilder goalJobParam = new JobParametersBuilder().addString(
                 "goalResetTime", goalTime);
             jobLauncher.run(goalJob, goalJobParam.toJobParameters());
