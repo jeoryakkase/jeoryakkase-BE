@@ -1,5 +1,6 @@
 package com.example.savingsalt.goal.domain.dto;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,7 @@ public class GoalCertificationStatisticsResDto {
 
     // 총 인증 금액
     private Long totalAmount;
+
+    // 오늘 날짜
+    private LocalDate todayDate;
 }
