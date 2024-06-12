@@ -8,36 +8,27 @@ import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.handler.CustomAuthenticationFailureHandler;
 import com.example.savingsalt.handler.CustomAuthenticationSuccessHandler;
-import com.example.savingsalt.handler.OAuth2SuccessHandler;
 import com.example.savingsalt.member.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -52,10 +43,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     private final JwtTokenProvider jwtTokenProvider;
     private final BadgeServiceImpl badgeService;
     private final BadgeMainMapperImpl badgeMainMapper;
-
-    @Lazy // 순환 참조 방지
-    @Autowired
-    private OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2UserCustomService oAuth2UserCustomService;
 
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
@@ -116,7 +104,11 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .authorizationRequestResolver(customAuthorizationRequestResolver())
                         .authorizationRequestRepository(
                             oAuth2AuthorizationRequestBasedOnCookieRepository()))
-                .successHandler(oAuth2SuccessHandler))
+                .userInfoEndpoint(userInfoEndpoint ->
+                    userInfoEndpoint
+                        .userService(oAuth2UserCustomService)
+                )
+            )
             // 로그아웃
             .logout(logout -> logout
                 .logoutUrl("/api/logout")
