@@ -346,23 +346,6 @@ public class MemberChallengeServiceImpl implements
         return null;
     }
 
-    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
-    @Transactional
-    public void resetDailyMemberChallengeAuthentication() {
-        List<MemberEntity> memberEntityList = memberRepository.findAll();
-        for (MemberEntity memberEntity : memberEntityList) {
-            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
-
-            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-                memberChallengeEntity = memberChallengeEntity.toBuilder()
-                    .isTodayCertification(false)
-                    .build();
-
-                memberChallengeRepository.save(memberChallengeEntity);
-            }
-        }
-    }
-
     // 챌린지 인증 삭제
     @Transactional
     public void deleteCertificationChallenge(Long memberId, Long memberChallengeId,
