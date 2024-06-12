@@ -312,23 +312,6 @@ public class MemberChallengeServiceImpl implements
         return null;
     }
 
-    // 모든 회원 챌린지 일일 인증 초기화(오전 12시마다)
-    @Transactional
-    public void resetDailyMemberChallengeAuthentication() {
-        List<MemberEntity> memberEntityList = memberRepository.findAll();
-        for (MemberEntity memberEntity : memberEntityList) {
-            List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
-
-            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-                memberChallengeEntity = memberChallengeEntity.toBuilder()
-                    .isTodayCertification(false)
-                    .build();
-
-                memberChallengeRepository.save(memberChallengeEntity);
-            }
-        }
-    }
-
     // TODO: 영속성 컨텍스트 문제로 컬럼 삭제가 이루어지지 않는 문제 해결
     // 챌린지 인증 삭제
     @Transactional
