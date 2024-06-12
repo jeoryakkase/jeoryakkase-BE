@@ -12,11 +12,8 @@ import com.example.savingsalt.community.board.exception.BoardException.BoardNotF
 import com.example.savingsalt.community.board.exception.BoardException.BoardServiceException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
-import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
 import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
-import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
-import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
 import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
@@ -45,8 +42,6 @@ public class BoardServiceImpl implements BoardService {
     private final PollServiceImpl pollService;
 
     private final CommentRepository commentRepository;
-
-    private final ReplyCommentRepository replyCommentRepository;
 
     private final PollRepository pollRepository;
 
@@ -92,16 +87,22 @@ public class BoardServiceImpl implements BoardService {
 
         boardEntity.incrementView();
 
-        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
-            boardEntity.getId());
-
-        if (comments == null) {
-            return convertToTipReadResDto(boardEntity);
-        }
-
+        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(boardEntity.getId());
         List<CommentResDto> commentDtos = comments.stream()
-            .map(this::toCommentResDto)
+            .filter(comment -> comment.getParentComment() == null) // 최상단 댓글 필터링
+            .map(comment -> toCommentResDto(comment, comments))
             .collect(Collectors.toList());
+
+//        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+//            boardEntity.getId());
+//
+//        if (comments == null) {
+//            return convertToTipReadResDto(boardEntity);
+//        }
+//
+//        List<CommentResDto> commentDtos = comments.stream()
+//            .map(this::toCommentResDto)
+//            .collect(Collectors.toList());
 
         return convertToTipReadResDto(boardEntity, commentDtos);
 
@@ -207,13 +208,18 @@ public class BoardServiceImpl implements BoardService {
         List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
             boardEntity.getId());
 
-        if (comments == null) {
-            return convertToVoteReadResDto(boardEntity);
-        }
-
         List<CommentResDto> commentDtos = comments.stream()
-            .map(this::toCommentResDto)
+            .filter(comment -> comment.getParentComment() == null) // 최상단 댓글 필터링
+            .map(comment -> toCommentResDto(comment, comments))
             .collect(Collectors.toList());
+
+//        if (comments == null) {
+//            return convertToVoteReadResDto(boardEntity);
+//        }
+//
+//        List<CommentResDto> commentDtos = comments.stream()
+//            .map(this::toCommentResDto)
+//            .collect(Collectors.toList());
 
         return convertToVoteReadResDto(boardEntity, commentDtos);
 
@@ -332,28 +338,53 @@ public class BoardServiceImpl implements BoardService {
             .build();
     }
 
-    private CommentResDto toCommentResDto(CommentEntity comment) {
-        List<ReplyCommentEntity> replies = replyCommentRepository.findAllByParentCommentIdOrderByCreatedAtAsc(
-            comment.getId());
-        List<ReplyCommentResDto> replyDtos = replies.stream()
-            .map(this::toReplyCommentDto)
+//    private CommentResDto toCommentResDto(CommentEntity comment) {
+//        List<ReplyCommentEntity> replies = replyCommentRepository.findAllByParentCommentIdOrderByCreatedAtAsc(
+//            comment.getId());
+//        List<ReplyCommentResDto> replyDtos = replies.stream()
+//            .map(this::toReplyCommentDto)
+//            .collect(Collectors.toList());
+//
+//        return CommentResDto.builder()
+//            .id(comment.getId())
+//            .content(comment.getContent())
+//            .nickname(comment.getMemberEntity().getNickname())
+//            .replyComments(replyDtos)
+//            .createdAt(comment.getCreatedAt())
+//            .modifiedAt(comment.getModifiedAt())
+//            .build();
+//    }
+
+//    private ReplyCommentResDto toReplyCommentDto(ReplyCommentEntity replyComment) {
+//        return ReplyCommentResDto.builder()
+//            .id(replyComment.getId())
+//            .content(replyComment.getContent())
+//            .nickname(replyComment.getMemberEntity().getNickname())
+//            .createdAt(replyComment.getCreatedAt())
+//            .modifiedAt(replyComment.getModifiedAt())
+//            .build();
+//    }
+
+    // 댓글과 대댓글을 포함한 댓글 DTO로 변환
+    private CommentResDto toCommentResDto(CommentEntity comment, List<CommentEntity> allComments) {
+        // 해당 댓글의 대댓글을 필터링하고, 대댓글을 재귀적으로 DTO로 변환
+        List<CommentResDto> replyComments = allComments.stream()
+            .filter(c -> c.getParentComment() != null && c.getParentComment().getId().equals(comment.getId()))
+            .map(c -> toCommentResDto(c, allComments))
             .collect(Collectors.toList());
 
         return CommentResDto.builder()
             .id(comment.getId())
             .content(comment.getContent())
             .nickname(comment.getMemberEntity().getNickname())
-            .replyComments(replyDtos)
+            .replyComments(replyComments)
+            .createdAt(comment.getCreatedAt())
+            .modifiedAt(comment.getModifiedAt())
+            .depth(comment.getDepth())
+            .level(comment.getLevel())
             .build();
     }
 
-    private ReplyCommentResDto toReplyCommentDto(ReplyCommentEntity replyComment) {
-        return ReplyCommentResDto.builder()
-            .id(replyComment.getId())
-            .content(replyComment.getContent())
-            .nickname(replyComment.getMemberEntity().getNickname())
-            .build();
-    }
 
     // 카테고리별 게시글 찾기
     private BoardEntity findBoard(Long id, BoardCategory category) {

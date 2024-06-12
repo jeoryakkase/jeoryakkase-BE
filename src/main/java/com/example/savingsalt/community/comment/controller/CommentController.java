@@ -2,6 +2,8 @@ package com.example.savingsalt.community.comment.controller;
 
 import com.example.savingsalt.community.comment.domain.dto.CommentReqDto;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
 import com.example.savingsalt.community.comment.service.CommentService;
 import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
@@ -60,6 +62,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+
     @Operation(summary = "댓글 수정", description = "댓글 ID를 통해 댓글의 내용을 수정합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "댓글 수정 성공",
@@ -104,4 +107,23 @@ public class CommentController {
 
         return ResponseEntity.ok("댓글이 삭제되었습니다.");
     }
+
+    @PostMapping("/replies")
+    public ResponseEntity<ReplyCommentResDto> createReplyComment(
+        @RequestBody ReplyCommentReqDto requestDto,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new UnauthorizedException("로그인이 필요합니다.");
+        }
+
+        MemberEntity member = memberMapper.toEntity(
+            memberService.findMemberByEmail(userDetails.getUsername()));
+
+        ReplyCommentResDto responseDto = commentService.createReplyComment(requestDto, member);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+
+    }
+
 }

@@ -7,11 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ReplyCommentReqDto {
 
+    private Long boardId;
     private String content;
     private Long parentCommentId;
 
-    public ReplyCommentReqDto(String content, Long parentCommentId) {
-        this.content = content;
-        this.parentCommentId = parentCommentId;
-    }
 }
