@@ -16,6 +16,8 @@ import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,20 +95,16 @@ public class GoalCertificationService {
     }
 
     // 특정 목표의 모든 인증을 최신순으로 조회
-    @Transactional
-    public List<GoalCertificationResponseDto> getCertificationsByGoal(Long goalId,
-        UserDetails userDetails) {
-        // 목표를 조회하여 인증 목록 반환
+    @Transactional(readOnly = true)
+    public Page<GoalCertificationResponseDto> getCertificationsByGoal(Long goalId,
+        UserDetails userDetails, Pageable pageable) {
         GoalEntity goalEntity = goalRepository.findById(goalId)
-            .orElseThrow(GoalNotFoundException::new);
+            .orElseThrow(() -> new GoalNotFoundException());
 
-        // 인증 엔티티를 조회하고 DTO로 변환
-        List<GoalCertificationEntity> certifications = certificationRepository.findAllByGoalEntityOrderByCertificationDateDesc(
-            goalEntity);
+        Page<GoalCertificationEntity> certifications = certificationRepository.findAllByGoalEntityOrderByCertificationDateDesc(
+            goalEntity, pageable);
 
-        return certifications.stream()
-            .map(GoalCertificationResponseDto::fromEntity)
-            .collect(Collectors.toList());
+        return certifications.map(GoalCertificationResponseDto::fromEntity);
     }
 
     // 목표 상태를 업데이트하는 메서드

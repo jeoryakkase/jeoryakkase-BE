@@ -19,6 +19,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -86,9 +88,10 @@ public class GoalController {
             content = @Content(mediaType = "application/json"))
     })
     @GetMapping("/goals")
-    public ResponseEntity<List<GoalResponseDto>> getAllGoals(
-        @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
-        List<GoalResponseDto> goals = goalService.getAllGoals(userDetails);
+    public ResponseEntity<Page<GoalResponseDto>> getAllGoals(
+        @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails,
+        @Parameter(description = "페이지네이션 파라미터: 페이지 번호(page), 페이지 크기(size), 정렬(sort)") Pageable pageable) {
+        Page<GoalResponseDto> goals = goalService.getAllGoals(userDetails, pageable);
         return ResponseEntity.ok(goals);
     }
 
