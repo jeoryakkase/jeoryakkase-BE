@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BookmarkDto {
-    private Long memberId;
     private Long boardId;
 }
