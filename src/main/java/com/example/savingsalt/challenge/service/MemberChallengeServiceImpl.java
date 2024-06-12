@@ -350,7 +350,6 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
-    // TODO: S3 이미지 삭제가 이루어지지 않는 문제 해결
     // 챌린지 인증 삭제
     @Transactional
     public void deleteCertificationChallenge(Long memberId, Long memberChallengeId,

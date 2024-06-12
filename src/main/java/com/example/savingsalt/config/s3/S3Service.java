@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class S3Service {
+
     private final AmazonS3 amazonS3Client;
 
     public S3Service(AmazonS3 amazonS3Client) {
@@ -79,7 +80,8 @@ public class S3Service {
 
     public void deleteFile(String imageUrl) throws IOException {
         try {
-            amazonS3Client.deleteObject("my.eliceproject.s3.bucket", imageUrl);
+            amazonS3Client.deleteObject("my.eliceproject.s3.bucket", replacePrefix(imageUrl,
+                    "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/", ""));
         } catch (SdkClientException e) {
             throw new IOException("S3 " + imageUrl + " 객체 삭제에 에러가 발생했습니다.", e);
         }
@@ -88,10 +90,19 @@ public class S3Service {
     public void deleteFiles(List<String> imageUrls) throws IOException {
         for (String imageUrl : imageUrls) {
             try {
-                amazonS3Client.deleteObject("my.eliceproject.s3.bucket", imageUrl);
+                amazonS3Client.deleteObject("my.eliceproject.s3.bucket", replacePrefix(imageUrl,
+                    "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/", ""));
             } catch (SdkClientException e) {
                 throw new IOException("S3 " + imageUrl + " 객체 삭제에 에러가 발생했습니다.", e);
             }
         }
+    }
+
+    // 프리픽스 변경 메서드
+    public static String replacePrefix(String input, String prefix, String replacement) {
+        if (input.startsWith(prefix)) {
+            return replacement + input.substring(prefix.length());
+        }
+        return input;
     }
 }
