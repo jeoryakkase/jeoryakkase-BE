@@ -18,4 +18,7 @@ public interface CertificationChallengeService {
     // 챌린지 인증 조회
     CertificationChallengeDto getCertifiCationChallenge(
         MemberChallengeEntity memberChallengeEntity);
+
+    // 선택된 챌린지 인증 전체 조회
+    List<CertificationChallengeDto> getCertifiCationChallenges(Long challengeId);
 }

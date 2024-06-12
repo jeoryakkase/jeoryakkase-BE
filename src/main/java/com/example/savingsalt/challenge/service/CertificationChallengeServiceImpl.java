@@ -4,6 +4,7 @@ import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCationChallengeMapper;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeImageMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
@@ -12,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -82,7 +84,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
         // 챌린지 인증 이미지 컬럼 생성
         createCertificationChallengeDto = createCertificationChallengeDto.toBuilder()
             .id(certificationChallengeRepository.save(
-            certificationChallengeEntity).getId())
+                certificationChallengeEntity).getId())
             .certificationChallengeImageDtos(
                 certificationChallengeImageService.createCertificationChallengeImage(
                     imageUrls,
@@ -95,5 +97,21 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
     public void deleteCertificationChallengeById(Long certificationChallengeId) {
         entityManager.clear();
         certificationChallengeRepository.deleteById(certificationChallengeId);
+    }
+
+    // 선택된 챌린지의 참여 중인 인증 전체 조회
+    public List<CertificationChallengeDto> getCertifiCationChallenges(Long challengeId) {
+        List<CertificationChallengeEntity> certificationChallengeEntities = certificationChallengeRepository.findAll();
+        List<CertificationChallengeDto> certificationChallengeDtos = new ArrayList<>();
+
+        for (CertificationChallengeEntity certificationChallengeEntity : certificationChallengeEntities) {
+            if (certificationChallengeEntity.getChallengeId().equals(challengeId)
+                && certificationChallengeEntity.getMemberChallengeEntity().getChallengeStatus()
+                .equals(
+                    ChallengeStatus.IN_PROGRESS)) {
+                certificationChallengeDtos.add(certificationChallengeMapper.toDto(certificationChallengeEntity));
+            }
+        }
+        return certificationChallengeDtos;
     }
 }
