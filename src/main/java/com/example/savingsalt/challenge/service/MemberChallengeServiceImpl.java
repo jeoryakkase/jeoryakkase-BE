@@ -13,6 +13,7 @@ import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
+import com.example.savingsalt.challenge.exception.ChallengeException.AlreadyInProgressMemberChallengeException;
 import com.example.savingsalt.challenge.exception.ChallengeException.CertificationChallengeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.ChallengeNotFoundException;
 import com.example.savingsalt.challenge.exception.ChallengeException.InvalidChallengeTermException;
@@ -74,7 +75,8 @@ public class MemberChallengeServiceImpl implements
 
     // 회원 챌린지 단일 조회
     @Transactional(readOnly = true)
-    public MemberChallengeWithCertifyAndChallengeResDto getMemberChallenge(Long memberId, Long memberChallengeId) {
+    public MemberChallengeWithCertifyAndChallengeResDto getMemberChallenge(Long memberId,
+        Long memberChallengeId) {
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
 
         if (MemberEntityOpt.isPresent()) {
@@ -166,6 +168,17 @@ public class MemberChallengeServiceImpl implements
 
             if (memberEntityOpt.isPresent()) {
                 MemberEntity memberEntity = memberEntityOpt.get();
+                List<MemberChallengeEntity> memberChallengeEntities = memberChallengeRepository.findAllByMemberEntity(
+                    memberEntity);
+
+                // 이미 진행 중인 챌린지가 있으면 예외 처리
+                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                    if (memberChallengeEntity.getChallengeEntity().getId().equals(ChallengeId)
+                        && memberChallengeEntity.getChallengeStatus()
+                        .equals(ChallengeStatus.IN_PROGRESS)) {
+                        throw new AlreadyInProgressMemberChallengeException();
+                    }
+                }
 
                 LocalDateTime startDate = LocalDateTime.now();
                 LocalDateTime endDate = getLocalEndDateTime(challengeEntity, startDate);
