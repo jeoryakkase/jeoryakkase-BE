@@ -16,6 +16,6 @@ public interface CertificationChallengeService {
     void deleteCertificationChallengeById(Long CertificationChallengeId);
 
     // 챌린지 인증 조회
-    public CertificationChallengeDto getCertifiCationChallenge(
+    CertificationChallengeDto getCertifiCationChallenge(
         MemberChallengeEntity memberChallengeEntity);
 }
