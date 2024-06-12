@@ -41,6 +41,15 @@ public class CertificationChallengeEntity {
     @Column(name = "save_money", nullable = false)
     private Integer saveMoney;
 
+    @Column(name = "nickname")
+    private String nickname;
+
+    @Column(name = "profiles_images")
+    private String profileImage;
+
+    @Column(name = "representative_badge_id")
+    private Long representativeBadgeId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_challenge_id")
     private MemberChallengeEntity memberChallengeEntity;

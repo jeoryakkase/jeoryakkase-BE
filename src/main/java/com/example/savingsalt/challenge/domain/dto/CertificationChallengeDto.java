@@ -18,15 +18,15 @@ public class CertificationChallengeDto {
 
     private LocalDateTime certificationDate;
 
-    private List<CertificationChallengeImageDto> certificationChallengeImageDtos;
-
     private String content;
 
-    private String saveMoney;
+    private Integer saveMoney;
 
     private String nickname;
 
     private String profileImage;
 
     private Long representativeBadgeId;
+
+    private List<CertificationChallengeImageDto> certificationChallengeImageDtos;
 }

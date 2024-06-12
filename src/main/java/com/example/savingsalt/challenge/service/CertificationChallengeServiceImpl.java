@@ -5,6 +5,7 @@ import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCationChallengeMapper;
+import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeImageMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.EntityManager;
@@ -21,6 +22,8 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
     private final CertificationChallengeRepository certificationChallengeRepository;
     private final CertifiCationChallengeMapper certificationChallengeMapper;
     private final CertificationChallengeImageServiceImpl certificationChallengeImageService;
+    private final CertificationChallengeImageMapper certificationChallengeImageMapper;
+
     @PersistenceContext
     private final EntityManager entityManager;
 
@@ -28,11 +31,13 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
         CertificationChallengeRepository certificationChallengeRepository,
         CertifiCationChallengeMapper certificationChallengeMapper,
         CertificationChallengeImageServiceImpl certificationChallengeImageService,
+        CertificationChallengeImageMapper certificationChallengeImageMapper,
         EntityManager entityManager) {
 
         this.certificationChallengeRepository = certificationChallengeRepository;
         this.certificationChallengeMapper = certificationChallengeMapper;
         this.certificationChallengeImageService = certificationChallengeImageService;
+        this.certificationChallengeImageMapper = certificationChallengeImageMapper;
         this.entityManager = entityManager;
     }
 
@@ -52,37 +57,36 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
         LocalDateTime currentDateTime = LocalDateTime.now();
         MemberEntity memberEntity = memberChallengeEntity.getMemberEntity();
 
+        String nickname = memberEntity.getNickname();
+        String profileImage = memberEntity.getProfileImage();
+        Long representativeBadgeId = memberEntity.getRepresentativeBadgeId();
+
+        CertificationChallengeDto createCertificationChallengeDto = CertificationChallengeDto.builder()
+            .content(certificationChallengeReqDto.getContent())
+            .saveMoney(certificationChallengeReqDto.getSaveMoney())
+            .nickname(nickname)
+            .profileImage(profileImage)
+            .representativeBadgeId(representativeBadgeId)
+            .certificationDate(currentDateTime)
+            .build();
+
         CertificationChallengeEntity certificationChallengeEntity =
-            certificationChallengeMapper.certificationChallengeDtoToCertificationChallengeEntity(
-            certificationChallengeReqDto);
+            certificationChallengeMapper.toEntity(createCertificationChallengeDto);
 
         certificationChallengeEntity = certificationChallengeEntity.toBuilder()
             .memberChallengeEntity(memberChallengeEntity)
-            .certificationDate(currentDateTime).build();
-
-        certificationChallengeEntity = certificationChallengeRepository.save(
-            certificationChallengeEntity);
-
-        CertificationChallengeDto certificationChallengeDto = certificationChallengeMapper.toDto(
-            certificationChallengeEntity);
+            .build();
 
         // 챌린지 인증 이미지 컬럼 생성
-        certificationChallengeDto = certificationChallengeDto.toBuilder()
+        createCertificationChallengeDto = createCertificationChallengeDto.toBuilder()
+            .id(certificationChallengeRepository.save(
+            certificationChallengeEntity).getId())
             .certificationChallengeImageDtos(
                 certificationChallengeImageService.createCertificationChallengeImage(
                     imageUrls,
-                    certificationChallengeEntity.getId()))
-            .build();
+                    certificationChallengeEntity.getId())).build();
 
-
-        // 챌린지 인증 회원 정보 넣기
-        certificationChallengeDto = certificationChallengeDto.toBuilder()
-            .nickname(memberEntity.getNickname())
-            .profileImage(memberEntity.getProfileImage())
-            .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
-            .build();
-
-        return certificationChallengeDto;
+        return createCertificationChallengeDto;
     }
 
     // 챌린지 인증 삭제
