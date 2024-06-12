@@ -267,7 +267,7 @@ public class MemberService {
             .about(memberEntity.getAbout())
             .representativeBadge(badgeDto)
             .memberChallenges(memberChallengeService.getMemberChallenges(memberId))
-            .goals(goalService.getAllGoals(memberEntity))
+//            .goals(goalService.getAllGoals(memberEntity))
             .bookmarks(bookmarkBoards)
             .build();
 

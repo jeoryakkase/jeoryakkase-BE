@@ -14,6 +14,8 @@ import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,14 +49,14 @@ public class GoalService {
     }
 
     // 특정 사용자의 모든 목표를 조회
-    @Transactional
-    public List<GoalResponseDto> getAllGoals(UserDetails userDetails) {
+    @Transactional(readOnly = true)  // 조회 전용 트랜잭션으로 변경
+    public Page<GoalResponseDto> getAllGoals(UserDetails userDetails, Pageable pageable) {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);
 
-        return goalRepository.findAllByMemberEntity(memberEntity).stream()
-            .map(goalEntity -> GoalResponseDto.fromEntity(goalEntity))
-            .collect(Collectors.toList());
+        Page<GoalEntity> goalEntities = goalRepository.findAllByMemberEntity(memberEntity,
+            pageable);
+        return goalEntities.map(GoalResponseDto::fromEntity);
     }
 
     // 진행중인 목표 포기
