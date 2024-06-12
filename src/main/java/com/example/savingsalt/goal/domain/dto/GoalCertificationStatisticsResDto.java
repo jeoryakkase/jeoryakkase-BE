@@ -1,5 +1,6 @@
 package com.example.savingsalt.goal.domain.dto;
 
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 public class GoalCertificationStatisticsResDto {
+
+    // 일일 인증 내용
+    private Set<String> dailyCertifications;
 
     // 일일 인증 금액
     private Long dailyAmount;

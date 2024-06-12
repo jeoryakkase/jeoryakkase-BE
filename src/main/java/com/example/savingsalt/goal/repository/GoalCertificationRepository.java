@@ -4,6 +4,7 @@ import com.example.savingsalt.goal.domain.entity.GoalCertificationEntity;
 import com.example.savingsalt.goal.domain.entity.GoalEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,7 @@ public interface GoalCertificationRepository extends JpaRepository<GoalCertifica
 
     @Query("SELECT SUM(gc.certificationMoney) FROM GoalCertificationEntity gc WHERE gc.memberEntity = :member")
     Long sumAllCertificationMoneyByMember(MemberEntity member);
+
+    @Query("SELECT gc.certificationContent FROM GoalCertificationEntity gc WHERE gc.memberEntity = :member AND gc.certificationDate = :date")
+    List<String> findDailyCertificationContentsByMember(MemberEntity member, LocalDate date);
 }
