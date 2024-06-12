@@ -19,7 +19,10 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -147,11 +150,24 @@ public class GoalCertificationService {
             member, today);
         Set<String> uniqueContents = new HashSet<>(dailyContents); // 중복 제거
 
+        List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(
+            member, today.getMonthValue(), today.getYear());
+        Set<String> uniqueMonthlyContents = new HashSet<>(monthlyContents);
+
+        Map<String, Long> frequencyMap = monthlyContents.stream()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<String, Double> percentages = frequencyMap.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey,
+                e -> 100.0 * e.getValue() / monthlyContents.size()));
+
         return GoalCertificationStatisticsResDto.builder()
             .totalAmount(totalAmount)
             .monthlyAmount(monthlyAmount)
             .dailyAmount(dailyAmount)
             .dailyCertifications(uniqueContents)
+            .monthlyAmount(monthlyAmount)
+            .monthlyCertifications(uniqueMonthlyContents)
+            .monthlyCertificationPercentages(percentages)
             .build();
     }
 }

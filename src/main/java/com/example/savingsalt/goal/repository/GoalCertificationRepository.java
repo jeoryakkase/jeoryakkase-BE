@@ -29,4 +29,9 @@ public interface GoalCertificationRepository extends JpaRepository<GoalCertifica
 
     @Query("SELECT gc.certificationContent FROM GoalCertificationEntity gc WHERE gc.memberEntity = :member AND gc.certificationDate = :date")
     List<String> findDailyCertificationContentsByMember(MemberEntity member, LocalDate date);
+
+    @Query("SELECT gc.certificationContent FROM GoalCertificationEntity gc " +
+        "WHERE gc.memberEntity = :member AND MONTH(gc.certificationDate) = :month " +
+        "AND YEAR(gc.certificationDate) = :year")
+    List<String> findMonthlyCertificationContents(MemberEntity member, int month, int year);
 }
