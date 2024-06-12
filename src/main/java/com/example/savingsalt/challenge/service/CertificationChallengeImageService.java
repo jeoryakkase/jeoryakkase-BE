@@ -4,5 +4,5 @@ import com.example.savingsalt.challenge.domain.dto.CertificationChallengeImageDt
 import java.util.List;
 
 public interface CertificationChallengeImageService {
-    CertificationChallengeImageDto createCertificationChallengeImage(List<String> imageUrl, Long certificationChallengeId);
+    List<CertificationChallengeImageDto> createCertificationChallengeImage(List<String> imageUrls, Long certificationChallengeId);
 }
