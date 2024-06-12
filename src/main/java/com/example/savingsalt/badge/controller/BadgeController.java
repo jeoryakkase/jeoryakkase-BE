@@ -5,19 +5,19 @@ import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.badge.domain.dto.BadgeUpdateReqDto;
 import com.example.savingsalt.badge.domain.dto.MemberChallengeBadgeResDto;
 import com.example.savingsalt.badge.service.BadgeServiceImpl;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
-import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
-import com.example.savingsalt.member.exception.MemberException;
-import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -35,17 +37,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class BadgeController {
 
     private final BadgeServiceImpl badgeService;
-    private final JwtTokenProvider tokenProvider;
     private final MemberService memberService;
-    private final MemberMapper memberMapper;
+    private final S3Service s3Service;
 
-
-    public BadgeController(BadgeServiceImpl badgeService, JwtTokenProvider tokenProvider,
-        MemberService memberService, MemberMapper memberMapper) {
+    public BadgeController(BadgeServiceImpl badgeService,
+        MemberService memberService, S3Service s3Service) {
         this.badgeService = badgeService;
-        this.tokenProvider = tokenProvider;
         this.memberService = memberService;
-        this.memberMapper = memberMapper;
+        this.s3Service = s3Service;
     }
 
     // 모든 뱃지 조회
@@ -64,16 +63,7 @@ public class BadgeController {
     public ResponseEntity<List<MemberChallengeBadgeResDto>> getMemberChallengeBadges(
         @Parameter(description = "회원 대표 뱃지 검색 유무(true를 하면 대표 뱃지만 보여줌)") @RequestParam(name = "IsRepresentative", defaultValue = "false") boolean isRepresentative,
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         List<MemberChallengeBadgeResDto> memberChallengeBadgeResDto = badgeService.getMemberChallengeBadges(
             isRepresentative, memberEntity.getId());
@@ -88,16 +78,7 @@ public class BadgeController {
     public ResponseEntity<RepresentativeBadgeSetResDto> setMemberRepresentativeBadge(
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request,
         @Parameter(description = "대표 뱃지로 지정할 뱃지 이름") @RequestParam String badgeName) {
-        String token = tokenProvider.resolveToken(request);
-        if (token == null || !tokenProvider.validateToken(token)) {
-            throw new MemberException.InvalidTokenException();
-        }
-
-        String email = tokenProvider.getEmailFromToken(token);
-        MemberEntity memberEntity = memberMapper.toEntity(memberService.findMemberByEmail(email));
-        if (memberEntity == null) {
-            throw new MemberException.MemberNotFoundException("email", email);
-        }
+        MemberEntity memberEntity = memberService.getMemberFromRequest(request);
 
         RepresentativeBadgeSetResDto memberRepresentativeBadge = badgeService.setMemberRepresentativeBadge(
             memberEntity.getId(), badgeName);
@@ -109,10 +90,13 @@ public class BadgeController {
 
     // 뱃지 생성
     @Operation(summary = "뱃지 생성", description = "뱃지를 생성하는 API")
-    @PostMapping("/badges")
+    @PostMapping(value = "/badges", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BadgeDto> createBadge(
-        @Parameter(description = "생성할 뱃지의 정보") @Valid @RequestBody BadgeCreateReqDto badgeCreateReqDto) {
-        BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto);
+        @Parameter(description = "생성할 뱃지의 정보") @Valid @RequestPart BadgeCreateReqDto badgeCreateReqDto,
+        @RequestPart("uploadFile") MultipartFile multipartFile) throws IOException {
+        String imageUrl = s3Service.upload(multipartFile);
+
+        BadgeDto createdBadgeDto = badgeService.createBadge(badgeCreateReqDto, imageUrl);
 
         return (createdBadgeDto == null) ? ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
             : ResponseEntity.status(HttpStatus.CREATED).body(createdBadgeDto);
