@@ -8,6 +8,7 @@ import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeJoinResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeWithCertifyAndChallengeResDto;
 import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEntity;
+import com.example.savingsalt.challenge.domain.entity.CertificationChallengeImageEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity.ChallengeType;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
@@ -21,9 +22,11 @@ import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallen
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.MemberChallengeWithCertifyAndChallengeMapper;
 import com.example.savingsalt.challenge.repository.ChallengeRepository;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -46,6 +49,7 @@ public class MemberChallengeServiceImpl implements
     private final CertificationChallengeService certificationChallengeService;
     private final MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper;
     private final ChallengeService challengeService;
+    private final S3Service s3Service;
 
 
     public MemberChallengeServiceImpl(
@@ -55,7 +59,8 @@ public class MemberChallengeServiceImpl implements
         ChallengeRepository challengeRepository,
         CertificationChallengeService certificationChallengeService,
         MemberChallengeWithCertifyAndChallengeMapper memberChallengeWithCertifyAndChallengeMapper,
-        ChallengeService challengeService) {
+        ChallengeService challengeService,
+        S3Service s3Service) {
 
         this.memberChallengeRepository = memberChallengeRepository;
         this.memberChallengeMapper = memberChallengeMapper;
@@ -64,6 +69,22 @@ public class MemberChallengeServiceImpl implements
         this.memberChallengeWithCertifyAndChallengeMapper = memberChallengeWithCertifyAndChallengeMapper;
         this.challengeService = challengeService;
         this.certificationChallengeService = certificationChallengeService;
+        this.s3Service = s3Service;
+    }
+
+    // 회원 챌린지 단일 조회
+    @Transactional(readOnly = true)
+    public MemberChallengeWithCertifyAndChallengeResDto getMemberChallenge(Long memberId, Long memberChallengeId) {
+        Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+
+        if (MemberEntityOpt.isPresent()) {
+            MemberEntity memberEntity = MemberEntityOpt.get();
+
+            return memberChallengeWithCertifyAndChallengeMapper.toDto(
+                memberChallengeRepository.findByMemberEntity(memberEntity));
+        } else {
+            throw new MemberNotFoundException();
+        }
     }
 
     // 회원 챌린지 목록 조회
@@ -329,18 +350,18 @@ public class MemberChallengeServiceImpl implements
         }
     }
 
-    // TODO: 영속성 컨텍스트 문제로 컬럼 삭제가 이루어지지 않는 문제 해결
     // 챌린지 인증 삭제
     @Transactional
     public void deleteCertificationChallenge(Long memberId, Long memberChallengeId,
         Long certificationId) {
         Optional<MemberEntity> memberEntityOpt = memberRepository.findById(memberId);
+        List<String> imageUrls = new ArrayList<>();
+        List<CertificationChallengeImageEntity> certificationChallengeImageEntities;
 
         if (memberEntityOpt.isPresent()) {
             MemberEntity memberEntity = memberEntityOpt.get();
             List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
             MemberChallengeEntity foundMemberChallengeEntity = null;
-
             List<CertificationChallengeEntity> certificationChallengeEntities;
 
             if (memberChallengeEntities.isEmpty()) {
@@ -357,6 +378,17 @@ public class MemberChallengeServiceImpl implements
 
                 for (CertificationChallengeEntity certificationChallengeEntity : certificationChallengeEntities) {
                     if (Objects.equals(certificationChallengeEntity.getId(), certificationId)) {
+                        certificationChallengeImageEntities = certificationChallengeEntity.getCertificationChallengeImageEntities();
+
+                        for (CertificationChallengeImageEntity imageEntity : certificationChallengeImageEntities) {
+                            imageUrls.add(imageEntity.getImageUrl());
+                        }
+
+                        try {
+                            s3Service.deleteFiles(imageUrls);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         certificationChallengeService.deleteCertificationChallengeById(
                             certificationChallengeEntity.getId());

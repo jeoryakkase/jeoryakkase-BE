@@ -92,11 +92,10 @@ public class ChallengeServiceImpl implements ChallengeService {
         List<ChallengeEntity> challengeAllEntities = challengeRepository.findAll();
         List<ChallengeEntity> challengePopularityEntities = challengeRepository.findChallengesWithMostMembers();
 
-        if(challengeAllEntities.isEmpty() || challengePopularityEntities.isEmpty()) {
+        if (challengeAllEntities.isEmpty() || challengePopularityEntities.isEmpty()) {
             return null;
         }
-        ChallengeMainResDto challengeMainResDto= ChallengeMainResDto.builder().build();
-
+        ChallengeMainResDto challengeMainResDto = ChallengeMainResDto.builder().build();
 
         List<ChallengeReadResDto> challengeALlReadResDto = challengeAllEntities.stream()
             .map(challengeMapper::toChallengesReadResDto)
@@ -105,9 +104,18 @@ public class ChallengeServiceImpl implements ChallengeService {
             .map(challengeMapper::toChallengesReadResDto)
             .collect(Collectors.toList());
 
+        // 리스트의 길이를 확인하고 적절한 서브리스트를 생성
+        List<ChallengeReadResDto> challengeAllSubList =
+            challengeALlReadResDto.size() >= 5 ? challengeALlReadResDto.subList(0, 5)
+                : challengeALlReadResDto;
+        List<ChallengeReadResDto> challengePopularitySubList =
+            challengePopularityReadResDto.size() >= 8
+                ? challengePopularityReadResDto.subList(0, 8)
+                : challengePopularityReadResDto;
+
         challengeMainResDto = challengeMainResDto.toBuilder()
-            .challengesReadResDto(challengeALlReadResDto.subList(0,5))
-            .challengesPopularityReadResDto(challengePopularityReadResDto.subList(0,8))
+            .challengesReadResDto(challengeAllSubList)
+            .challengesPopularityReadResDto(challengePopularitySubList)
             .build();
 
         return challengeMainResDto;
@@ -179,12 +187,14 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .orElse(challengeEntity.getChallengeGoal()))
             .challengeCount(Optional.ofNullable(updatedChallengeDto.getChallengeCount())
                 .orElse(challengeEntity.getChallengeCount()))
-            .challengeType(ChallengeType.valueOf(Optional.ofNullable(updatedChallengeDto.getChallengeType())
-                .orElse(String.valueOf(challengeEntity.getChallengeType()))))
+            .challengeType(
+                ChallengeType.valueOf(Optional.ofNullable(updatedChallengeDto.getChallengeType())
+                    .orElse(String.valueOf(challengeEntity.getChallengeType()))))
             .challengeTerm(Optional.ofNullable(updatedChallengeDto.getChallengeTerm())
                 .orElse(challengeEntity.getChallengeTerm()))
-            .challengeDifficulty(ChallengeDifficulty.valueOf(Optional.ofNullable(updatedChallengeDto.getChallengeDifficulty())
-                .orElse(String.valueOf(challengeEntity.getChallengeDifficulty()))))
+            .challengeDifficulty(ChallengeDifficulty.valueOf(
+                Optional.ofNullable(updatedChallengeDto.getChallengeDifficulty())
+                    .orElse(String.valueOf(challengeEntity.getChallengeDifficulty()))))
             .authContent(Optional.ofNullable(updatedChallengeDto.getAuthContent())
                 .orElse(challengeEntity.getAuthContent()))
             .badgeEntity(Optional.ofNullable(badgeEntity).orElse(challengeEntity.getBadgeEntity()))

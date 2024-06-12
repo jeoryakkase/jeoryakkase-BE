@@ -6,6 +6,7 @@ import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEnti
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCationChallengeMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
+import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -49,6 +50,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
         CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
+        MemberEntity memberEntity = memberChallengeEntity.getMemberEntity();
 
         CertificationChallengeEntity certificationChallengeEntity =
             certificationChallengeMapper.certificationChallengeDtoToCertificationChallengeEntity(
@@ -70,6 +72,14 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
                 certificationChallengeImageService.createCertificationChallengeImage(
                     imageUrls,
                     certificationChallengeEntity.getId()))
+            .build();
+
+
+        // 챌린지 인증 회원 정보 넣기
+        certificationChallengeDto = certificationChallengeDto.toBuilder()
+            .nickname(memberEntity.getNickname())
+            .profileImage(memberEntity.getProfileImage())
+            .representativeBadgeId(memberEntity.getRepresentativeBadgeId())
             .build();
 
         return certificationChallengeDto;
