@@ -78,6 +78,7 @@ public class S3Service {
         return imageUrls;
     }
 
+    // 단일 파일 삭제
     public void deleteFile(String imageUrl) throws IOException {
         try {
             amazonS3Client.deleteObject("my.eliceproject.s3.bucket", replacePrefix(imageUrl,
@@ -87,6 +88,7 @@ public class S3Service {
         }
     }
 
+    // 다중 파일 삭제
     public void deleteFiles(List<String> imageUrls) throws IOException {
         for (String imageUrl : imageUrls) {
             try {
@@ -98,7 +100,7 @@ public class S3Service {
         }
     }
 
-    // 프리픽스 변경 메서드
+    // 프리픽스 변경
     public static String replacePrefix(String input, String prefix, String replacement) {
         if (input.startsWith(prefix)) {
             return replacement + input.substring(prefix.length());
