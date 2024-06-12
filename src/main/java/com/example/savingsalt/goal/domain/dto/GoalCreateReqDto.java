@@ -44,14 +44,14 @@ public class GoalCreateReqDto {
     private LocalDate goalEndDate;      // 목표 끝나는 일정
 
     // toEntity 메서드 추가 => mapper 로 나중에 전환할 것
-    public GoalEntity toEntity(GoalCreateReqDto goalCreateReqDto, MemberEntity memberEntity) {
+    public GoalEntity toEntity(MemberEntity memberEntity) {
         return GoalEntity.builder()
             .memberEntity(memberEntity)
-            .goalTitle(goalCreateReqDto.getGoalTitle())
-            .goalAmount(goalCreateReqDto.getGoalAmount())
-            .goalImage(goalCreateReqDto.getGoalImage())
-            .goalStartDate(goalCreateReqDto.getGoalStartDate())
-            .goalEndDate(goalCreateReqDto.getGoalEndDate())
+            .goalTitle(this.goalTitle)
+            .goalAmount(this.getGoalAmount())
+            .goalImage(this.goalImage)
+            .goalStartDate(this.goalStartDate)
+            .goalEndDate(this.goalEndDate)
             .currentAmount(0L)      // currentAmount 초기값 설정
             .goalStatus(GoalStatus.PROCEEDING)
             .build();

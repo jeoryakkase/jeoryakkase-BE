@@ -4,7 +4,6 @@ import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.like.exception.LikeException.BoardNotFoundException;
 import com.example.savingsalt.community.like.exception.LikeException.MemberNotFoundException;
-import com.example.savingsalt.community.like.domain.MemberLikeDto;
 import com.example.savingsalt.community.like.domain.MemberLikeEntity;
 import com.example.savingsalt.community.like.repository.MemberLikeRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
@@ -28,26 +27,24 @@ public class MemberLikeServiceImpl implements MemberLikeService{
 
     @Override
     @Transactional
-    public String likePost(MemberLikeDto memberLikeDto) {
-        Long memberId = memberLikeDto.getMemberId();
-        Long boardId = memberLikeDto.getBoardId();
+    public String likePost(String email, Long boardId) {
+        MemberEntity memberEntity = memberRepository.findByEmail(email)
+            .orElseThrow(MemberNotFoundException::new);
 
-        Optional<MemberLikeEntity> likeOpt = memberLikeRepository.findByMemberEntityIdAndBoardEntityId(memberId, boardId);
+        BoardEntity boardEntity = boardRepository.findById(boardId)
+            .orElseThrow(BoardNotFoundException::new);
 
-        BoardEntity boardEntity = boardRepository.findById(boardId).orElseThrow(
-            BoardNotFoundException::new);
+        Optional<MemberLikeEntity> likeOpt = memberLikeRepository.findByMemberEntityAndBoardEntity(memberEntity, boardEntity);
 
         if (likeOpt.isPresent()) {
             memberLikeRepository.delete(likeOpt.get());
-            boardEntity.decrementLikes(); // 좋아요 수 감소
+            boardEntity.decrementLikes();
             boardRepository.save(boardEntity);
             return "좋아요 취소";
         } else {
-            MemberEntity memberEntity = memberRepository.findById(memberId).orElseThrow(
-                MemberNotFoundException::new);
             MemberLikeEntity like = new MemberLikeEntity(boardEntity, memberEntity);
             memberLikeRepository.save(like);
-            boardEntity.incrementLikes(); // 좋아요 수 증가
+            boardEntity.incrementLikes();
             boardRepository.save(boardEntity);
             return "좋아요 완료";
         }

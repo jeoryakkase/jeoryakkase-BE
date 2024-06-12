@@ -1,5 +1,6 @@
 package com.example.savingsalt.goal.service;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
 import com.example.savingsalt.goal.domain.entity.GoalCertificationEntity;
@@ -15,6 +16,8 @@ import com.example.savingsalt.member.repository.MemberRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ public class GoalCertificationService {
     private final GoalCertificationRepository certificationRepository;
     private final GoalRepository goalRepository;
     private final MemberRepository memberRepository;
+    private final AmazonS3 amazonS3Client;
 
     // 목표 인증 내용 생성
     @Transactional
@@ -74,6 +78,12 @@ public class GoalCertificationService {
         // 현재 인증 금액만큼 목표 금액에서 차감
         goalEntity.subtractCertificationMoney(certificationEntity.getCertificationMoney());
 
+        // 이미지 URL을 가져와서 S3에서 삭제
+        String imageUrl = certificationEntity.getCertificationImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            deleteImageFromS3(imageUrl);
+        }
+
         // 인증 삭제
         certificationRepository.delete(certificationEntity);
 
@@ -85,20 +95,16 @@ public class GoalCertificationService {
     }
 
     // 특정 목표의 모든 인증을 최신순으로 조회
-    @Transactional
-    public List<GoalCertificationResponseDto> getCertificationsByGoal(Long goalId,
-        UserDetails userDetails) {
-        // 목표를 조회하여 인증 목록 반환
+    @Transactional(readOnly = true)
+    public Page<GoalCertificationResponseDto> getCertificationsByGoal(Long goalId,
+        UserDetails userDetails, Pageable pageable) {
         GoalEntity goalEntity = goalRepository.findById(goalId)
-            .orElseThrow(GoalNotFoundException::new);
+            .orElseThrow(() -> new GoalNotFoundException());
 
-        // 인증 엔티티를 조회하고 DTO로 변환
-        List<GoalCertificationEntity> certifications = certificationRepository.findAllByGoalEntityOrderByCertificationDateDesc(
-            goalEntity);
+        Page<GoalCertificationEntity> certifications = certificationRepository.findAllByGoalEntityOrderByCertificationDateDesc(
+            goalEntity, pageable);
 
-        return certifications.stream()
-            .map(GoalCertificationResponseDto::fromEntity)
-            .collect(Collectors.toList());
+        return certifications.map(GoalCertificationResponseDto::fromEntity);
     }
 
     // 목표 상태를 업데이트하는 메서드
@@ -108,5 +114,11 @@ public class GoalCertificationService {
             goalEntity.updateGoalStatus(GoalStatus.COMPLETE);
         }
         goalRepository.save(goalEntity);
+    }
+
+    // S3에서 이미지 삭제하는 메서드
+    private void deleteImageFromS3(String imageUrl) {
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        amazonS3Client.deleteObject("my.eliceproject.s3.bucket", fileName);
     }
 }

@@ -1,16 +1,21 @@
 package com.example.savingsalt.community.comment.domain.dto;
 
-import com.example.savingsalt.global.BaseEntity;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Getter
-public class ReplyCommentResDto extends BaseEntity {
+public class ReplyCommentResDto {
     private Long id;
     private String content;
     private Long parentCommentId;
-    private Long memberId;
     private String nickname;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
 }

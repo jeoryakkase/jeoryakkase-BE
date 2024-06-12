@@ -1,7 +1,6 @@
 package com.example.savingsalt.community.bookmark.controller;
 
 import com.example.savingsalt.community.bookmark.domain.BookmarkDto;
-import com.example.savingsalt.community.bookmark.domain.BookmarkEntity;
 import com.example.savingsalt.community.bookmark.service.BookmarkService;
 import com.example.savingsalt.community.like.exception.LikeException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,16 +12,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Bookmark", description = "북마크 API")
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/api")
 public class BookmarkController {
     @Autowired
     private BookmarkService bookmarkService;
@@ -33,13 +33,9 @@ public class BookmarkController {
         @ApiResponse(responseCode = "404", description = "게시물을 찾을 수 없음", content = @Content(schema = @Schema(implementation = LikeException.BoardNotFoundException.class))),
         @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음", content = @Content(schema = @Schema(implementation = LikeException.MemberNotFoundException.class)))
     })
-    @PostMapping("/{boardId}/bookmark")
-    public ResponseEntity<String> bookmarkPost(@PathVariable Long boardId, @RequestBody BookmarkDto bookmarkDto) {
-        BookmarkDto dto = BookmarkDto.builder()
-            .memberId(bookmarkDto.getMemberId())
-            .boardId(boardId)
-            .build();
-        String message = bookmarkService.bookmarkPost(dto);
+    @PostMapping("/boards/{boardId}/bookmark")
+    public ResponseEntity<String> bookmarkPost(@PathVariable("boardId") Long boardId, @AuthenticationPrincipal UserDetails userDetails) {
+        String message = bookmarkService.bookmarkPost(userDetails.getUsername(), boardId);
         return ResponseEntity.ok(message);
     }
 
@@ -48,9 +44,9 @@ public class BookmarkController {
         @ApiResponse(responseCode = "200", description = "북마크한 게시물 조회 성공"),
         @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음", content = @Content(schema = @Schema(implementation = LikeException.MemberNotFoundException.class)))
     })
-    @GetMapping("/bookmarks/{memberId}")
-    public ResponseEntity<List<BookmarkEntity>> getBookmarks(@PathVariable Long memberId) {
-        List<BookmarkEntity> bookmarks = bookmarkService.getBookmarks(memberId);
+    @GetMapping("/bookmarks")
+    public ResponseEntity<List<BookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetails userDetails) {
+        List<BookmarkDto> bookmarks = bookmarkService.getBookmarks(userDetails.getUsername());
         return ResponseEntity.ok(bookmarks);
     }
 }
