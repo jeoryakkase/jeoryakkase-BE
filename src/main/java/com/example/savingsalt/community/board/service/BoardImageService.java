@@ -68,7 +68,6 @@ public class BoardImageService {
         boardImageRepository.deleteAllByBoardEntity(board);
     }
 
-
     private BoardImageDto convertToBoardImageDto(BoardImageEntity boardImageEntity) {
 
         return BoardImageDto.builder()
