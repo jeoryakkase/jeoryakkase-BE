@@ -1,20 +1,24 @@
 package com.example.savingsalt.community.board.service;
 
+import com.example.savingsalt.community.board.domain.dto.BoardImageDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.domain.entity.BoardImageEntity;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardServiceException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
 import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
+import com.example.savingsalt.community.comment.domain.entity.ReplyCommentEntity;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
-import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
+import com.example.savingsalt.community.comment.repository.ReplyCommentRepository;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
@@ -43,21 +47,30 @@ public class BoardServiceImpl implements BoardService {
 
     private final CommentRepository commentRepository;
 
+    private final ReplyCommentRepository replyCommentRepository;
+
     private final PollRepository pollRepository;
+
+    private final BoardImageService boardImageService;
 
 
     // 절약팁 게시글 작성
     @Transactional
     @Override
     public BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto,
-        MemberEntity member) {
+        MemberEntity member, List<String> imageUrls) {
+
         BoardEntity boardEntity = requestDto.toEntity(member);
-        try {
-            BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
-            return convertToTipReadResDto(savedBoardEntity);
-        } catch (Exception e) {
-            throw new BoardServiceException("팁 게시글을 작성하는 중 오류가 발생했습니다.", e);
-        }
+
+        BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
+        BoardTypeTipReadResDto boardTypeTipReadResDto = convertToTipReadResDto(savedBoardEntity);
+
+        boardTypeTipReadResDto = boardTypeTipReadResDto.toBuilder()
+            .boardImageDtos(boardImageService.createBoardImage(imageUrls, savedBoardEntity.getId()))
+            .build();
+
+        return boardTypeTipReadResDto;
+
     }
 
     // 절약팁 게시글 목록 조회
@@ -85,26 +98,24 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity boardEntity = boardRepository.findByIdAndCategory(id, category)
             .orElseThrow(() -> new BoardNotFoundException());
 
-        boardEntity.incrementView();
+        List<BoardImageEntity> images = boardImageService.findAllImageByBoardId(
+            boardEntity.getId());
+        List<BoardImageDto> imageDtos = toImageDtos(images);
 
-        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(boardEntity.getId());
+        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+            boardEntity.getId());
+
+        if (comments == null) {
+            return convertToTipReadResDto(boardEntity);
+        }
+
         List<CommentResDto> commentDtos = comments.stream()
-            .filter(comment -> comment.getParentComment() == null) // 최상단 댓글 필터링
-            .map(comment -> toCommentResDto(comment, comments))
+            .map(this::toCommentResDto)
             .collect(Collectors.toList());
 
-//        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
-//            boardEntity.getId());
-//
-//        if (comments == null) {
-//            return convertToTipReadResDto(boardEntity);
-//        }
-//
-//        List<CommentResDto> commentDtos = comments.stream()
-//            .map(this::toCommentResDto)
-//            .collect(Collectors.toList());
+        boardEntity.incrementView();
 
-        return convertToTipReadResDto(boardEntity, commentDtos);
+        return convertToTipReadResDto(boardEntity, commentDtos, imageDtos);
 
     }
 
@@ -112,17 +123,21 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto requestDto,
-        MemberEntity member) {
+        MemberEntity member, List<String> newImageUrls) {
         BoardEntity board = findBoard(id, requestDto.getCategory());
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
             throw new BoardException.UnauthorizedPostUpdateException();
         }
 
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            boardImageService.deleteBoardImage(newImageUrls);
+            boardImageService.createBoardImage(newImageUrls, board.getId());
+        }
+
         BoardEntity updateBoard = board.toBuilder()
             .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
             .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
-            .imageUrls(Optional.ofNullable(requestDto.getImageUrls()).orElse(board.getImageUrls()))
             .build();
 
         try {
@@ -145,6 +160,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         try {
+            boardImageService.deleteAllByBoardEntity(board);
             boardRepository.delete(board);
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글을 삭제하는 중 오류가 발생했습니다.", e);
@@ -157,19 +173,19 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public BoardTypeVoteReadResDto createVoteBoard(BoardTypeVoteCreateReqDto requestDto,
-        MemberEntity member) {
-        try {
-            BoardEntity board = requestDto.toEntity(member);
-            boardRepository.save(board);
+        MemberEntity member, List<String> imageUrls) {
 
-            PollCreateReqDto pollReqDto = requestDto.getPollReqDto();
-            pollService.createPollForBoard(board.getId(), pollReqDto.getStartTime(),
-                pollReqDto.getEndTime());
+        BoardEntity board = requestDto.toEntity(member);
 
-            return convertToVoteReadResDto(board);
-        } catch (Exception e) {
-            throw new BoardServiceException("투표 게시글을 작성하는 중 오류가 발생했습니다.", e);
-        }
+        BoardEntity savedBoardEntity = boardRepository.save(board);
+        BoardTypeVoteReadResDto boardTypeVoteReadResDto = convertToVoteReadResDto(savedBoardEntity);
+
+        boardTypeVoteReadResDto = boardTypeVoteReadResDto.toBuilder()
+            .boardImageDtos(boardImageService.createBoardImage(imageUrls, savedBoardEntity.getId()))
+            .build();
+
+        return boardTypeVoteReadResDto;
+
     }
 
     // 투표 게시글 목록 조회
@@ -196,7 +212,9 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity boardEntity = boardRepository.findByIdAndCategory(id, category)
             .orElseThrow(() -> new BoardNotFoundException());
 
-        boardEntity.incrementView();
+        List<BoardImageEntity> images = boardImageService.findAllImageByBoardId(
+            boardEntity.getId());
+        List<BoardImageDto> imageDtos = toImageDtos(images);
 
         PollEntity pollEntity = pollRepository.findByBoardEntityId(id);
         if (pollEntity == null) {
@@ -208,20 +226,17 @@ public class BoardServiceImpl implements BoardService {
         List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
             boardEntity.getId());
 
+        if (comments == null) {
+            return convertToVoteReadResDto(boardEntity);
+        }
+
         List<CommentResDto> commentDtos = comments.stream()
-            .filter(comment -> comment.getParentComment() == null) // 최상단 댓글 필터링
-            .map(comment -> toCommentResDto(comment, comments))
+            .map(this::toCommentResDto)
             .collect(Collectors.toList());
 
-//        if (comments == null) {
-//            return convertToVoteReadResDto(boardEntity);
-//        }
-//
-//        List<CommentResDto> commentDtos = comments.stream()
-//            .map(this::toCommentResDto)
-//            .collect(Collectors.toList());
+        boardEntity.incrementView();
 
-        return convertToVoteReadResDto(boardEntity, commentDtos);
+        return convertToVoteReadResDto(boardEntity, commentDtos, imageDtos);
 
     }
 
@@ -229,7 +244,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteUpdateReqDto requestDto,
-        MemberEntity member) {
+        MemberEntity member, List<String> newImageUrls) {
 
         BoardEntity board = findBoard(id, requestDto.getCategory());
 
@@ -237,14 +252,18 @@ public class BoardServiceImpl implements BoardService {
             throw new BoardException.UnauthorizedPostUpdateException();
         }
 
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            boardImageService.deleteBoardImage(newImageUrls);
+            boardImageService.createBoardImage(newImageUrls, board.getId());
+        }
+
         BoardEntity updateBoard = board.toBuilder()
             .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
             .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
             .build();
 
-        BoardEntity updatedBoard = boardRepository.save(updateBoard);
-
         try {
+            BoardEntity updatedBoard = boardRepository.save(updateBoard);
             return convertToVoteReadResDto(updatedBoard);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
@@ -263,6 +282,7 @@ public class BoardServiceImpl implements BoardService {
             throw new BoardException.UnauthorizedPostDeleteException();
         }
         try {
+            boardImageService.deleteAllByBoardEntity(board);
             boardRepository.delete(board);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 삭제하는 중 오류가 발생했습니다.", e);
@@ -277,14 +297,14 @@ public class BoardServiceImpl implements BoardService {
             .contents(boardEntity.getContents())
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
-            .imageUrls(boardEntity.getImageUrls())
+//            .boardImageDtos(boardEntity)
             .createdAt(boardEntity.getCreatedAt())
             .modifiedAt(boardEntity.getModifiedAt())
             .build();
     }
 
     private BoardTypeTipReadResDto convertToTipReadResDto(BoardEntity boardEntity,
-        List<CommentResDto> comments) {
+        List<CommentResDto> comments, List<BoardImageDto> imageDtos) {
         return BoardTypeTipReadResDto.builder()
             .nickname(boardEntity.getMemberEntity().getNickname())
             .title(boardEntity.getTitle())
@@ -292,7 +312,7 @@ public class BoardServiceImpl implements BoardService {
             .comments(comments)
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
-            .imageUrls(boardEntity.getImageUrls())
+            .boardImageDtos(imageDtos)
             .createdAt(boardEntity.getCreatedAt())
             .modifiedAt(boardEntity.getModifiedAt())
             .build();
@@ -318,7 +338,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     private BoardTypeVoteReadResDto convertToVoteReadResDto(BoardEntity boardEntity,
-        List<CommentResDto> comments) {
+        List<CommentResDto> comments, List<BoardImageDto> imageDtos) {
 
         PollEntity pollbyBoardEntityId = pollRepository.findByBoardEntityId(
             boardEntity.getId());
@@ -330,58 +350,47 @@ public class BoardServiceImpl implements BoardService {
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .comments(comments)
-            .view(boardEntity.getView())
             .totalLike(boardEntity.getTotalLike())
+            .view(boardEntity.getView())
+            .boardImageDtos(imageDtos)
             .createdAt(boardEntity.getCreatedAt())
             .modifiedAt(boardEntity.getModifiedAt())
             .pollResultDto(pollResults)
             .build();
     }
 
-//    private CommentResDto toCommentResDto(CommentEntity comment) {
-//        List<ReplyCommentEntity> replies = replyCommentRepository.findAllByParentCommentIdOrderByCreatedAtAsc(
-//            comment.getId());
-//        List<ReplyCommentResDto> replyDtos = replies.stream()
-//            .map(this::toReplyCommentDto)
-//            .collect(Collectors.toList());
-//
-//        return CommentResDto.builder()
-//            .id(comment.getId())
-//            .content(comment.getContent())
-//            .nickname(comment.getMemberEntity().getNickname())
-//            .replyComments(replyDtos)
-//            .createdAt(comment.getCreatedAt())
-//            .modifiedAt(comment.getModifiedAt())
-//            .build();
-//    }
-
-//    private ReplyCommentResDto toReplyCommentDto(ReplyCommentEntity replyComment) {
-//        return ReplyCommentResDto.builder()
-//            .id(replyComment.getId())
-//            .content(replyComment.getContent())
-//            .nickname(replyComment.getMemberEntity().getNickname())
-//            .createdAt(replyComment.getCreatedAt())
-//            .modifiedAt(replyComment.getModifiedAt())
-//            .build();
-//    }
-
-    // 댓글과 대댓글을 포함한 댓글 DTO로 변환
-    private CommentResDto toCommentResDto(CommentEntity comment, List<CommentEntity> allComments) {
-        // 해당 댓글의 대댓글을 필터링하고, 대댓글을 재귀적으로 DTO로 변환
-        List<CommentResDto> replyComments = allComments.stream()
-            .filter(c -> c.getParentComment() != null && c.getParentComment().getId().equals(comment.getId()))
-            .map(c -> toCommentResDto(c, allComments))
+    private CommentResDto toCommentResDto(CommentEntity comment) {
+        List<ReplyCommentEntity> replies = replyCommentRepository.findAllByParentCommentIdOrderByCreatedAtAsc(
+            comment.getId());
+        List<ReplyCommentResDto> replyDtos = replies.stream()
+            .map(this::toReplyCommentDto)
             .collect(Collectors.toList());
 
         return CommentResDto.builder()
             .id(comment.getId())
             .content(comment.getContent())
             .nickname(comment.getMemberEntity().getNickname())
-            .replyComments(replyComments)
-            .createdAt(comment.getCreatedAt())
-            .modifiedAt(comment.getModifiedAt())
-            .depth(comment.getDepth())
-            .level(comment.getLevel())
+            .replyComments(replyDtos)
+            .build();
+    }
+
+    private ReplyCommentResDto toReplyCommentDto(ReplyCommentEntity replyComment) {
+        return ReplyCommentResDto.builder()
+            .id(replyComment.getId())
+            .content(replyComment.getContent())
+            .nickname(replyComment.getMemberEntity().getNickname())
+            .build();
+    }
+
+    private List<BoardImageDto> toImageDtos(List<BoardImageEntity> entities) {
+        return entities.stream()
+            .map(this::toImageDto)
+            .collect(Collectors.toList());
+    }
+
+    private BoardImageDto toImageDto(BoardImageEntity boardImageEntity) {
+        return BoardImageDto.builder()
+            .imageUrl(boardImageEntity.getImageUrl())
             .build();
     }
 

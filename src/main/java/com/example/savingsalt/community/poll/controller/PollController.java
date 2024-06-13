@@ -1,6 +1,5 @@
 package com.example.savingsalt.community.poll.controller;
 
-import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.domain.PollVoteReqDto;
 import com.example.savingsalt.community.poll.service.PollService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,14 +34,4 @@ public class PollController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "투표 결과 조회", description = "특정 투표의 결과를 조회합니다.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "404", description = "투표를 찾을 수 없음")
-    })
-    @GetMapping("/{pollId}/results")
-    public ResponseEntity<PollResultDto> getPollResults(@PathVariable Long pollId) {
-        PollResultDto pollResultDto = pollService.getPollResults(pollId);
-        return new ResponseEntity<>(pollResultDto, HttpStatus.OK);
-    }
 }

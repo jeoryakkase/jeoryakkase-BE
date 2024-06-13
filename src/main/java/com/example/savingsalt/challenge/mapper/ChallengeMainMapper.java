@@ -2,11 +2,9 @@ package com.example.savingsalt.challenge.mapper;
 
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.CertificationChallengeImageDto;
-import com.example.savingsalt.challenge.domain.dto.CertificationChallengeReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeCreateReqDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeDto;
 import com.example.savingsalt.challenge.domain.dto.ChallengeReadResDto;
-import com.example.savingsalt.challenge.domain.dto.ChallengeUpdateReqDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeAbandonResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeCreateResDto;
 import com.example.savingsalt.challenge.domain.dto.MemberChallengeDto;
@@ -35,12 +33,16 @@ public interface ChallengeMainMapper {
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
         @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
         @Mapping(source = "entity.badgeEntity.badgeType", target = "badgeDto.badgeType")
+        @Mapping(source = "entity.badgeEntity.stroke", target = "badgeDto.stroke")
+        @Mapping(source = "entity.badgeEntity.fill", target = "badgeDto.fill")
         ChallengeDto toDto(ChallengeEntity entity);
 
         @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
         @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
         @Mapping(source = "entity.badgeEntity.badgeType", target = "badgeDto.badgeType")
+        @Mapping(source = "entity.badgeEntity.stroke", target = "badgeDto.stroke")
+        @Mapping(source = "entity.badgeEntity.fill", target = "badgeDto.fill")
         ChallengeReadResDto toChallengesReadResDto(ChallengeEntity entity);
 
     }
@@ -62,20 +64,25 @@ public interface ChallengeMainMapper {
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
     interface CertificationChallengeImageMapper {
+
         CertificationChallengeImageDto toDto(CertificationChallengeImageEntity entity);
+
         List<CertificationChallengeImageDto> toDtoList(
             List<CertificationChallengeImageEntity> entities);
+
+        List<CertificationChallengeImageEntity> toEntityList(
+            List<CertificationChallengeImageDto> dtos);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE, uses = CertificationChallengeImageMapper.class)
     interface CertifiCationChallengeMapper {
 
-        CertificationChallengeEntity certificationChallengeDtoToCertificationChallengeEntity(
-            CertificationChallengeReqDto dto);
-
         @Mapping(source = "certificationChallengeImageEntities", target = "certificationChallengeImageDtos")
         CertificationChallengeDto toDto(CertificationChallengeEntity entity);
+
         List<CertificationChallengeDto> toDtoList(List<CertificationChallengeEntity> entities);
+
+        CertificationChallengeEntity toEntity(CertificationChallengeDto certificationChallengeDto);
     }
 
     @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE, uses = CertifiCationChallengeMapper.class)
@@ -88,7 +95,10 @@ public interface ChallengeMainMapper {
         @Mapping(source = "challengeEntity.badgeEntity.badgeDesc", target = "challengeDto.badgeDto.badgeDesc")
         @Mapping(source = "challengeEntity.badgeEntity.badgeImage", target = "challengeDto.badgeDto.badgeImage")
         @Mapping(source = "challengeEntity.badgeEntity.badgeType", target = "challengeDto.badgeDto.badgeType")
+        @Mapping(source = "challengeEntity.badgeEntity.stroke", target = "challengeDto.badgeDto.stroke")
+        @Mapping(source = "challengeEntity.badgeEntity.fill", target = "challengeDto.badgeDto.fill")
         MemberChallengeWithCertifyAndChallengeResDto toDto(MemberChallengeEntity entity);
+
         List<MemberChallengeWithCertifyAndChallengeResDto> toDtoList(
             List<MemberChallengeEntity> entities);
     }

@@ -12,8 +12,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
+@Builder(toBuilder = true)
 public class MemberChallengeWithCertifyAndChallengeResDto {
+
+    private Long id;
 
     private LocalDateTime startDate;
 
@@ -32,6 +34,10 @@ public class MemberChallengeWithCertifyAndChallengeResDto {
     private String challengeComment;
 
     private Integer totalSaveMoney;
+
+    private String progressRate;
+
+    private Integer numberOfParticipatingPeople;
 
     private List<CertificationChallengeDto> certificationChallengeDtos;
     // certificationChallengeDto 1개 안에 List<CertificationChallengeImageDto>

@@ -211,10 +211,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(PollException.PollNotActiveException.class)
-    public ResponseEntity<String> handlePollNotActiveException(PollException.PollNotActiveException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
 
 
     @ExceptionHandler(MaxProceedingGoalsExceededException.class)

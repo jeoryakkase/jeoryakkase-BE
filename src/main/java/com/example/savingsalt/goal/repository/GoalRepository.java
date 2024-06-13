@@ -20,4 +20,7 @@ public interface GoalRepository extends JpaRepository<GoalEntity, Long> {
         @Param("status") GoalStatus status);
 
     Page<GoalEntity> findAllByMemberEntity(MemberEntity member, Pageable pageable);
+
+    // 진행 중인 목표만 조회하는 쿼리 메서드
+    List<GoalEntity> findByGoalStatus(GoalStatus status);
 }

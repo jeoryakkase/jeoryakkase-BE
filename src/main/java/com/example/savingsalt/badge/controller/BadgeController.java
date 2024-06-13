@@ -107,8 +107,11 @@ public class BadgeController {
     public ResponseEntity<BadgeDto> updateBadge(
         @Parameter(description = "뱃지 ID") @PathVariable Long badgeId,
         @Parameter(description = "수정할 뱃지의 정보") @Valid @RequestPart BadgeUpdateReqDto badgeUpdateReqDto,
-        @RequestPart("uploadFile") MultipartFile multipartFile) throws IOException {
-        String imageUrl = s3Service.upload(multipartFile);
+        @RequestPart(value = "uploadFile", required = false) MultipartFile multipartFile) throws IOException {
+        String imageUrl = null;
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            imageUrl = s3Service.upload(multipartFile);
+        }
 
         BadgeDto updatedBadgeDto = badgeService.updateBadge(badgeId, badgeUpdateReqDto, imageUrl);
 

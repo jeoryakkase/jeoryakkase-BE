@@ -1,6 +1,8 @@
 package com.example.savingsalt.community.board.domain.dto;
 
+import com.example.savingsalt.community.board.domain.entity.BoardImageEntity;
 import com.example.savingsalt.community.board.enums.BoardCategory;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +21,5 @@ public class MyPageBoardDto {
     private int totalLike;
     private int view;
     private BoardCategory category;
-    private String imageUrls;
+    private List<BoardImageEntity> boardImageEntities;
 }

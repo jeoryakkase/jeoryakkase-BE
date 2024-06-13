@@ -1,7 +1,6 @@
 package com.example.savingsalt.community.comment.domain.entity;
 
-import com.example.savingsalt.community.board.domain.entity.BoardEntity;
-import com.example.savingsalt.community.comment.domain.dto.CommentReqDto;
+import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.Entity;
@@ -13,18 +12,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "comments")
+@Table(name = "reply_comments")
 @Getter
-@Builder(toBuilder = true)
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
-public class CommentEntity extends BaseEntity {
+@Entity
+public class ReplyCommentEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,20 +29,24 @@ public class CommentEntity extends BaseEntity {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private BoardEntity boardEntity;
+    @JoinColumn(name = "parent_comment_id")
+    private CommentEntity parentComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
-    private CommentEntity parentComment;
 
-    public CommentEntity(CommentReqDto requestDto, BoardEntity saveBoard, MemberEntity member) {
-        this.content = requestDto.getContent();
-        this.boardEntity = saveBoard;
-        this.memberEntity = member;
+    public ReplyCommentEntity(String content, CommentEntity parentComment,
+        MemberEntity memberEntity) {
+        this.content = content;
+        this.parentComment = parentComment;
+        this.memberEntity = memberEntity;
     }
+
+    public void update(ReplyCommentReqDto requestDto) {
+        this.content = requestDto.getContent();
+    }
+
 }
+

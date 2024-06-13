@@ -1,6 +1,7 @@
 package com.example.savingsalt.challenge.domain.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class MemberChallengeJoinResDto {
+
+    private Long id;
 
     private String challengeTtile;
 
@@ -25,5 +28,5 @@ public class MemberChallengeJoinResDto {
 
     private Long effectiveDate;
 
-    private CertificationChallengeDto certificationChallengeDto;
+    private List<CertificationChallengeDto> certificationChallengeDtos;
 }

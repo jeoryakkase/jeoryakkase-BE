@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,19 +34,4 @@ public class PollEntity extends BaseEntity {
 
     private int noCount;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-
-    public boolean isActive() {
-        LocalDateTime now = LocalDateTime.now();
-        return now.isAfter(startTime) && now.isBefore(endTime);
-    }
-
-    public boolean isFinished() {
-        return LocalDateTime.now().isAfter(endTime);
-    }
-
-    public boolean isNotStarted() {
-        return LocalDateTime.now().isBefore(startTime);
-    }
 }
