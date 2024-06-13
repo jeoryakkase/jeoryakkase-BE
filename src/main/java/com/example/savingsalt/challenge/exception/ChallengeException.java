@@ -50,4 +50,10 @@ public class ChallengeException {
             super(ChallengeExceptionType.INVALID_CHALLENGE_TERM.getExceptionMessage());
         }
     }
+
+    public static class AlreadyInProgressMemberChallengeException extends RuntimeException {
+        public AlreadyInProgressMemberChallengeException() {
+            super(ChallengeExceptionType.ALREADY_IN_PROGRESS_CHALLENGE.getExceptionMessage());
+        }
+    }
 }

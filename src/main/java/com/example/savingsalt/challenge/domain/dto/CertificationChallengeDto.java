@@ -14,17 +14,21 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class CertificationChallengeDto {
 
-    private LocalDateTime certificationDate;
+    private Long id;
 
-    private List<CertificationChallengeImageDto> certificationChallengeImageDtos;
+    private LocalDateTime certificationDate;
 
     private String content;
 
-    private String saveMoney;
+    private Integer saveMoney;
 
     private String nickname;
 
     private String profileImage;
 
     private Long representativeBadgeId;
+
+    private Long challengeId;
+
+    private List<CertificationChallengeImageDto> certificationChallengeImageDtos;
 }

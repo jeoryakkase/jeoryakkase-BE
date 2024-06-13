@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 public class BoardTypeTipReadResDto {
 
@@ -17,7 +17,7 @@ public class BoardTypeTipReadResDto {
     private List<CommentResDto> comments;
     private int totalLike;
     private int view;
-    private String imageUrls;
+    private List<BoardImageDto> boardImageDtos;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
