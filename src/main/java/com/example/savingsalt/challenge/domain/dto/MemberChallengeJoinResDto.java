@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MemberChallengeJoinResDto {
 
+    private Long id;
+
     private String challengeTtile;
 
     private String challengeTerm;
