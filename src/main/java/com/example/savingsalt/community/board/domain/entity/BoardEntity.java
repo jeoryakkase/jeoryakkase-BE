@@ -2,6 +2,7 @@ package com.example.savingsalt.community.board.domain.entity;
 
 import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
 import com.example.savingsalt.community.board.enums.BoardCategory;
+import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.CascadeType;
@@ -16,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -57,6 +59,9 @@ public class BoardEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private BoardCategory category;
+
+    @OneToOne(mappedBy = "boardEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PollEntity pollEntity;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "boardEntity", cascade = CascadeType.ALL)
     private List<BoardImageEntity> boardImageEntities;
