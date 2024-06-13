@@ -143,14 +143,11 @@ public class GoalCertificationService {
             .orElseThrow(() -> new MemberNotFoundException());
 
         LocalDate today = LocalDate.now();
-        Long dailyAmount = certificationRepository.sumDailyCertificationMoneyByMember(member,
-            today);
-        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member,
-            today.getMonthValue(), today.getYear());
+        Long dailyAmount = certificationRepository.sumDailyCertificationMoneyByMember(member, today);
+        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member, today.getMonthValue(), today.getYear());
         Long totalAmount = certificationRepository.sumAllCertificationMoneyByMember(member);
 
-        List<String> dailyContents = certificationRepository.findDailyCertificationContentsByMember(
-            member, today);
+        List<String> dailyContents = certificationRepository.findDailyCertificationContentsByMember(member, today);
         Map<String, Long> dailyFrequencyMap = dailyContents.stream()
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         Set<String> topDailyContents = dailyFrequencyMap.entrySet().stream()
@@ -160,34 +157,35 @@ public class GoalCertificationService {
             .map(Map.Entry::getKey)
             .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(
-            member, today.getMonthValue(), today.getYear());
-        Set<String> uniqueMonthlyContents = new HashSet<>(monthlyContents);
-
-        Map<String, Long> frequencyMap = monthlyContents.stream()
+        List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(member, today.getMonthValue(), today.getYear());
+        Map<String, Long> monthlyFrequencyMap = monthlyContents.stream()
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        Map<String, Double> percentages = frequencyMap.entrySet().stream()
+        Set<String> topMonthlyContents = monthlyFrequencyMap.entrySet().stream()
             .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
-                .thenComparing(Map.Entry::getKey))  // 동일 값 처리를 위한 추가 정렬 기준
-            .limit(3)  // 상위 3개 항목만 선택
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        Map<String, Double> percentages = monthlyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
             .collect(Collectors.toMap(
-                entry -> entry.getKey(),  // Map.Entry::getKey 대신 람다 표현식 사용
+                entry -> entry.getKey(),
                 entry -> (double) Math.round(100.0 * entry.getValue() / monthlyContents.size()),
-                // 결과를 반올림 후 double로 반환
-                (existingValue, newValue) -> existingValue,  // 동일한 키가 있을 경우 첫 번째 값을 사용
-                LinkedHashMap::new  // 순서 보장
-            ));
+                (existingValue, newValue) -> existingValue,
+                LinkedHashMap::new));
 
         return GoalCertificationStatisticsResDto.builder()
             .totalAmount(totalAmount)
             .monthlyAmount(monthlyAmount)
             .dailyAmount(dailyAmount)
             .dailyCertifications(topDailyContents)
-            .monthlyAmount(monthlyAmount)
-            .monthlyCertifications(uniqueMonthlyContents)
+            .monthlyCertifications(topMonthlyContents)
             .monthlyCertificationPercentages(percentages)
             .todayDate(today)
-            .yearMonth("" + today.getYear() + ". " + today.getMonthValue())
+            .yearMonth(today.getYear() + ". " + today.getMonthValue())
             .build();
     }
 }
