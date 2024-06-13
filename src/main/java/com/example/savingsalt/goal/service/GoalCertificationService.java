@@ -17,7 +17,10 @@ import com.example.savingsalt.member.exception.MemberException.MemberNotFoundExc
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -140,36 +143,49 @@ public class GoalCertificationService {
             .orElseThrow(() -> new MemberNotFoundException());
 
         LocalDate today = LocalDate.now();
-        Long dailyAmount = certificationRepository.sumDailyCertificationMoneyByMember(member,
-            today);
-        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member,
-            today.getMonthValue(), today.getYear());
+        Long dailyAmount = certificationRepository.sumDailyCertificationMoneyByMember(member, today);
+        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member, today.getMonthValue(), today.getYear());
         Long totalAmount = certificationRepository.sumAllCertificationMoneyByMember(member);
 
-        List<String> dailyContents = certificationRepository.findDailyCertificationContentsByMember(
-            member, today);
-        Set<String> uniqueContents = new HashSet<>(dailyContents); // 중복 제거
-
-        List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(
-            member, today.getMonthValue(), today.getYear());
-        Set<String> uniqueMonthlyContents = new HashSet<>(monthlyContents);
-
-        Map<String, Long> frequencyMap = monthlyContents.stream()
+        List<String> dailyContents = certificationRepository.findDailyCertificationContentsByMember(member, today);
+        Map<String, Long> dailyFrequencyMap = dailyContents.stream()
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        Map<String, Long> percentages = frequencyMap.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey,
-                entry -> Math.round(100.0 * entry.getValue() / monthlyContents.size())));
+        Set<String> topDailyContents = dailyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(member, today.getMonthValue(), today.getYear());
+        Map<String, Long> monthlyFrequencyMap = monthlyContents.stream()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Set<String> topMonthlyContents = monthlyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        Map<String, Double> percentages = monthlyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .collect(Collectors.toMap(
+                entry -> entry.getKey(),
+                entry -> (double) Math.round(100.0 * entry.getValue() / monthlyContents.size()),
+                (existingValue, newValue) -> existingValue,
+                LinkedHashMap::new));
 
         return GoalCertificationStatisticsResDto.builder()
             .totalAmount(totalAmount)
             .monthlyAmount(monthlyAmount)
             .dailyAmount(dailyAmount)
-            .dailyCertifications(uniqueContents)
-            .monthlyAmount(monthlyAmount)
-            .monthlyCertifications(uniqueMonthlyContents)
+            .dailyCertifications(topDailyContents)
+            .monthlyCertifications(topMonthlyContents)
             .monthlyCertificationPercentages(percentages)
             .todayDate(today)
-            .yearMonth("" + today.getYear() + ". " + today.getMonthValue())
+            .yearMonth(today.getYear() + ". " + today.getMonthValue())
             .build();
     }
 }

@@ -26,12 +26,4 @@ public class BoardTypeVoteCreateReqDto {
             .category(category)
             .build();
     }
-/* no usage상태 + 에러 때문에 임의로 주석처리
-
-    public PollEntity toPollEntity(BoardEntity boardEntity) {
-
-        return pollReqDto.toEntity(boardEntity);
-    }
-*/
-
 }
