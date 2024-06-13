@@ -41,4 +41,10 @@ public class BadgeEntity {
 
     @Column(name = "badge_type", nullable = false)
     private String badgeType;
+
+    @Column(name = "badge_stroke")
+    private String stroke;
+
+    @Column(name = "badge_fill")
+    private String fill;
 }
