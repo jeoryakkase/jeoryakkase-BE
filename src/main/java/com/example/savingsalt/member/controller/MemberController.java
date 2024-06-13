@@ -251,7 +251,7 @@ public class MemberController {
     }
 
 
-    @DeleteMapping("/members/{memberId}")
+    @DeleteMapping("/admin/members/{memberId}")
     @Operation(summary = "관리자의 회원 삭제", description = "Delete member")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Delete success"),
