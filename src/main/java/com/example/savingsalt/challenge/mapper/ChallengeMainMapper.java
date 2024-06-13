@@ -33,12 +33,16 @@ public interface ChallengeMainMapper {
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
         @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
         @Mapping(source = "entity.badgeEntity.badgeType", target = "badgeDto.badgeType")
+        @Mapping(source = "entity.badgeEntity.stroke", target = "badgeDto.stroke")
+        @Mapping(source = "entity.badgeEntity.fill", target = "badgeDto.fill")
         ChallengeDto toDto(ChallengeEntity entity);
 
         @Mapping(source = "entity.badgeEntity.name", target = "badgeDto.name")
         @Mapping(source = "entity.badgeEntity.badgeDesc", target = "badgeDto.badgeDesc")
         @Mapping(source = "entity.badgeEntity.badgeImage", target = "badgeDto.badgeImage")
         @Mapping(source = "entity.badgeEntity.badgeType", target = "badgeDto.badgeType")
+        @Mapping(source = "entity.badgeEntity.stroke", target = "badgeDto.stroke")
+        @Mapping(source = "entity.badgeEntity.fill", target = "badgeDto.fill")
         ChallengeReadResDto toChallengesReadResDto(ChallengeEntity entity);
 
     }
@@ -91,6 +95,8 @@ public interface ChallengeMainMapper {
         @Mapping(source = "challengeEntity.badgeEntity.badgeDesc", target = "challengeDto.badgeDto.badgeDesc")
         @Mapping(source = "challengeEntity.badgeEntity.badgeImage", target = "challengeDto.badgeDto.badgeImage")
         @Mapping(source = "challengeEntity.badgeEntity.badgeType", target = "challengeDto.badgeDto.badgeType")
+        @Mapping(source = "challengeEntity.badgeEntity.stroke", target = "challengeDto.badgeDto.stroke")
+        @Mapping(source = "challengeEntity.badgeEntity.fill", target = "challengeDto.badgeDto.fill")
         MemberChallengeWithCertifyAndChallengeResDto toDto(MemberChallengeEntity entity);
 
         List<MemberChallengeWithCertifyAndChallengeResDto> toDtoList(
