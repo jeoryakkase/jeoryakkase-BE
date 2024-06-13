@@ -17,4 +17,8 @@ public class MemberChallengeBadgeResDto {
     private String badgeDesc;
 
     private String badgeImage;
+
+    private String stroke;
+
+    private String fill;
 }
