@@ -6,7 +6,6 @@ import com.example.savingsalt.challenge.domain.entity.CertificationChallengeEnti
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertifiCationChallengeMapper;
-import com.example.savingsalt.challenge.mapper.ChallengeMainMapper.CertificationChallengeImageMapper;
 import com.example.savingsalt.challenge.repository.CertificationChallengeRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import jakarta.persistence.EntityManager;
@@ -24,7 +23,6 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
     private final CertificationChallengeRepository certificationChallengeRepository;
     private final CertifiCationChallengeMapper certificationChallengeMapper;
     private final CertificationChallengeImageServiceImpl certificationChallengeImageService;
-    private final CertificationChallengeImageMapper certificationChallengeImageMapper;
 
     @PersistenceContext
     private final EntityManager entityManager;
@@ -33,25 +31,23 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
         CertificationChallengeRepository certificationChallengeRepository,
         CertifiCationChallengeMapper certificationChallengeMapper,
         CertificationChallengeImageServiceImpl certificationChallengeImageService,
-        CertificationChallengeImageMapper certificationChallengeImageMapper,
         EntityManager entityManager) {
 
         this.certificationChallengeRepository = certificationChallengeRepository;
         this.certificationChallengeMapper = certificationChallengeMapper;
         this.certificationChallengeImageService = certificationChallengeImageService;
-        this.certificationChallengeImageMapper = certificationChallengeImageMapper;
         this.entityManager = entityManager;
     }
 
-    // 챌린지 인증 내용 조회
-    public CertificationChallengeDto getCertifiCationChallenge(
+    // 챌린지 인증 목록 조회
+    public List<CertificationChallengeDto> getCertifiCationChallenges(
         MemberChallengeEntity memberChallengeEntity) {
 
-        return certificationChallengeMapper.toDto(
-            certificationChallengeRepository.findByMemberChallengeEntity(memberChallengeEntity));
+        return certificationChallengeMapper.toDtoList(
+            certificationChallengeRepository.findAllByMemberChallengeEntity(memberChallengeEntity));
     }
 
-    // 챌린지 인증 컬럼 생성
+    // 챌린지 인증 생성
     public CertificationChallengeDto createCertificationChallenge(
         MemberChallengeEntity memberChallengeEntity,
         CertificationChallengeReqDto certificationChallengeReqDto, List<String> imageUrls) {
@@ -100,7 +96,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
     }
 
     // 선택된 챌린지의 참여 중인 인증 전체 조회
-    public List<CertificationChallengeDto> getCertifiCationChallenges(Long challengeId) {
+    public List<CertificationChallengeDto> selectedChallengeGetCertifiCationChallenges(Long challengeId) {
         List<CertificationChallengeEntity> certificationChallengeEntities = certificationChallengeRepository.findAll();
         List<CertificationChallengeDto> certificationChallengeDtos = new ArrayList<>();
 
