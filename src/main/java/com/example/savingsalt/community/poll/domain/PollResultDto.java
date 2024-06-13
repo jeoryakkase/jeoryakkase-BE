@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class PollResultDto {
     private int yesCount;
     private int noCount;
+    private int yesPercentage;
+    private int noPercentage;
 }
