@@ -78,10 +78,13 @@ public class MemberChallengeServiceImpl implements
     public MemberChallengeWithCertifyAndChallengeResDto getMemberChallenge(Long memberId,
         Long memberChallengeId) {
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+        Long progressRate = null;
+        Integer numberOfParticipatingPeople;
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
             List<MemberChallengeEntity> memberChallengeEntities = memberEntity.getMemberChallengeEntities();
+            MemberChallengeWithCertifyAndChallengeResDto memberChallengeWithCertifyAndChallengeResDto;
 
             Optional<MemberChallengeEntity> memberChallengeEntityOpt = memberChallengeRepository.findById(
                 memberChallengeId);
@@ -89,10 +92,37 @@ public class MemberChallengeServiceImpl implements
             if (memberChallengeEntityOpt.isPresent()) {
                 MemberChallengeEntity foundMemberChallenge = memberChallengeEntityOpt.get();
 
+                numberOfParticipatingPeople = memberChallengeRepository.countByChallengeStatusAndChallengeEntity(
+                    ChallengeStatus.IN_PROGRESS, foundMemberChallenge.getChallengeEntity());
+
                 for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
                     if (memberChallengeEntity.getId().equals(foundMemberChallenge.getId())) {
-                        return memberChallengeWithCertifyAndChallengeMapper.toDto(
+                        memberChallengeWithCertifyAndChallengeResDto = memberChallengeWithCertifyAndChallengeMapper.toDto(
                             foundMemberChallenge);
+
+                        if (memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                            .getChallengeType().equals(ChallengeType.COUNT)) {
+
+                            progressRate = Math.round(
+                                memberChallengeWithCertifyAndChallengeResDto.getAuthCount()
+                                    .doubleValue()
+                                    / memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                                    .getChallengeCount() * 100);
+
+                        } else if (memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                            .getChallengeType().equals(ChallengeType.GOAL)) {
+
+                            progressRate = Math.round(
+                                memberChallengeWithCertifyAndChallengeResDto.getTotalSaveMoney()
+                                    .doubleValue()
+                                    / memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                                    .getChallengeGoal() * 100);
+                        }
+
+                        return memberChallengeWithCertifyAndChallengeResDto.toBuilder()
+                            .progressRate(progressRate + "%")
+                            .numberOfParticipatingPeople(numberOfParticipatingPeople)
+                            .build();
                     }
                 }
 
@@ -111,12 +141,41 @@ public class MemberChallengeServiceImpl implements
     public List<MemberChallengeWithCertifyAndChallengeResDto> getMemberChallenges(Long memberId) {
 
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
+        List<MemberChallengeWithCertifyAndChallengeResDto> foundMemberChallengeWithCertifyAndChallengeResDtos;
+        List<MemberChallengeWithCertifyAndChallengeResDto> memberChallengeWithCertifyAndChallengeResDtos = new ArrayList<>();
+        Long progressRate = null;
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
-
-            return memberChallengeWithCertifyAndChallengeMapper.toDtoList(
+            foundMemberChallengeWithCertifyAndChallengeResDtos = memberChallengeWithCertifyAndChallengeMapper.toDtoList(
                 memberChallengeRepository.findAllByMemberEntity(memberEntity));
+
+            for (MemberChallengeWithCertifyAndChallengeResDto memberChallengeWithCertifyAndChallengeResDto : foundMemberChallengeWithCertifyAndChallengeResDtos) {
+                if (memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                    .getChallengeType().equals(ChallengeType.COUNT)) {
+
+                    progressRate = Math.round(
+                        memberChallengeWithCertifyAndChallengeResDto.getAuthCount().doubleValue()
+                            / memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                            .getChallengeCount() * 100);
+
+                } else if (memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                    .getChallengeType().equals(ChallengeType.GOAL)) {
+
+                    progressRate = Math.round(
+                        memberChallengeWithCertifyAndChallengeResDto.getTotalSaveMoney()
+                            .doubleValue()
+                            / memberChallengeWithCertifyAndChallengeResDto.getChallengeDto()
+                            .getChallengeGoal() * 100);
+                }
+
+                memberChallengeWithCertifyAndChallengeResDtos.add(
+                    memberChallengeWithCertifyAndChallengeResDto.toBuilder()
+                        .progressRate(progressRate + "%")
+                        .build());
+            }
+            return memberChallengeWithCertifyAndChallengeResDtos;
+
         } else {
             throw new MemberNotFoundException();
         }
@@ -136,36 +195,35 @@ public class MemberChallengeServiceImpl implements
             MemberEntity memberEntity = MemberEntityOpt.get();
             memberChallengeEntities = memberChallengeRepository.findAllByMemberEntity(memberEntity);
             if (memberChallengeEntities.isEmpty()) {
-                throw new MemberChallengeNotFoundException();
-            } else {
-                for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
-                    if (memberChallengeEntity.getChallengeStatus()
-                        .equals(ChallengeStatus.IN_PROGRESS)) {
-
-                        Long effectiveDate = ChronoUnit.DAYS.between(
-                            memberChallengeEntity.getStartDate().toLocalDate(),
-                            now.toLocalDate());
-
-                        MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
-                            .challengeTtile(
-                                memberChallengeEntity.getChallengeEntity().getChallengeTitle())
-                            .challengeTerm(
-                                memberChallengeEntity.getChallengeEntity().getChallengeTerm())
-                            .isTodayCertification(memberChallengeEntity.getIsTodayCertification())
-                            .startDate(memberChallengeEntity.getStartDate().toLocalDate())
-                            .endDate(memberChallengeEntity.getEndDate().toLocalDate())
-                            .effectiveDate(effectiveDate)
-                            .certificationChallengeDto(
-                                certificationChallengeService.getCertifiCationChallenge(
-                                    memberChallengeEntity))
-                            .build();
-
-                        memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
-                    }
-
-                }
-                return memberChallengeJoinResDtoList;
+                return null;
             }
+            for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
+                if (memberChallengeEntity.getChallengeStatus()
+                    .equals(ChallengeStatus.IN_PROGRESS)) {
+
+                    Long effectiveDate = ChronoUnit.DAYS.between(
+                        memberChallengeEntity.getStartDate().toLocalDate(),
+                        now.toLocalDate());
+
+                    MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
+                        .challengeTtile(
+                            memberChallengeEntity.getChallengeEntity().getChallengeTitle())
+                        .challengeTerm(
+                            memberChallengeEntity.getChallengeEntity().getChallengeTerm())
+                        .isTodayCertification(memberChallengeEntity.getIsTodayCertification())
+                        .startDate(memberChallengeEntity.getStartDate().toLocalDate())
+                        .endDate(memberChallengeEntity.getEndDate().toLocalDate())
+                        .effectiveDate(effectiveDate)
+                        .certificationChallengeDtos(
+                            certificationChallengeService.getCertifiCationChallenges(
+                                memberChallengeEntity))
+                        .build();
+
+                    memberChallengeJoinResDtoList.add(tempMemberChallengeJoinResDto);
+                }
+
+            }
+            return memberChallengeJoinResDtoList;
 
         } else {
             throw new MemberNotFoundException();
