@@ -14,8 +14,6 @@ public interface MemberChallengeRepository extends JpaRepository<MemberChallenge
 
     List<MemberChallengeEntity> findAllByMemberEntity(MemberEntity memberEntity);
 
-    MemberChallengeEntity findByMemberEntity(MemberEntity memberEntity);
-
     List<MemberChallengeEntity> findAllByChallengeEntity(ChallengeEntity challengeEntity);
 
     @Query("SELECT COUNT(c) FROM MemberChallengeEntity c WHERE c.challengeStatus = :challengeStatus AND c.challengeEntity = : challengeEntity")
