@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @AllArgsConstructor
 public class BoardTypeVoteReadResDto{

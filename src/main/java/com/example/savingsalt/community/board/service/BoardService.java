@@ -29,7 +29,7 @@ public interface BoardService {
     // 허불허 게시판 (투표게시판)
 
     // 투표 게시글 작성
-    BoardTypeVoteReadResDto createVoteBoard(BoardTypeVoteCreateReqDto requestDto, MemberEntity memberEntity);
+    BoardTypeVoteReadResDto createVoteBoard(BoardTypeVoteCreateReqDto requestDto, MemberEntity memberEntity, List<String> imageUrls);
 
     // 투표 게시글 목록 조회
     Page<BoardTypeVoteReadResDto> findAllVoteBoard(int page, int size);
@@ -38,7 +38,7 @@ public interface BoardService {
     BoardTypeVoteReadResDto findVoteBoardById(Long id);
 
     // 투표 게시글 수정
-    BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteUpdateReqDto boardDto, MemberEntity member);
+    BoardTypeVoteReadResDto updateVoteBoard(Long id, BoardTypeVoteUpdateReqDto boardDto, MemberEntity member, List<String> newImageUrls);
 
     // 투표 게시글 삭제
     void deleteVoteBoard(Long id, MemberEntity member);
