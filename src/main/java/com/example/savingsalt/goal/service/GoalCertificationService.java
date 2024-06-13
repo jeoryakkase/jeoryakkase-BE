@@ -156,9 +156,9 @@ public class GoalCertificationService {
 
         Map<String, Long> frequencyMap = monthlyContents.stream()
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        Map<String, Double> percentages = frequencyMap.entrySet().stream()
+        Map<String, Long> percentages = frequencyMap.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey,
-                e -> 100.0 * e.getValue() / monthlyContents.size()));
+                entry -> Math.round(100.0 * entry.getValue() / monthlyContents.size())));
 
         return GoalCertificationStatisticsResDto.builder()
             .totalAmount(totalAmount)
