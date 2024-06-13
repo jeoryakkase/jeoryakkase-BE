@@ -99,6 +99,7 @@ public class ChallengeController {
         @Parameter(description = "클라이언트의 요청 정보") HttpServletRequest request) {
         ChallengeMainResDto challengeMainResDto = challengeService.getChallengeMain();
 
+        // 로그인 여부
         String token = jwtTokenProvider.resolveToken(request);
         if (token != null || jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmailFromToken(token);
@@ -106,13 +107,17 @@ public class ChallengeController {
             List<MemberChallengeJoinResDto> memberChallengesJoinResDto = memberChallengeService.getJoiningMemberChallenge(
                 memberDto.getId());
 
-            List<MemberChallengeJoinResDto> memberChallengesJoinSubList =
-                memberChallengesJoinResDto.size() >= 3 ? memberChallengesJoinResDto.subList(0, 3)
-                    : memberChallengesJoinResDto;
+            // 회원이 지금 진행중인 챌린지가 하나도 없으면 null을 보내줌
+            if (memberChallengesJoinResDto != null) {
+                List<MemberChallengeJoinResDto> memberChallengesJoinSubList =
+                    memberChallengesJoinResDto.size() >= 3 ? memberChallengesJoinResDto.subList(0,
+                        3)
+                        : memberChallengesJoinResDto;
 
-            challengeMainResDto = challengeMainResDto.toBuilder()
-                .memberChallengesJoinResDto(memberChallengesJoinSubList)
-                .build();
+                challengeMainResDto = challengeMainResDto.toBuilder()
+                    .memberChallengesJoinResDto(memberChallengesJoinSubList)
+                    .build();
+            }
         }
         return (challengeMainResDto == null) ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build() : ResponseEntity.ok(challengeMainResDto);
