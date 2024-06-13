@@ -23,9 +23,4 @@ public class PollException extends RuntimeException{
         }
     }
 
-    public static class PollNotActiveException extends PollException {
-        public PollNotActiveException() {
-            super("투표가 활성 상태가 아닙니다.");
-        }
-    }
 }

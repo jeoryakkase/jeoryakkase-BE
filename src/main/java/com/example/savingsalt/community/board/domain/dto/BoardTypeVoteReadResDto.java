@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @AllArgsConstructor
 public class BoardTypeVoteReadResDto{
@@ -21,6 +21,7 @@ public class BoardTypeVoteReadResDto{
     private List<CommentResDto> comments;
     private int view;
     private int totalLike;
+    private List<BoardImageDto> boardImageDtos;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
