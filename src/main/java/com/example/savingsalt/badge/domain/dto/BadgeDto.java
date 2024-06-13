@@ -18,4 +18,8 @@ public class BadgeDto {
     private String badgeDesc;
 
     private String badgeType;
+
+    private String stroke;
+
+    private String fill;
 }

@@ -171,6 +171,10 @@ public class BadgeServiceImpl implements BadgeService {
                 .orElse(badgeEntity.getBadgeImage()))
             .badgeType(Optional.ofNullable(badgeUpdateReqDto.getBadgeType()).orElse(
                 badgeEntity.getBadgeType()))
+            .stroke(Optional.ofNullable(badgeUpdateReqDto.getStroke())
+                .orElse(badgeEntity.getStroke()))
+            .fill(Optional.ofNullable(badgeUpdateReqDto.getFill())
+                .orElse(badgeEntity.getFill()))
             .build();
 
         BadgeEntity updatedBadge = badgeRepository.save(updateBadgeEntity);

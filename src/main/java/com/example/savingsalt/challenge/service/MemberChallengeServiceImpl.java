@@ -206,6 +206,7 @@ public class MemberChallengeServiceImpl implements
                         now.toLocalDate());
 
                     MemberChallengeJoinResDto tempMemberChallengeJoinResDto = MemberChallengeJoinResDto.builder()
+                        .id(memberChallengeEntity.getId())
                         .challengeTtile(
                             memberChallengeEntity.getChallengeEntity().getChallengeTitle())
                         .challengeTerm(
