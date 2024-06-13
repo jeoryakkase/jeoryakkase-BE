@@ -7,8 +7,6 @@ import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.member.domain.dto.LoginResponseDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.domain.dto.TokenResponseDto;
-import com.example.savingsalt.member.domain.entity.TokenEntity;
-import com.example.savingsalt.member.repository.TokenRepository;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,7 +59,7 @@ public class OAuth2AuthController {
 
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final ClientRegistrationRepository clientRegistrationRepository;
-    private final TokenRepository tokenRepository;
+    private final JwtTokenProvider jwtTokenProvider;
     private final BadgeMainMapperImpl badgeMainMapper;
     private final BadgeServiceImpl badgeService;
 
@@ -84,7 +82,7 @@ public class OAuth2AuthController {
         @ApiResponse(responseCode = "400", description = "Invalid request or Google token exchange failed"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping("/google-authcode")
+    @PostMapping("/google-auth")
     public ResponseEntity<?> googleAuthToken(@RequestHeader("Authorization") String authorizationHeader) {
         return authenticateWithToken(authorizationHeader, "google");
     }
@@ -111,8 +109,12 @@ public class OAuth2AuthController {
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // DB에 저장
-            saveTokenToDatabase(user, accessToken);
+            // JWT 토큰 생성
+            TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
+
+            // 응답 헤더에 accessToken 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponseDto.getAccessToken());
 
             // 로그인 응답 DTO 생성
             MemberEntity memberEntity = (MemberEntity) authentication.getPrincipal();
@@ -128,19 +130,17 @@ public class OAuth2AuthController {
                 .badge(badgeDto)
                 .build();
 
-            return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
+            // 응답 바디에 refresh token 및 user 정보 설정
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("refreshToken", tokenResponseDto.getRefreshToken());
+            responseBody.put("user", loginResponseDto);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                .headers(headers)
+                .body(responseBody);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
         }
-    }
-
-    private void saveTokenToDatabase(OAuth2User user, String accessToken) {
-        TokenEntity tokenEntity = new TokenEntity();
-        tokenEntity.setUserId(user.getName());
-        tokenEntity.setAccessToken(accessToken);
-        tokenEntity.setExpiresAt(Instant.now().plusSeconds(ACCESS_TOKEN_EXPIRE_TIME));
-
-        tokenRepository.save(tokenEntity);
     }
 }

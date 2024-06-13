@@ -1,7 +1,5 @@
 package com.example.savingsalt.community.poll.controller;
 
-import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
-import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.domain.PollVoteReqDto;
 import com.example.savingsalt.community.poll.service.PollService;
@@ -12,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,8 +30,8 @@ public class PollController {
         @ApiResponse(responseCode = "400", description = "투표가 활성 상태가 아님")
     })
     @PostMapping("/{pollId}/vote")
-    public ResponseEntity<Void> vote(@PathVariable Long pollId, @RequestBody PollVoteReqDto pollVoteReqDto) {
-        pollService.vote(pollId, pollVoteReqDto.getMemberId(), pollVoteReqDto.getPollVoteChoice());
+    public ResponseEntity<Void> vote(@PathVariable("pollId") Long pollId, @RequestBody PollVoteReqDto pollVoteReqDto, @AuthenticationPrincipal UserDetails userDetails) {
+        pollService.vote(pollId, userDetails.getUsername(), pollVoteReqDto.getPollVoteChoice());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

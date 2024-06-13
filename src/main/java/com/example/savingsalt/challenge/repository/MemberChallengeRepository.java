@@ -2,7 +2,6 @@ package com.example.savingsalt.challenge.repository;
 
 import com.example.savingsalt.challenge.domain.entity.ChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
-import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +12,7 @@ public interface MemberChallengeRepository extends JpaRepository<MemberChallenge
 
     List<MemberChallengeEntity> findAllByMemberEntity(MemberEntity memberEntity);
 
-    List<MemberChallengeEntity> findAllByChallengeEntity(ChallengeEntity challengeEntity);
+    MemberChallengeEntity findByMemberEntity(MemberEntity memberEntity);
 
-    List<MemberChallengeEntity> findAllByMemberEntityAndChallengeStatus(MemberEntity memberEntity,
-        ChallengeStatus challengeStatus);
+    List<MemberChallengeEntity> findAllByChallengeEntity(ChallengeEntity challengeEntity);
 }

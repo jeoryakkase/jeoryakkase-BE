@@ -28,13 +28,23 @@ public class BatchScheduler {
         return jobProcessor;
     }
 
+    // 모든 회원 챌린지 일일 인증 및 회원 목표 상태 초기화(오전 12시마다)
     @Scheduled(cron = "0 0 0 * * *") // 매일 00시 정각
-    public void runJob() {
-        String time = LocalDateTime.now().toString();
+    public void runJobs() {
+        String challengeTime = LocalDateTime.now().toString();
+        String goalTime = LocalDateTime.now().toString();
+
         try {
-            Job job = jobRegistry.getJob("certificationJob"); // job 이름
-            JobParametersBuilder jobParam = new JobParametersBuilder().addString("time", time);
-            jobLauncher.run(job, jobParam.toJobParameters());
+            Job challengeJob = jobRegistry.getJob("resetMemberChallengeJob"); // job 이름
+            JobParametersBuilder jobParam = new JobParametersBuilder().addString(
+                "challengeResetTime", challengeTime);
+            jobLauncher.run(challengeJob, jobParam.toJobParameters());
+
+            Job goalJob = jobRegistry.getJob("updateExpiredGoalsJob"); // job 이름
+            JobParametersBuilder goalJobParam = new JobParametersBuilder().addString(
+                "goalResetTime", goalTime);
+            jobLauncher.run(goalJob, goalJobParam.toJobParameters());
+
         } catch (NoSuchJobException e) {
             throw new RuntimeException(e);
         } catch (JobInstanceAlreadyCompleteException |
