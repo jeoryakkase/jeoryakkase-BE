@@ -62,16 +62,13 @@ public class GoalController {
         @RequestPart("image") MultipartFile image,  // MultipartFile 추가
         @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
 
-        // 이미지 업로드 처리
-        String goalImage = uploadImageToS3(image);
-
-        // 이미지 URL을 DTO에 설정
-        goalCreateReqDto.setGoalImage(goalImage);
-
-        // 목표 생성 서비스 호출
-        GoalResponseDto created = goalService.createGoal(goalCreateReqDto, userDetails);
-        return (created != null) ? ResponseEntity.status(HttpStatus.CREATED).body(created)
-            : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        try {
+            GoalResponseDto createdGoal = goalService.createGoal(goalCreateReqDto, image, userDetails);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdGoal);
+        } catch (Exception e) {
+            logger.error("Error creating goal", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // 특정 사용자의 모든 목표 조회
@@ -116,38 +113,5 @@ public class GoalController {
         @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
         GoalResponseDto updatedGoal = goalService.giveUpGoal(id, userDetails);
         return ResponseEntity.ok(updatedGoal);
-    }
-
-    // S3에 이미지 업로드하는 메서드
-    private String uploadImageToS3(MultipartFile image) {
-
-        if (image.isEmpty()) {
-            logger.warn("이미지 파일이 비어있습니다.");
-            return null;
-        }
-
-        String imageUrl = null;
-
-        try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(image.getContentType());
-            metadata.setContentLength(image.getSize());
-
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            String fileName = image.getOriginalFilename() + "/" + timestamp; // 파일 이름에 타임스탬프 추가
-
-            amazonS3Client.putObject(new PutObjectRequest(
-                "my.eliceproject.s3.bucket",
-                fileName,
-                image.getInputStream(),
-                metadata
-            ));
-
-            imageUrl = String.format("https://s3.ap-southeast-2.amazonaws.com/%s/%s",
-                "my.eliceproject.s3.bucket", fileName);
-        } catch (IOException e) {
-            logger.error("이미지 업로드 중 오류 발생", e); // 예외 로깅
-        }
-        return imageUrl;
     }
 }
