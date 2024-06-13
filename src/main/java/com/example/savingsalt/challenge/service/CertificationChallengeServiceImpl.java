@@ -96,7 +96,7 @@ public class CertificationChallengeServiceImpl implements CertificationChallenge
     }
 
     // 선택된 챌린지의 참여 중인 인증 전체 조회
-    public List<CertificationChallengeDto> SelectedChallengeGetCertifiCationChallenges(Long challengeId) {
+    public List<CertificationChallengeDto> selectedChallengeGetCertifiCationChallenges(Long challengeId) {
         List<CertificationChallengeEntity> certificationChallengeEntities = certificationChallengeRepository.findAll();
         List<CertificationChallengeDto> certificationChallengeDtos = new ArrayList<>();
 
