@@ -1,8 +1,5 @@
 package com.example.savingsalt.community.comment.service;
 
-import com.example.savingsalt.badge.domain.dto.BadgeDto;
-import com.example.savingsalt.badge.domain.entity.BadgeEntity;
-import com.example.savingsalt.badge.service.BadgeService;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
@@ -28,7 +25,7 @@ public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final ReplyCommentRepository replyCommentRepository;
-    private final BadgeService badgeService;
+//    private final BadgeService badgeService;
 
     @Transactional
     public CommentResDto createComment(CommentReqDto requestDto, MemberEntity member) {
@@ -91,24 +88,22 @@ public class CommentService {
     }
 
     private CommentResDto convertToDto(CommentEntity comment) {
-        BadgeDto badgeDto = toBadgeDto(comment.getMemberEntity().getRepresentativeBadgeId());
 
         return CommentResDto.builder()
             .commentId(comment.getId())
             .content(comment.getContent())
             .nickname(comment.getMemberEntity().getNickname())
-            .badgeDto(badgeDto)
             .build();
     }
 
-    private BadgeDto toBadgeDto(Long badgeId) {
-        BadgeEntity badgeEntity = badgeService.findById(badgeId);
-
-        return BadgeDto.builder()
-            .name(badgeEntity.getName())
-            .badgeImage(badgeEntity.getBadgeImage())
-            .badgeDesc(badgeEntity.getBadgeDesc())
-            .badgeType(badgeEntity.getBadgeType())
-            .build();
-    }
+//    private BadgeDto toBadgeDto(Long badgeId) {
+//        BadgeEntity badgeEntity = badgeService.findById(badgeId);
+//
+//        return BadgeDto.builder()
+//            .name(badgeEntity.getName())
+//            .badgeImage(badgeEntity.getBadgeImage())
+//            .badgeDesc(badgeEntity.getBadgeDesc())
+//            .badgeType(badgeEntity.getBadgeType())
+//            .build();
+//    }
 }
