@@ -37,7 +37,7 @@ public class PollServiceImpl implements PollService {
     private BoardRepository boardRepository;
 
     @Transactional
-    public PollEntity createPollForBoard(Long boardId, LocalDateTime startTime, LocalDateTime endTime) {
+    public PollEntity createPollForBoard(Long boardId) {
         BoardEntity boardEntity = boardRepository.findById(boardId)
             .orElseThrow(PollNotFoundException::new);
 
@@ -45,8 +45,6 @@ public class PollServiceImpl implements PollService {
             .boardEntity(boardEntity)
             .yesCount(0)
             .noCount(0)
-            .startTime(startTime)
-            .endTime(endTime)
             .build();
         return pollRepository.save(pollEntity);
     }
@@ -60,10 +58,6 @@ public class PollServiceImpl implements PollService {
 
         if (pollVoteRepository.existsByPollEntityAndMemberEntity_Id(pollEntity, memberEntity.getId())) {
             throw new PollException.UserAlreadyVotedException();
-        }
-
-        if (!pollEntity.isActive()) {
-            throw new PollException.PollNotActiveException();
         }
 
         PollVoteEntity pollVoteEntity = PollVoteEntity.builder()
@@ -95,18 +89,9 @@ public class PollServiceImpl implements PollService {
         PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
             PollNotFoundException::new);
 
-        if (pollEntity.isNotStarted()) {
-            return PollResultDto.builder()
-                .yesCount(0)
-                .noCount(0)
-                .isFinished(false)
-                .build();
-        }
-
         return PollResultDto.builder()
             .yesCount(pollEntity.getYesCount())
             .noCount(pollEntity.getNoCount())
-            .isFinished(pollEntity.isFinished())
             .build();
     }
 

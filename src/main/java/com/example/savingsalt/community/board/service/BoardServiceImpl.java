@@ -162,9 +162,7 @@ public class BoardServiceImpl implements BoardService {
             BoardEntity board = requestDto.toEntity(member);
             boardRepository.save(board);
 
-            PollCreateReqDto pollReqDto = requestDto.getPollReqDto();
-            pollService.createPollForBoard(board.getId(), pollReqDto.getStartTime(),
-                pollReqDto.getEndTime());
+            pollService.createPollForBoard(board.getId());
 
             return convertToVoteReadResDto(board);
         } catch (Exception e) {

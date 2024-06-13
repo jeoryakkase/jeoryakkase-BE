@@ -8,7 +8,7 @@ import com.example.savingsalt.community.poll.enums.PollVoteChoice;
 import java.time.LocalDateTime;
 
 public interface PollService {
-    PollEntity createPollForBoard(Long boardId, LocalDateTime startTime, LocalDateTime endTime);
+    PollEntity createPollForBoard(Long boardId);
     void vote(Long pollId, String email, PollVoteChoice pollVoteChoice);
     PollResultDto getPollResults(Long pollId);
 
