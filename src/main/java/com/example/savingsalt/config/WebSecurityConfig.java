@@ -8,6 +8,7 @@ import com.example.savingsalt.badge.service.BadgeServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
 import com.example.savingsalt.handler.CustomAuthenticationFailureHandler;
 import com.example.savingsalt.handler.CustomAuthenticationSuccessHandler;
+import com.example.savingsalt.member.enums.Role;
 import com.example.savingsalt.member.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.savingsalt.member.service.OAuth2UserCustomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -81,14 +83,15 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         return http
             .cors(withDefaults())
             .authorizeRequests(authorizeRequests -> authorizeRequests
-//                .requestMatchers("/", "/login", "/api/login", "/api/login/oauth2/google", "/api/login/oauth2/kakao", "/signup",
-//                    "/api/signup", "/api/token")
-//                .permitAll()
-//                // swagger 관련 경로 허용
-//                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
-//                    "/swagger-resources/**", "/webjars/**").permitAll()
-//                .anyRequest().authenticated())
-                .anyRequest().permitAll()) // 테스트용
+                .requestMatchers("/", "/login", "/api/login", "/signup",
+                    "/api/signup", "/api/check-nickname", "/api/check-email", "/api/kakao-auth",
+                    "/api/google-auth", "/api/token").permitAll()
+                .requestMatchers("/api/admin/**").hasAuthority(Role.ADMIN.getKey()) // ADMIN만 회원 삭제 가능
+                // swagger 관련 경로 허용
+                .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
+                    "/swagger-resources/**", "/webjars/**").permitAll()
+                .anyRequest().authenticated())
+//                .anyRequest().permitAll()) // 테스트용
             // 폼 로그인
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
