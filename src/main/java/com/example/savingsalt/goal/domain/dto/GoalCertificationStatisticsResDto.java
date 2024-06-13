@@ -25,7 +25,7 @@ public class GoalCertificationStatisticsResDto {
     private Set<String> monthlyCertifications;
 
     // 월간 인증 내용 백분율
-    private Map<String, Long> monthlyCertificationPercentages;
+    private Map<String, Double> monthlyCertificationPercentages;
 
     // 일일 인증 금액
     private Long dailyAmount;

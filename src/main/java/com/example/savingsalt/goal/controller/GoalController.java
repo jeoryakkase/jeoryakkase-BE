@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.goal.domain.dto.GoalCreateReqDto;
+import com.example.savingsalt.goal.domain.dto.GoalMainResponseDto;
 import com.example.savingsalt.goal.domain.dto.GoalResponseDto;
 import com.example.savingsalt.goal.service.GoalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -113,5 +114,12 @@ public class GoalController {
         @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
         GoalResponseDto updatedGoal = goalService.giveUpGoal(id, userDetails);
         return ResponseEntity.ok(updatedGoal);
+    }
+
+    @Operation(summary = "Retrieve goal statuses", description = "Retrieves statuses for multiple goals based on certain criteria.")
+    @GetMapping("/goals/status")
+    public ResponseEntity<List<GoalMainResponseDto>> getGoalStatuses() {
+        List<GoalMainResponseDto> goals = goalService.getGoalStatuses();
+        return ResponseEntity.ok(goals);
     }
 }
