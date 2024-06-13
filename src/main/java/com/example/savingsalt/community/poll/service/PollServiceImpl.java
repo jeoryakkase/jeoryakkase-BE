@@ -87,9 +87,18 @@ public class PollServiceImpl implements PollService {
         PollEntity pollEntity = pollRepository.findById(pollId).orElseThrow(
             PollNotFoundException::new);
 
+        int yesCount = pollEntity.getYesCount();
+        int noCount = pollEntity.getNoCount();
+        int totalCount = yesCount + noCount;
+
+        int yesPercentage = totalCount > 0 ? (int) Math.round((double) yesCount / totalCount * 100) : 0;
+        int noPercentage = totalCount > 0 ? (int) Math.round((double) noCount / totalCount * 100) : 0;
+
         return PollResultDto.builder()
-            .yesCount(pollEntity.getYesCount())
-            .noCount(pollEntity.getNoCount())
+            .yesCount(yesCount)
+            .noCount(noCount)
+            .yesPercentage(yesPercentage)
+            .noPercentage(noPercentage)
             .build();
     }
 
