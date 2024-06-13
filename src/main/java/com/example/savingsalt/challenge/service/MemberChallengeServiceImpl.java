@@ -79,6 +79,7 @@ public class MemberChallengeServiceImpl implements
         Long memberChallengeId) {
         Optional<MemberEntity> MemberEntityOpt = memberRepository.findById(memberId);
         Long progressRate = null;
+        long joinedPeople = 0;
 
         if (MemberEntityOpt.isPresent()) {
             MemberEntity memberEntity = MemberEntityOpt.get();
@@ -90,6 +91,9 @@ public class MemberChallengeServiceImpl implements
 
             if (memberChallengeEntityOpt.isPresent()) {
                 MemberChallengeEntity foundMemberChallenge = memberChallengeEntityOpt.get();
+
+                joinedPeople = memberChallengeRepository.countByChallengeStatusAndChallengeEntity(
+                    ChallengeStatus.IN_PROGRESS, foundMemberChallenge.getChallengeEntity());
 
                 for (MemberChallengeEntity memberChallengeEntity : memberChallengeEntities) {
                     if (memberChallengeEntity.getId().equals(foundMemberChallenge.getId())) {
@@ -209,8 +213,8 @@ public class MemberChallengeServiceImpl implements
                             .startDate(memberChallengeEntity.getStartDate().toLocalDate())
                             .endDate(memberChallengeEntity.getEndDate().toLocalDate())
                             .effectiveDate(effectiveDate)
-                            .certificationChallengeDto(
-                                certificationChallengeService.getCertifiCationChallenge(
+                            .certificationChallengeDtos(
+                                certificationChallengeService.getCertifiCationChallenges(
                                     memberChallengeEntity))
                             .build();
 
