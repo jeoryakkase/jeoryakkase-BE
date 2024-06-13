@@ -17,7 +17,7 @@ public interface MemberChallengeRepository extends JpaRepository<MemberChallenge
     List<MemberChallengeEntity> findAllByChallengeEntity(ChallengeEntity challengeEntity);
 
     @Query("SELECT COUNT(c) FROM MemberChallengeEntity c WHERE c.challengeStatus = :status AND c.challengeEntity = :entity")
-    long countByChallengeStatusAndChallengeEntity(
+    Integer countByChallengeStatusAndChallengeEntity(
         @Param("status") MemberChallengeEntity.ChallengeStatus challengeStatus,
         @Param("entity") ChallengeEntity challengeEntity);
 

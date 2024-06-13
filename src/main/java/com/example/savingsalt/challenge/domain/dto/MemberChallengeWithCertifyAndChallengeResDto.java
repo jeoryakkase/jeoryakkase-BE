@@ -37,6 +37,8 @@ public class MemberChallengeWithCertifyAndChallengeResDto {
 
     private String progressRate;
 
+    private Integer numberOfParticipatingPeople;
+
     private List<CertificationChallengeDto> certificationChallengeDtos;
     // certificationChallengeDto 1개 안에 List<CertificationChallengeImageDto>
 
