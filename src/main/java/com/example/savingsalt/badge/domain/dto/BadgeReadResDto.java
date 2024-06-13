@@ -19,4 +19,8 @@ public class BadgeReadResDto {
     private String badgeImage;
 
     private String badgeType;
+
+    private String stroke;
+
+    private String fill;
 }
