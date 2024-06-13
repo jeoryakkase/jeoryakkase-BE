@@ -173,7 +173,7 @@ public class BadgeServiceImpl implements BadgeService {
                 badgeEntity.getBadgeType()))
             .stroke(Optional.ofNullable(badgeUpdateReqDto.getStroke())
                 .orElse(badgeEntity.getStroke()))
-            .stroke(Optional.ofNullable(badgeUpdateReqDto.getFill())
+            .fill(Optional.ofNullable(badgeUpdateReqDto.getFill())
                 .orElse(badgeEntity.getFill()))
             .build();
 
