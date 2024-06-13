@@ -1,5 +1,8 @@
 package com.example.savingsalt.community.board.service;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
+import com.example.savingsalt.badge.service.BadgeService;
 import com.example.savingsalt.community.board.domain.dto.BoardImageDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
@@ -53,6 +56,8 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardImageService boardImageService;
 
+    private final BadgeService badgeService;
+
 
     // 절약팁 게시글 작성
     @Transactional
@@ -65,8 +70,13 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
         BoardTypeTipReadResDto boardTypeTipReadResDto = convertToTipReadResDto(savedBoardEntity);
 
+        String profileImage = member.getProfileImage();
+        BadgeDto badgeDto = toBadgeDto(boardEntity.getMemberEntity().getRepresentativeBadgeId());
+
         boardTypeTipReadResDto = boardTypeTipReadResDto.toBuilder()
             .boardImageDtos(boardImageService.createBoardImage(imageUrls, savedBoardEntity.getId()))
+            .profileImage(profileImage)
+            .badgeDto(badgeDto)
             .build();
 
         return boardTypeTipReadResDto;
@@ -177,7 +187,9 @@ public class BoardServiceImpl implements BoardService {
 
         BoardEntity board = requestDto.toEntity(member);
 
+        pollService.createPollForBoard(board.getId());
         BoardEntity savedBoardEntity = boardRepository.save(board);
+
         BoardTypeVoteReadResDto boardTypeVoteReadResDto = convertToVoteReadResDto(savedBoardEntity);
 
         boardTypeVoteReadResDto = boardTypeVoteReadResDto.toBuilder()
@@ -291,13 +303,20 @@ public class BoardServiceImpl implements BoardService {
 
     // BoardEntity를 BoardTypeTipReadResDto로 변환
     private BoardTypeTipReadResDto convertToTipReadResDto(BoardEntity boardEntity) {
+
+        String profileImage = boardEntity.getMemberEntity().getProfileImage();
+        BadgeDto badgeDto = toBadgeDto(boardEntity.getMemberEntity().getRepresentativeBadgeId());
+
         return BoardTypeTipReadResDto.builder()
+            .id(boardEntity.getId())
             .nickname(boardEntity.getMemberEntity().getNickname())
+            .profileImage(profileImage)
+            .badgeDto(badgeDto)
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
-//            .boardImageDtos(boardEntity)
+            .boardImageDtos(toImageDtos(boardEntity.getBoardImageEntities()))
             .createdAt(boardEntity.getCreatedAt())
             .modifiedAt(boardEntity.getModifiedAt())
             .build();
@@ -305,8 +324,15 @@ public class BoardServiceImpl implements BoardService {
 
     private BoardTypeTipReadResDto convertToTipReadResDto(BoardEntity boardEntity,
         List<CommentResDto> comments, List<BoardImageDto> imageDtos) {
+
+        String profileImage = boardEntity.getMemberEntity().getProfileImage();
+        BadgeDto badgeDto = toBadgeDto(boardEntity.getMemberEntity().getRepresentativeBadgeId());
+
         return BoardTypeTipReadResDto.builder()
+            .id(boardEntity.getId())
             .nickname(boardEntity.getMemberEntity().getNickname())
+            .profileImage(profileImage)
+            .badgeDto(badgeDto)
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .comments(comments)
@@ -324,9 +350,14 @@ public class BoardServiceImpl implements BoardService {
             boardEntity.getId());
         PollResultDto pollResults = pollService.getPollResults(pollbyBoardEntityId.getId());
 
+        String profileImage = boardEntity.getMemberEntity().getProfileImage();
+        BadgeDto badgeDto = toBadgeDto(boardEntity.getMemberEntity().getRepresentativeBadgeId());
+
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
             .nickname(boardEntity.getMemberEntity().getNickname())
+            .profileImage(profileImage)
+            .badgeDto(badgeDto)
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .view(boardEntity.getView())
@@ -344,9 +375,14 @@ public class BoardServiceImpl implements BoardService {
             boardEntity.getId());
         PollResultDto pollResults = pollService.getPollResults(pollbyBoardEntityId.getId());
 
+        String profileImage = boardEntity.getMemberEntity().getProfileImage();
+        BadgeDto badgeDto = toBadgeDto(boardEntity.getMemberEntity().getRepresentativeBadgeId());
+
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
             .nickname(boardEntity.getMemberEntity().getNickname())
+            .profileImage(profileImage)
+            .badgeDto(badgeDto)
             .title(boardEntity.getTitle())
             .contents(boardEntity.getContents())
             .comments(comments)
@@ -367,7 +403,7 @@ public class BoardServiceImpl implements BoardService {
             .collect(Collectors.toList());
 
         return CommentResDto.builder()
-            .id(comment.getId())
+            .commentId(comment.getId())
             .content(comment.getContent())
             .nickname(comment.getMemberEntity().getNickname())
             .replyComments(replyDtos)
@@ -376,7 +412,7 @@ public class BoardServiceImpl implements BoardService {
 
     private ReplyCommentResDto toReplyCommentDto(ReplyCommentEntity replyComment) {
         return ReplyCommentResDto.builder()
-            .id(replyComment.getId())
+            .replyId(replyComment.getId())
             .content(replyComment.getContent())
             .nickname(replyComment.getMemberEntity().getNickname())
             .build();
@@ -399,6 +435,18 @@ public class BoardServiceImpl implements BoardService {
     private BoardEntity findBoard(Long id, BoardCategory category) {
         return boardRepository.findByIdAndCategory(id, category)
             .orElseThrow(() -> new BoardNotFoundException());
+    }
+
+    // 프로필 뱃지 가져오기
+    private BadgeDto toBadgeDto(Long badgeId) {
+        BadgeEntity badgeEntity = badgeService.findById(badgeId);
+
+        return BadgeDto.builder()
+            .name(badgeEntity.getName())
+            .badgeImage(badgeEntity.getBadgeImage())
+            .badgeDesc(badgeEntity.getBadgeDesc())
+            .badgeType(badgeEntity.getBadgeType())
+            .build();
     }
 }
 

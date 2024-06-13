@@ -1,5 +1,8 @@
 package com.example.savingsalt.community.comment.service;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
+import com.example.savingsalt.badge.service.BadgeService;
 import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
 import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
 import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
@@ -22,6 +25,8 @@ public class ReplyCommentService {
     private final CommentRepository commentRepository;
 
     private final ReplyCommentRepository replyCommentRepository;
+
+    private final BadgeService badgeService;
 
     @Transactional
     public ReplyCommentResDto createReplyComment(ReplyCommentReqDto requestDto,
@@ -68,10 +73,24 @@ public class ReplyCommentService {
     }
 
     private ReplyCommentResDto convertToReplyDto(ReplyCommentEntity replyComment) {
+        BadgeDto badgeDto = toBadgeDto(replyComment.getMemberEntity().getRepresentativeBadgeId());
+
         return ReplyCommentResDto.builder()
-            .id(replyComment.getId())
+            .replyId(replyComment.getId())
             .nickname(replyComment.getMemberEntity().getNickname())
+            .badgeDto(badgeDto)
             .content(replyComment.getContent())
+            .build();
+    }
+
+    private BadgeDto toBadgeDto(Long badgeId) {
+        BadgeEntity badgeEntity = badgeService.findById(badgeId);
+
+        return BadgeDto.builder()
+            .name(badgeEntity.getName())
+            .badgeImage(badgeEntity.getBadgeImage())
+            .badgeDesc(badgeEntity.getBadgeDesc())
+            .badgeType(badgeEntity.getBadgeType())
             .build();
     }
 
