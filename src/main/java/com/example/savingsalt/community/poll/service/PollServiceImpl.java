@@ -4,7 +4,6 @@ package com.example.savingsalt.community.poll.service;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.poll.domain.PollEntity;
-import com.example.savingsalt.community.poll.domain.PollResDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.domain.PollVoteEntity;
 import com.example.savingsalt.community.poll.enums.PollVoteChoice;
@@ -15,7 +14,6 @@ import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.repository.PollVoteRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.repository.MemberRepository;
-import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +93,4 @@ public class PollServiceImpl implements PollService {
             .build();
     }
 
-    /// 없앨예정
-    public PollResDto findPollByBoardId(Long boardId){return null;}
 }

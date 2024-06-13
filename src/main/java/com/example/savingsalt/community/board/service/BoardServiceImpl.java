@@ -14,7 +14,6 @@ import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
 import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
-import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
