@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.board.domain.dto;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import java.time.LocalDateTime;
@@ -16,15 +17,17 @@ public class BoardTypeVoteReadResDto{
 
     private Long id;
     private String nickname;
+    private String profileImage;
+    private BadgeDto badgeDto;
     private String title;
     private String contents;
     private List<CommentResDto> comments;
     private int view;
     private int totalLike;
     private List<BoardImageDto> boardImageDtos;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime modifiedAt;
     private PollResultDto pollResultDto;
 
