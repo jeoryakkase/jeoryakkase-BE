@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.board.domain.dto;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +12,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 public class BoardTypeTipReadResDto {
 
+    private Long id;
     private String nickname;
+    private String profileImage;
+    private BadgeDto badgeDto;
     private String title;
     private String contents;
     private List<CommentResDto> comments;
