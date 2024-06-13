@@ -86,8 +86,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .requestMatchers("/", "/login", "/api/login", "/signup",
                     "/api/signup", "/api/check-nickname", "/api/check-email", "/api/kakao-auth",
                     "/api/google-auth", "/api/token").permitAll()
-                .requestMatchers("/api/admin/**").hasAuthority(Role.ADMIN.getKey()) // ADMIN만 회원 삭제 가능
-                // swagger 관련 경로 허용
+                .requestMatchers("/api/admin/**").hasAuthority(Role.ADMIN.getKey())
+                // swagger 관련 경로 허용 (테스트용)
                 .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**").permitAll()
                 .anyRequest().authenticated())
