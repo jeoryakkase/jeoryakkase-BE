@@ -87,7 +87,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                     "/api/check-nickname", "/api/check-email", "/api/kakao-auth",
                     "/api/google-auth", "/api/token",
                     "/saltern", "/vote", "/tips").permitAll()
-                .requestMatchers(HttpMethod.GET, "api/boards/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority(Role.ADMIN.getKey())
                 // swagger 관련 경로 허용 (테스트용)
                 .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
