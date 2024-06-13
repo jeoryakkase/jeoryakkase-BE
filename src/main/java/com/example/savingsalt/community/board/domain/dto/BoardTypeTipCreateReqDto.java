@@ -17,7 +17,6 @@ public class BoardTypeTipCreateReqDto extends BaseEntity{
 
     private String title;
     private String contents;
-    private String imageUrls;
     private BoardCategory category = BoardCategory.TIPS;
 
     public BoardEntity toEntity(MemberEntity member) {
