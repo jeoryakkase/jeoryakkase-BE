@@ -23,4 +23,8 @@ public class BadgeCreateReqDto {
 
     @NotBlank(message = "뱃지 종류는 필수입력 사항입니다.")
     private String badgeType;
+
+    private String stroke;
+
+    private String fill;
 }

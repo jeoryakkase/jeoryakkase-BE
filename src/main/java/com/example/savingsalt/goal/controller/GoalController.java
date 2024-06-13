@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.goal.domain.dto.GoalCreateReqDto;
+import com.example.savingsalt.goal.domain.dto.GoalMainResponseDto;
 import com.example.savingsalt.goal.domain.dto.GoalResponseDto;
 import com.example.savingsalt.goal.service.GoalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,16 +63,13 @@ public class GoalController {
         @RequestPart("image") MultipartFile image,  // MultipartFile 추가
         @AuthenticationPrincipal @Parameter(description = "인증된 사용자의 정보", required = true, schema = @Schema(implementation = UserDetails.class)) UserDetails userDetails) {
 
-        // 이미지 업로드 처리
-        String goalImage = uploadImageToS3(image);
-
-        // 이미지 URL을 DTO에 설정
-        goalCreateReqDto.setGoalImage(goalImage);
-
-        // 목표 생성 서비스 호출
-        GoalResponseDto created = goalService.createGoal(goalCreateReqDto, userDetails);
-        return (created != null) ? ResponseEntity.status(HttpStatus.CREATED).body(created)
-            : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        try {
+            GoalResponseDto createdGoal = goalService.createGoal(goalCreateReqDto, image, userDetails);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdGoal);
+        } catch (Exception e) {
+            logger.error("Error creating goal", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // 특정 사용자의 모든 목표 조회
@@ -118,36 +116,10 @@ public class GoalController {
         return ResponseEntity.ok(updatedGoal);
     }
 
-    // S3에 이미지 업로드하는 메서드
-    private String uploadImageToS3(MultipartFile image) {
-
-        if (image.isEmpty()) {
-            logger.warn("이미지 파일이 비어있습니다.");
-            return null;
-        }
-
-        String imageUrl = null;
-
-        try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(image.getContentType());
-            metadata.setContentLength(image.getSize());
-
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            String fileName = image.getOriginalFilename() + "/" + timestamp; // 파일 이름에 타임스탬프 추가
-
-            amazonS3Client.putObject(new PutObjectRequest(
-                "my.eliceproject.s3.bucket",
-                fileName,
-                image.getInputStream(),
-                metadata
-            ));
-
-            imageUrl = String.format("https://s3.ap-southeast-2.amazonaws.com/%s/%s",
-                "my.eliceproject.s3.bucket", fileName);
-        } catch (IOException e) {
-            logger.error("이미지 업로드 중 오류 발생", e); // 예외 로깅
-        }
-        return imageUrl;
+    @Operation(summary = "Retrieve goal statuses", description = "Retrieves statuses for multiple goals based on certain criteria.")
+    @GetMapping("/goals/status")
+    public ResponseEntity<List<GoalMainResponseDto>> getGoalStatuses() {
+        List<GoalMainResponseDto> goals = goalService.getGoalStatuses();
+        return ResponseEntity.ok(goals);
     }
 }
