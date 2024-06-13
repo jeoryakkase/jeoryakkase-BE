@@ -21,6 +21,7 @@ public class BoardTypeVoteReadResDto{
     private List<CommentResDto> comments;
     private int view;
     private int totalLike;
+    private List<BoardImageDto> boardImageDtos;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

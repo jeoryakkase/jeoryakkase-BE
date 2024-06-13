@@ -6,6 +6,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqD
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
+import java.util.List;
 import org.springframework.data.domain.Page;
 
 
@@ -14,14 +15,14 @@ public interface BoardService {
     // 절약팁 게시판 (like, bookmark 기능)
 
     // 절약팁 게시글 작성
-    BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto, MemberEntity member);
+    BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto, MemberEntity member, List<String> imageUrls);
 
     // 절약팁 게시글 목록 조회
     Page<BoardTypeTipReadResDto> findAllTipBoard(int page, int size);
     // 절약팁 게시글 조회
     BoardTypeTipReadResDto findTipBoardById(Long id);
     // 절약팁 게시글 수정
-    BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto, MemberEntity member);
+    BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto, MemberEntity member, List<String> newImageUrls);
     // 절약팁 게시글 삭제
     void deleteTipBoard(Long id, MemberEntity member);
 

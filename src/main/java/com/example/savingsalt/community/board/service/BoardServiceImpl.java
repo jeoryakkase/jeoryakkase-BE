@@ -6,10 +6,12 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqD
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
+import com.example.savingsalt.community.board.domain.entity.BoardImageEntity;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardServiceException;
+import com.example.savingsalt.community.board.repository.BoardImageRepository;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
 import com.example.savingsalt.community.comment.domain.dto.ReplyCommentResDto;
@@ -50,16 +52,27 @@ public class BoardServiceImpl implements BoardService {
 
     private final PollRepository pollRepository;
 
+    private final BoardImageService boardImageService;
+
+    private final BoardImageRepository boardImageRepository;
+
 
     // 절약팁 게시글 작성
     @Transactional
     @Override
     public BoardTypeTipReadResDto createTipBoard(BoardTypeTipCreateReqDto requestDto,
-        MemberEntity member) {
+        MemberEntity member, List<String> imageUrls) {
         BoardEntity boardEntity = requestDto.toEntity(member);
+
         try {
             BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
-            return convertToTipReadResDto(savedBoardEntity);
+            BoardTypeTipReadResDto boardTypeTipReadResDto = convertToTipReadResDto(savedBoardEntity);
+
+            boardTypeTipReadResDto = boardTypeTipReadResDto.toBuilder()
+                .boardImageDtos(boardImageService.createBoardImage(imageUrls, boardEntity.getId()))
+                .build();
+
+            return boardTypeTipReadResDto;
         } catch (Exception e) {
             throw new BoardServiceException("팁 게시글을 작성하는 중 오류가 발생했습니다.", e);
         }
@@ -90,7 +103,8 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity boardEntity = boardRepository.findByIdAndCategory(id, category)
             .orElseThrow(() -> new BoardNotFoundException());
 
-        boardEntity.incrementView();
+        List<BoardImageEntity> allByBoardEntityId = boardImageRepository.findAllByBoardEntityId(id);
+
 
         List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
             boardEntity.getId());
@@ -103,6 +117,8 @@ public class BoardServiceImpl implements BoardService {
             .map(this::toCommentResDto)
             .collect(Collectors.toList());
 
+        boardEntity.incrementView();
+
         return convertToTipReadResDto(boardEntity, commentDtos);
 
     }
@@ -111,17 +127,21 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto requestDto,
-        MemberEntity member) {
+        MemberEntity member, List<String> newImageUrls) {
         BoardEntity board = findBoard(id, requestDto.getCategory());
 
         if (!board.getMemberEntity().getId().equals(member.getId())) {
             throw new BoardException.UnauthorizedPostUpdateException();
         }
 
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            boardImageRepository.deleteAllByBoardEntityId(board.getId());
+            boardImageService.createBoardImage(newImageUrls, board.getId());
+        }
+
         BoardEntity updateBoard = board.toBuilder()
             .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
             .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
-            .imageUrls(Optional.ofNullable(requestDto.getImageUrls()).orElse(board.getImageUrls()))
             .build();
 
         try {
@@ -271,7 +291,7 @@ public class BoardServiceImpl implements BoardService {
             .contents(boardEntity.getContents())
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
-            .imageUrls(boardEntity.getImageUrls())
+//            .boardImageDtos(boardEntity)
             .createdAt(boardEntity.getCreatedAt())
             .modifiedAt(boardEntity.getModifiedAt())
             .build();
@@ -286,7 +306,7 @@ public class BoardServiceImpl implements BoardService {
             .comments(comments)
             .totalLike(boardEntity.getTotalLike())
             .view(boardEntity.getView())
-            .imageUrls(boardEntity.getImageUrls())
+//            .imageUrls(boardEntity.getImageUrls())
             .createdAt(boardEntity.getCreatedAt())
             .modifiedAt(boardEntity.getModifiedAt())
             .build();

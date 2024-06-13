@@ -1,5 +1,8 @@
 package com.example.savingsalt.community.board.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -18,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -50,7 +54,7 @@ public class BoardController {
 
     private final MemberMapper memberMapper;
 
-//    private final AmazonS3 amazonS3Client;
+    private final AmazonS3 amazonS3Client;
 
     @Operation(summary = "팁 게시글 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
@@ -71,37 +75,37 @@ public class BoardController {
         MemberEntity member = memberMapper.toEntity(
             memberService.findMemberByEmail(userDetails.getUsername()));
 
-//        // S3
-//        List<String> imageUrls = new ArrayList<>();
-//        String timestamp = String.valueOf(System.currentTimeMillis());
-//
-//        for (MultipartFile file : multipartFiles) {
-//            ObjectMetadata objectMetadata = new ObjectMetadata();
-//            objectMetadata.setContentType(file.getContentType());
-//            objectMetadata.setContentLength(file.getSize());
-//
-//            PutObjectRequest putObjectRequest;
-//
-//            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
-//
-//            putObjectRequest = new PutObjectRequest(
-//                "my.eliceproject.s3.bucket",
-//                uploadFileName,
-//                file.getInputStream(),
-//                objectMetadata
-//            );
-//
-//            amazonS3Client.putObject(putObjectRequest);
-//
-//            String imageUrl = String.format(
-//                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
-//                + uploadFileName);
-//
-//            imageUrls.add(imageUrl);
-//        }
+        // S3
+        List<String> imageUrls = new ArrayList<>();
+        String timestamp = String.valueOf(System.currentTimeMillis());
 
+        for (MultipartFile file : multipartFiles) {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(file.getContentType());
+            objectMetadata.setContentLength(file.getSize());
 
-        BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
+            PutObjectRequest putObjectRequest;
+
+            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
+
+            putObjectRequest = new PutObjectRequest(
+                "my.eliceproject.s3.bucket",
+                uploadFileName,
+                file.getInputStream(),
+                objectMetadata
+            );
+
+            amazonS3Client.putObject(putObjectRequest);
+
+            String imageUrl = String.format(
+                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
+                    + uploadFileName);
+
+            imageUrls.add(imageUrl);
+        }
+
+        BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member,
+            imageUrls);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
@@ -142,10 +146,11 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{id}")
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable("id") Long id,
         @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles) throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
@@ -154,8 +159,37 @@ public class BoardController {
         MemberEntity member = memberMapper.toEntity(
             memberService.findMemberByEmail(userDetails.getUsername()));
 
+        // S3
+        List<String> imageUrls = new ArrayList<>();
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        for (MultipartFile file : multipartFiles) {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(file.getContentType());
+            objectMetadata.setContentLength(file.getSize());
+
+            PutObjectRequest putObjectRequest;
+
+            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
+
+            putObjectRequest = new PutObjectRequest(
+                "my.eliceproject.s3.bucket",
+                uploadFileName,
+                file.getInputStream(),
+                objectMetadata
+            );
+
+            amazonS3Client.putObject(putObjectRequest);
+
+            String imageUrl = String.format(
+                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
+                    + uploadFileName);
+
+            imageUrls.add(imageUrl);
+        }
+
         BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
-            member);
+            member, imageUrls);
         return ResponseEntity.ok(responseDto);
 
     }

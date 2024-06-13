@@ -25,7 +25,6 @@ public class BoardTypeTipCreateReqDto extends BaseEntity{
             .memberEntity(member)
             .title(title)
             .contents(contents)
-            .imageUrls(imageUrls)
             .category(category)
             .build();
     }
