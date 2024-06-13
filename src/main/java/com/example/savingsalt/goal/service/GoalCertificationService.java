@@ -17,7 +17,9 @@ import com.example.savingsalt.member.exception.MemberException.MemberNotFoundExc
 import com.example.savingsalt.member.repository.MemberRepository;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -156,9 +158,16 @@ public class GoalCertificationService {
 
         Map<String, Long> frequencyMap = monthlyContents.stream()
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        Map<String, Long> percentages = frequencyMap.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey,
-                entry -> Math.round(100.0 * entry.getValue() / monthlyContents.size())));
+        Map<String, Double> percentages = frequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))  // 동일 값 처리를 위한 추가 정렬 기준
+            .limit(3)  // 상위 3개 항목만 선택
+            .collect(Collectors.toMap(
+                entry -> entry.getKey(),  // Map.Entry::getKey 대신 람다 표현식 사용
+                entry -> (double) Math.round(100.0 * entry.getValue() / monthlyContents.size()),  // 결과를 반올림 후 double로 반환
+                (existingValue, newValue) -> existingValue,  // 동일한 키가 있을 경우 첫 번째 값을 사용
+                LinkedHashMap::new  // 순서 보장
+            ));
 
         return GoalCertificationStatisticsResDto.builder()
             .totalAmount(totalAmount)
