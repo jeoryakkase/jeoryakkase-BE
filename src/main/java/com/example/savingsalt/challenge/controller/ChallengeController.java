@@ -70,7 +70,7 @@ public class ChallengeController {
     @GetMapping("chllenges/{challengeId}/certify")
     public ResponseEntity<List<CertificationChallengeDto>> getCertifiCationChallenges(
         @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
-        List<CertificationChallengeDto> certificationChallengeDtos = certificationChallengeService.getCertifiCationChallenges(
+        List<CertificationChallengeDto> certificationChallengeDtos = certificationChallengeService.SelectedChallengeGetCertifiCationChallenges(
             challengeId);
 
         return certificationChallengeDtos.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT)
