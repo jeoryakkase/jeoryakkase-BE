@@ -14,7 +14,6 @@ import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
 import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
 import com.example.savingsalt.community.comment.repository.CommentRepository;
-import com.example.savingsalt.community.poll.domain.PollCreateReqDto;
 import com.example.savingsalt.community.poll.domain.PollEntity;
 import com.example.savingsalt.community.poll.domain.PollResultDto;
 import com.example.savingsalt.community.poll.exception.PollException.PollNotFoundException;
@@ -162,9 +161,7 @@ public class BoardServiceImpl implements BoardService {
             BoardEntity board = requestDto.toEntity(member);
             boardRepository.save(board);
 
-            PollCreateReqDto pollReqDto = requestDto.getPollReqDto();
-            pollService.createPollForBoard(board.getId(), pollReqDto.getStartTime(),
-                pollReqDto.getEndTime());
+            pollService.createPollForBoard(board.getId());
 
             return convertToVoteReadResDto(board);
         } catch (Exception e) {
