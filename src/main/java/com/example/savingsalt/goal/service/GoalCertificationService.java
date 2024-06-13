@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -150,7 +151,14 @@ public class GoalCertificationService {
 
         List<String> dailyContents = certificationRepository.findDailyCertificationContentsByMember(
             member, today);
-        Set<String> uniqueContents = new HashSet<>(dailyContents); // 중복 제거
+        Map<String, Long> dailyFrequencyMap = dailyContents.stream()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Set<String> topDailyContents = dailyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
 
         List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(
             member, today.getMonthValue(), today.getYear());
@@ -164,7 +172,8 @@ public class GoalCertificationService {
             .limit(3)  // 상위 3개 항목만 선택
             .collect(Collectors.toMap(
                 entry -> entry.getKey(),  // Map.Entry::getKey 대신 람다 표현식 사용
-                entry -> (double) Math.round(100.0 * entry.getValue() / monthlyContents.size()),  // 결과를 반올림 후 double로 반환
+                entry -> (double) Math.round(100.0 * entry.getValue() / monthlyContents.size()),
+                // 결과를 반올림 후 double로 반환
                 (existingValue, newValue) -> existingValue,  // 동일한 키가 있을 경우 첫 번째 값을 사용
                 LinkedHashMap::new  // 순서 보장
             ));
@@ -173,7 +182,7 @@ public class GoalCertificationService {
             .totalAmount(totalAmount)
             .monthlyAmount(monthlyAmount)
             .dailyAmount(dailyAmount)
-            .dailyCertifications(uniqueContents)
+            .dailyCertifications(topDailyContents)
             .monthlyAmount(monthlyAmount)
             .monthlyCertifications(uniqueMonthlyContents)
             .monthlyCertificationPercentages(percentages)
