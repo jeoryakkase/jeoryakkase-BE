@@ -1,10 +1,9 @@
 package com.example.savingsalt.goal.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
+import com.example.savingsalt.goal.domain.dto.GoalCertificationStatisticsResDto;
 import com.example.savingsalt.goal.service.GoalCertificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,20 +62,14 @@ public class GoalCertificationController {
         @RequestPart("image") MultipartFile image,  // MultipartFile 추가
         @AuthenticationPrincipal UserDetails userDetails) {
 
-        // 이미지 업로드 처리
-        String imageUrl = uploadImageToS3(image);
-
-        if (imageUrl == null) {
-            // 업로드 실패 시 400 Bad Request 반환
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        try {
+            GoalCertificationResponseDto responseDto = certificationService.createCertification(
+                goalCertificationCreateReqDto, image, userDetails, goalId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        } catch (IOException e) {
+            logger.error("Failed to upload image or create certification", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        goalCertificationCreateReqDto.setCertificationImageUrl(imageUrl); // 이미지 URL 설정
-
-        // 인증 생성 서비스 호출
-        GoalCertificationResponseDto responseDto = certificationService.createCertification(
-            goalCertificationCreateReqDto, userDetails, goalId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     // 목표 인증 삭제
@@ -117,36 +109,27 @@ public class GoalCertificationController {
         return ResponseEntity.ok(certifications);
     }
 
-    // S3에 이미지 업로드하는 메서드
-    private String uploadImageToS3(MultipartFile image) {
-
-        if (image.isEmpty()) {
-            logger.warn("이미지 파일이 비어있습니다.");
-            return null;
-        }
-
-        String imageUrl = null;
-
+    // 목표 인증 통계
+    @Operation(summary = "모든 목표 인증 통계 조회", description = "사용자의 모든 목표 인증에 대한 일일, 월간 및 총 인증 금액을 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "인증 통계가 성공적으로 조회됨",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = GoalCertificationStatisticsResDto.class))),
+        @ApiResponse(responseCode = "401", description = "인증 실패",
+            content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "서버 오류",
+            content = @Content(mediaType = "application/json"))
+    })
+    @GetMapping("/goals/certifications/statistics")
+    public ResponseEntity<GoalCertificationStatisticsResDto> getAllCertificationStatistics(
+        @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(image.getContentType());
-            metadata.setContentLength(image.getSize());
-
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            String fileName = image.getOriginalFilename() + "/" + timestamp; // 파일 이름에 타임스탬프 추가
-
-            amazonS3Client.putObject(new PutObjectRequest(
-                "my.eliceproject.s3.bucket",
-                fileName,
-                image.getInputStream(),
-                metadata
-            ));
-
-            imageUrl = String.format("https://s3.ap-southeast-2.amazonaws.com/%s/%s",
-                "my.eliceproject.s3.bucket", fileName);
-        } catch (IOException e) {
-            logger.error("이미지 업로드 중 오류 발생", e); // 예외 로깅
+            GoalCertificationStatisticsResDto statistics = certificationService.getTotalCertificationStatistics(
+                userDetails);
+            return ResponseEntity.ok(statistics);
+        } catch (Exception e) {
+            logger.error("Error retrieving all certification statistics", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return imageUrl;
     }
 }

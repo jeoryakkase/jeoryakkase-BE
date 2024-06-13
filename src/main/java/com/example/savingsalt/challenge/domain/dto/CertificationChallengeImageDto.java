@@ -11,5 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class CertificationChallengeImageDto {
+
+    private Long id;
+
     private String imageUrl;
 }

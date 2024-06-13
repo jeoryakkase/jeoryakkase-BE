@@ -1,8 +1,10 @@
 package com.example.savingsalt.goal.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationCreateReqDto;
 import com.example.savingsalt.goal.domain.dto.GoalCertificationResponseDto;
+import com.example.savingsalt.goal.domain.dto.GoalCertificationStatisticsResDto;
 import com.example.savingsalt.goal.domain.entity.GoalCertificationEntity;
 import com.example.savingsalt.goal.domain.entity.GoalEntity;
 import com.example.savingsalt.goal.enums.GoalStatus;
@@ -13,7 +15,16 @@ import com.example.savingsalt.goal.repository.GoalRepository;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -30,12 +42,14 @@ public class GoalCertificationService {
     private final GoalRepository goalRepository;
     private final MemberRepository memberRepository;
     private final AmazonS3 amazonS3Client;
+    private final S3Service s3Service;
 
     // 목표 인증 내용 생성
     @Transactional
     public GoalCertificationResponseDto createCertification(
-        GoalCertificationCreateReqDto goalCertificationCreateReqDto, UserDetails userDetails,
-        Long goalId) {
+        GoalCertificationCreateReqDto goalCertificationCreateReqDto, MultipartFile image,
+        UserDetails userDetails,
+        Long goalId) throws IOException {
         // 목표와 회원 정보를 가져옴
         GoalEntity goalEntity = goalRepository.findById(goalId)
             .orElseThrow(GoalNotFoundException::new);
@@ -43,15 +57,18 @@ public class GoalCertificationService {
         MemberEntity memberEntity = memberRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(MemberNotFoundException::new);
 
+        // 이미지 업로드 처리
+        String imageUrl = s3Service.upload(image);
+        goalCertificationCreateReqDto.setCertificationImageUrl(imageUrl); // 이미지 URL을 DTO에 설정
+
         goalEntity.addCertificationMoney(goalCertificationCreateReqDto.getCertificationMoney());
 
-        // GoalCertificationEntity 생성
+        // GoalCertificationEntity 생성 및 저장
         GoalCertificationEntity certificationEntity = goalCertificationCreateReqDto.toEntity(
             goalCertificationCreateReqDto,
             goalEntity,
             memberEntity);
 
-        // 저장
         GoalCertificationEntity savedEntity = certificationRepository.save(certificationEntity);
 
         // 목표 상태 업데이트
@@ -81,7 +98,11 @@ public class GoalCertificationService {
         // 이미지 URL을 가져와서 S3에서 삭제
         String imageUrl = certificationEntity.getCertificationImageUrl();
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            deleteImageFromS3(imageUrl);
+            try {
+                s3Service.deleteFile(imageUrl);
+            } catch (IOException e) {
+
+            }
         }
 
         // 인증 삭제
@@ -116,9 +137,55 @@ public class GoalCertificationService {
         goalRepository.save(goalEntity);
     }
 
-    // S3에서 이미지 삭제하는 메서드
-    private void deleteImageFromS3(String imageUrl) {
-        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-        amazonS3Client.deleteObject("my.eliceproject.s3.bucket", fileName);
+    public GoalCertificationStatisticsResDto getTotalCertificationStatistics(
+        UserDetails userDetails) {
+        MemberEntity member = memberRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(() -> new MemberNotFoundException());
+
+        LocalDate today = LocalDate.now();
+        Long dailyAmount = certificationRepository.sumDailyCertificationMoneyByMember(member, today);
+        Long monthlyAmount = certificationRepository.sumMonthlyCertificationMoneyByMember(member, today.getMonthValue(), today.getYear());
+        Long totalAmount = certificationRepository.sumAllCertificationMoneyByMember(member);
+
+        List<String> dailyContents = certificationRepository.findDailyCertificationContentsByMember(member, today);
+        Map<String, Long> dailyFrequencyMap = dailyContents.stream()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Set<String> topDailyContents = dailyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        List<String> monthlyContents = certificationRepository.findMonthlyCertificationContents(member, today.getMonthValue(), today.getYear());
+        Map<String, Long> monthlyFrequencyMap = monthlyContents.stream()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Set<String> topMonthlyContents = monthlyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        Map<String, Double> percentages = monthlyFrequencyMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+                .thenComparing(Map.Entry::getKey))
+            .limit(3)
+            .collect(Collectors.toMap(
+                entry -> entry.getKey(),
+                entry -> (double) Math.round(100.0 * entry.getValue() / monthlyContents.size()),
+                (existingValue, newValue) -> existingValue,
+                LinkedHashMap::new));
+
+        return GoalCertificationStatisticsResDto.builder()
+            .totalAmount(totalAmount)
+            .monthlyAmount(monthlyAmount)
+            .dailyAmount(dailyAmount)
+            .dailyCertifications(topDailyContents)
+            .monthlyCertifications(topMonthlyContents)
+            .monthlyCertificationPercentages(percentages)
+            .todayDate(today)
+            .yearMonth(today.getYear() + ". " + today.getMonthValue())
+            .build();
     }
 }

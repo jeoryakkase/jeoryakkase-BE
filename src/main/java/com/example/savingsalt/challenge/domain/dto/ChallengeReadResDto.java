@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChallengeReadResDto {
 
+    private Long id;
+
     private String challengeTitle;
 
     private ChallengeType challengeType;

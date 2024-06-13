@@ -3,18 +3,12 @@ package com.example.savingsalt.community.comment.repository;
 import com.example.savingsalt.community.comment.domain.entity.CommentEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     List<CommentEntity> findAllByBoardEntityIdOrderByCreatedAtAsc(Long boardId);
 
-
-    List<CommentEntity> findAllByParentComment(CommentEntity parentComment);
-
-    boolean existsByParentComment(CommentEntity parentComment);
-
-//    List<CommentEntity> findAllByParentCommentOrderByCreatedAtAsc(CommentEntity parentComment);
-//
-//    List<CommentEntity> findAllByBoardEntityId(Long boardId);
 }
 

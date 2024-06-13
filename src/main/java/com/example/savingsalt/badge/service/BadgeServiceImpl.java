@@ -13,11 +13,13 @@ import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity;
 import com.example.savingsalt.challenge.domain.entity.MemberChallengeEntity.ChallengeStatus;
 import com.example.savingsalt.challenge.repository.MemberChallengeRepository;
 import com.example.savingsalt.badge.exception.BadgeException.BadgeNotFoundException;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.domain.dto.RepresentativeBadgeSetResDto;
 import com.example.savingsalt.member.exception.MemberException.MemberNotFoundException;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,16 +33,19 @@ public class BadgeServiceImpl implements BadgeService {
     private final BadgeRepository badgeRepository;
     private final MemberRepository memberRepository;
     private final MemberChallengeRepository memberChallengeRepository;
+    private final S3Service s3Service;
     private final BadgeMainMapper badgeMainMapper;
     private final MemberMapper memberMapper;
     private final Integer successCheckNumber = 1;
 
     public BadgeServiceImpl(BadgeRepository badgeRepository, MemberRepository memberRepository,
-        MemberChallengeRepository memberChallengeRepository, BadgeMainMapper badgeMainMapper,
+        MemberChallengeRepository memberChallengeRepository, S3Service s3Service,
+        BadgeMainMapper badgeMainMapper,
         MemberMapper memberMapper) {
         this.badgeRepository = badgeRepository;
         this.memberRepository = memberRepository;
         this.memberChallengeRepository = memberChallengeRepository;
+        this.s3Service = s3Service;
         this.badgeMainMapper = badgeMainMapper;
         this.memberMapper = memberMapper;
     }
@@ -166,6 +171,10 @@ public class BadgeServiceImpl implements BadgeService {
                 .orElse(badgeEntity.getBadgeImage()))
             .badgeType(Optional.ofNullable(badgeUpdateReqDto.getBadgeType()).orElse(
                 badgeEntity.getBadgeType()))
+            .stroke(Optional.ofNullable(badgeUpdateReqDto.getStroke())
+                .orElse(badgeEntity.getStroke()))
+            .fill(Optional.ofNullable(badgeUpdateReqDto.getFill())
+                .orElse(badgeEntity.getFill()))
             .build();
 
         BadgeEntity updatedBadge = badgeRepository.save(updateBadgeEntity);
@@ -176,8 +185,16 @@ public class BadgeServiceImpl implements BadgeService {
 
     // 뱃지 삭제
     public void deleteBadge(Long badgeId) {
-        badgeRepository.findById(badgeId)
+        BadgeEntity badgeEntity = badgeRepository.findById(badgeId)
             .orElseThrow(BadgeNotFoundException::new);
+
+        String imageUrl = badgeEntity.getBadgeImage();
+
+        try {
+            s3Service.deleteFile(imageUrl);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         badgeRepository.deleteById(badgeId);
     }

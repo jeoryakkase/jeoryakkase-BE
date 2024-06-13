@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class MemberChallengeDto {
 
+    private Long id;
+
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
