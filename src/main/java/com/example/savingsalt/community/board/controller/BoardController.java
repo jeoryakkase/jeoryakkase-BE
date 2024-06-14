@@ -81,8 +81,7 @@ public class BoardController {
     @Operation(summary = "팁 게시판 목록 조회", description = "팁 게시판에 있는 모든 게시글을 최신순으로 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음")
     })
     @GetMapping("/tips")
     public ResponseEntity<Page<BoardTypeTipReadResDto>> getAllTipBoards(
@@ -119,7 +118,9 @@ public class BoardController {
     public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable("id") Long id,
         @RequestPart("requestDto") BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles) throws IOException {
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
+        @RequestPart(value = "deleteImageUrls", required = false) List<String> deleteImageUrls)
+        throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
@@ -131,7 +132,7 @@ public class BoardController {
         List<String> imageUrls = s3Service.uploads(multipartFiles);
 
         BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
-            member, imageUrls);
+            member, imageUrls, deleteImageUrls);
         return ResponseEntity.ok(responseDto);
 
     }
