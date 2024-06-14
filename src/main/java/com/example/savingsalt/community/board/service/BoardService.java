@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.board.service;
 
+import com.example.savingsalt.community.board.domain.dto.BoardMainDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -22,7 +23,7 @@ public interface BoardService {
     // 절약팁 게시글 조회
     BoardTypeTipReadResDto findTipBoardById(Long id);
     // 절약팁 게시글 수정
-    BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto, MemberEntity member, List<String> newImageUrls);
+    BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto, MemberEntity member, List<String> newImageUrls, List<String> deleteImageUrls);
     // 절약팁 게시글 삭제
     void deleteTipBoard(Long id, MemberEntity member);
 
@@ -43,4 +44,8 @@ public interface BoardService {
     // 투표 게시글 삭제
     void deleteVoteBoard(Long id, MemberEntity member);
 
+    // 메인 페이지 게시글 조회
+
+    BoardMainDto getLatestTipBoard();
+    BoardMainDto getLatestVoteBoard();
 }

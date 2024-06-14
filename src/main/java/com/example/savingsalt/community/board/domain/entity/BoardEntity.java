@@ -42,6 +42,12 @@ public class BoardEntity extends BaseEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
+    @Column(name = "profile_images")
+    private String profileImage;
+
+    @Column(name = "representative_badge_id")
+    private Long representativeBadgeId;
+
     @NotNull
     private String title;
 
@@ -60,11 +66,11 @@ public class BoardEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BoardCategory category;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "boardEntity", cascade = CascadeType.ALL)
-    private List<BoardImageEntity> boardImageEntities;
-
     @OneToOne(mappedBy = "boardEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private PollEntity pollEntity;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "boardEntity", cascade = CascadeType.ALL)
+    private List<BoardImageEntity> boardImageEntities;
 
     public void incrementLikes() {
         this.totalLike++;
