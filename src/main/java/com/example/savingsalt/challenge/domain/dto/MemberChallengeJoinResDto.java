@@ -28,5 +28,7 @@ public class MemberChallengeJoinResDto {
 
     private Long effectiveDate;
 
+    private Long parentsChallengeId;
+
     private List<CertificationChallengeDto> certificationChallengeDtos;
 }
