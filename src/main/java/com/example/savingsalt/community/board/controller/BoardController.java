@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.board.controller;
 
+import com.example.savingsalt.community.board.domain.dto.BoardMainDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -268,6 +269,21 @@ public class BoardController {
 
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
+    }
+
+    // 메인 페이지 게시글 조회
+
+    @GetMapping("/main-tip")
+    public ResponseEntity<BoardMainDto> getLatestTipBoard() {
+        BoardMainDto latestTipBoard = boardService.getLatestTipBoard();
+
+        return ResponseEntity.ok(latestTipBoard);
+    }
+
+    @GetMapping("/main-vote")
+    public ResponseEntity<BoardMainDto> getLatestVoteBoard() {
+        BoardMainDto latestVoteBoard = boardService.getLatestVoteBoard();
+        return ResponseEntity.ok(latestVoteBoard);
     }
 
 
