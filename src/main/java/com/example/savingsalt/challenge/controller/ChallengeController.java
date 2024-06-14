@@ -67,7 +67,7 @@ public class ChallengeController {
 
     // 선택된 챌린지의 참여 중인 인증 전체 조회
     @Operation(summary = "챌린지 인증 전체 조회", description = "해당 챌린지 아이디로 부터 생성된 모든 회원 챌린지의 인증 테이블들을 조회하는 API")
-    @GetMapping("chllenges/{challengeId}/certify")
+    @GetMapping("challenges/{challengeId}/certify")
     public ResponseEntity<List<CertificationChallengeDto>> getCertifiCationChallenges(
         @Parameter(description = "챌린지 ID") @PathVariable Long challengeId) {
         List<CertificationChallengeDto> certificationChallengeDtos = certificationChallengeService.selectedChallengeGetCertifiCationChallenges(
