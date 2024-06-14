@@ -22,7 +22,6 @@ public class MemberUpdateRequestDto {
     private String gender;
     private int income;
     private String savePurpose;
-    private MultipartFile profileImage;
     private List<Long> interests;
     private String about;
 }
