@@ -15,6 +15,7 @@ import com.example.savingsalt.community.bookmark.domain.BookmarkEntity;
 import com.example.savingsalt.community.bookmark.repository.BookmarkRepository;
 import com.example.savingsalt.community.bookmark.service.BookmarkServiceImpl;
 import com.example.savingsalt.config.jwt.JwtTokenProvider;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.goal.controller.GoalController;
 import com.example.savingsalt.goal.domain.dto.GoalResponseDto;
 import com.example.savingsalt.goal.repository.GoalRepository;
@@ -33,6 +34,7 @@ import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
 import com.example.savingsalt.member.repository.MemberRepository;
 import com.example.savingsalt.member.repository.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,6 +47,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,7 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     private final MemberChallengeServiceImpl memberChallengeService;
     private final BookmarkServiceImpl bookmarkService;
@@ -67,7 +71,7 @@ public class MemberService {
 
     // 회원가입
     @Transactional
-    public MemberEntity signUp(SignupRequestDto dto) {
+    public MemberEntity signUp(SignupRequestDto dto) throws IOException {
         checkEmail(dto.getEmail()); // 이메일 중복 검사
         checkNickname(dto.getNickname()); // 닉네임 중복 검사
 
@@ -86,10 +90,14 @@ public class MemberService {
         memberEntity.setGender(gender);
         memberEntity.setIncome(dto.getIncome());
         memberEntity.setSavePurpose(dto.getSavePurpose());
-        memberEntity.setProfileImage(dto.getProfileImage());
         memberEntity.setInterests(dto.getInterests());
         memberEntity.setAbout(dto.getAbout());
         memberEntity.setRole(Role.MEMBER);
+
+        if (dto.getProfileImage() != null && !dto.getProfileImage().isEmpty()) {
+            String profileImageUrl = s3Service.upload(dto.getProfileImage());
+            memberEntity.setProfileImage(profileImageUrl);
+        }
 
         return memberRepository.save(memberEntity);
     }
@@ -167,7 +175,8 @@ public class MemberService {
     @Transactional
     public MemberEntity updateMember(Long id, String email, String password, String nickname,
         int age, String gender,
-        int income, String savePurpose, String profileImage, List<Long> interests, String about) {
+        int income, String savePurpose, MultipartFile profileImage, List<Long> interests, String about)
+        throws IOException {
         MemberEntity memberEntity = memberRepository.findById(id)
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
@@ -195,9 +204,13 @@ public class MemberService {
         memberEntity.setGender(genderEnum);
         memberEntity.setIncome(income);
         memberEntity.setSavePurpose(savePurpose);
-        memberEntity.setProfileImage(profileImage);
         memberEntity.setInterests(interests);
         memberEntity.setAbout(about);
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            String profileImageUrl = s3Service.upload(profileImage);
+            memberEntity.setProfileImage(profileImageUrl);
+        }
 
         return memberRepository.save(memberEntity);
     }
