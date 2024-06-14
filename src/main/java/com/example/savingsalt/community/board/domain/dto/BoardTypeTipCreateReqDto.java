@@ -17,14 +17,16 @@ public class BoardTypeTipCreateReqDto extends BaseEntity{
 
     private String title;
     private String contents;
-    private BoardCategory category = BoardCategory.TIPS;
+    private BoardCategory category;
 
     public BoardEntity toEntity(MemberEntity member) {
         return BoardEntity.builder()
             .memberEntity(member)
+            .profileImage(member.getProfileImage())
+            .representativeBadgeId(member.getRepresentativeBadgeId())
             .title(title)
             .contents(contents)
-            .category(category)
+            .category(BoardCategory.TIPS)
             .build();
     }
 

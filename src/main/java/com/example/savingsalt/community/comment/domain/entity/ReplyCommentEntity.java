@@ -3,6 +3,7 @@ package com.example.savingsalt.community.comment.domain.entity;
 import com.example.savingsalt.community.comment.domain.dto.ReplyCommentReqDto;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +26,9 @@ public class ReplyCommentEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "representative_badge_id")
+    private Long representativeBadgeId;
+
     @NotNull
     private String content;
 
@@ -40,6 +44,7 @@ public class ReplyCommentEntity extends BaseEntity {
     public ReplyCommentEntity(String content, CommentEntity parentComment,
         MemberEntity memberEntity) {
         this.content = content;
+        this.representativeBadgeId = memberEntity.getRepresentativeBadgeId();
         this.parentComment = parentComment;
         this.memberEntity = memberEntity;
     }
