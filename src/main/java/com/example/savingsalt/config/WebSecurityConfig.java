@@ -83,15 +83,22 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         return http
             .cors(withDefaults())
             .authorizeRequests(authorizeRequests -> authorizeRequests
+                // 모두 접근 가능
                 .requestMatchers("/", "/login", "/api/login", "/signup", "/api/signup",
                     "/api/check-nickname", "/api/check-email", "/api/kakao-auth",
                     "/api/google-auth", "/api/token",
                     "/saltern", "/vote", "/tips").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
-                .requestMatchers("/api/admin/**").hasAuthority(Role.ADMIN.getKey())
+                .requestMatchers(HttpMethod.GET, "/api/boards/**", "/api/challenges",
+                    "/api/challenges/{challengeId:^[0-9]*$}/*", "/api/challenges/all").permitAll()
+                // 관리자만 접근 가능
+                .requestMatchers("/api/admin/**", "/api/badges/**").hasAuthority(Role.ADMIN.getKey())
+                .requestMatchers(HttpMethod.PUT, "/api/challenges/{challengeId:^[0-9]*$}").hasAuthority(Role.ADMIN.getKey())
+                .requestMatchers(HttpMethod.DELETE, "/api/challenges/{challengeId:^[0-9]*$}").hasAuthority(Role.ADMIN.getKey())
+                .requestMatchers(HttpMethod.POST, "/api/challenges").hasAuthority(Role.ADMIN.getKey())
                 // swagger 관련 경로 허용 (테스트용)
                 .requestMatchers("/swagger-ui.html**", "/swagger-ui/**", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**").permitAll()
+                // 나머지는 모두 로그인해야 접근 가능
                 .anyRequest().authenticated())
 //                .anyRequest().permitAll()) // 테스트용
             // 폼 로그인
