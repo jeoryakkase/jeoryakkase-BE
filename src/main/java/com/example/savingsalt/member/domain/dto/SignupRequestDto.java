@@ -16,7 +16,6 @@ public class SignupRequestDto {
     private String gender;
     private int income;
     private String savePurpose;
-    private MultipartFile profileImage;
     private List<Long> interests;
     private String about;
 }
