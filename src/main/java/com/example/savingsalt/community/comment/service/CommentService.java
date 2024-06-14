@@ -1,5 +1,8 @@
 package com.example.savingsalt.community.comment.service;
 
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
+import com.example.savingsalt.badge.domain.entity.BadgeEntity;
+import com.example.savingsalt.badge.service.BadgeService;
 import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.repository.BoardRepository;
@@ -25,7 +28,7 @@ public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final ReplyCommentRepository replyCommentRepository;
-//    private final BadgeService badgeService;
+    private final BadgeService badgeService;
 
     @Transactional
     public CommentResDto createComment(CommentReqDto requestDto, MemberEntity member) {
@@ -73,7 +76,8 @@ public class CommentService {
         }
 
         // 대댓글 삭제
-        List<ReplyCommentEntity> replyComments = replyCommentRepository.findByParentComment(comment);
+        List<ReplyCommentEntity> replyComments = replyCommentRepository.findByParentComment(
+            comment);
         replyCommentRepository.deleteAll(replyComments);
 
         // 댓글 삭제
@@ -89,21 +93,35 @@ public class CommentService {
 
     private CommentResDto convertToDto(CommentEntity comment) {
 
+        BadgeDto badgeDto = toBadgeDto(comment.getRepresentativeBadgeId());
+
         return CommentResDto.builder()
             .commentId(comment.getId())
+            .badgeDto(badgeDto)
             .content(comment.getContent())
             .nickname(comment.getMemberEntity().getNickname())
             .build();
     }
 
-//    private BadgeDto toBadgeDto(Long badgeId) {
-//        BadgeEntity badgeEntity = badgeService.findById(badgeId);
-//
-//        return BadgeDto.builder()
-//            .name(badgeEntity.getName())
-//            .badgeImage(badgeEntity.getBadgeImage())
-//            .badgeDesc(badgeEntity.getBadgeDesc())
-//            .badgeType(badgeEntity.getBadgeType())
-//            .build();
-//    }
+    // 프로필 뱃지 가져오기
+    private BadgeDto toBadgeDto(Long badgeId) {
+
+        if (badgeId == null) {
+            return BadgeDto.builder()
+                .name(null)
+                .badgeImage(null)
+                .badgeDesc(null)
+                .badgeType(null)
+                .build();
+        }
+
+        BadgeEntity badgeEntity = badgeService.findById(badgeId);
+
+        return BadgeDto.builder()
+            .name(badgeEntity.getName())
+            .badgeImage(badgeEntity.getBadgeImage())
+            .badgeDesc(badgeEntity.getBadgeDesc())
+            .badgeType(badgeEntity.getBadgeType())
+            .build();
+    }
 }
