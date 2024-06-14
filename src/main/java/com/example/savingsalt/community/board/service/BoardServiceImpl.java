@@ -299,18 +299,28 @@ public class BoardServiceImpl implements BoardService {
         }
 
         if (newImageUrls != null && !newImageUrls.isEmpty()) {
-            boardImageService.deleteBoardImage(newImageUrls);
-            boardImageService.createBoardImage(newImageUrls, board.getId());
+            List<BoardImageDto> boardImage = boardImageService.createBoardImage(newImageUrls,
+                board.getId());
         }
+
+        List<BoardImageEntity> allBoardImages = boardImageRepository.findAllByBoardEntityId(board.getId());
+        List<BoardImageDto> imageDtos = toImageDtos(allBoardImages);
 
         BoardEntity updateBoard = board.toBuilder()
             .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
             .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
             .build();
 
+        List<CommentEntity> comments = commentRepository.findAllByBoardEntityIdOrderByCreatedAtAsc(
+            board.getId());
+
+        List<CommentResDto> commentDtos = comments.stream()
+            .map(this::toCommentResDto)
+            .collect(Collectors.toList());
+
         try {
             BoardEntity updatedBoard = boardRepository.save(updateBoard);
-            return convertToVoteReadResDto(updatedBoard);
+            return convertToVoteReadResDto(updatedBoard, commentDtos, imageDtos);
         } catch (Exception e) {
             throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
