@@ -2,6 +2,7 @@ package com.example.savingsalt.community.board.service;
 
 import com.example.savingsalt.badge.service.BadgeService;
 import com.example.savingsalt.community.board.domain.dto.BoardImageDto;
+import com.example.savingsalt.community.board.domain.dto.BoardMainDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -68,8 +69,6 @@ public class BoardServiceImpl implements BoardService {
 
         BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
         BoardTypeTipReadResDto boardTypeTipReadResDto = convertToTipReadResDto(savedBoardEntity);
-
-
 
         boardTypeTipReadResDto = boardTypeTipReadResDto.toBuilder()
             .boardImageDtos(boardImageService.createBoardImage(imageUrls, savedBoardEntity.getId()))
@@ -298,9 +297,56 @@ public class BoardServiceImpl implements BoardService {
         }
     }
 
+    // 메인 게시글 조회
+
+    public BoardMainDto getLatestTipBoard() {
+        BoardEntity latestTipBoard = boardRepository.findFirstByCategoryOrderByCreatedAtDesc(
+            BoardCategory.TIPS).orElseThrow(() -> new BoardNotFoundException());
+
+        List<BoardImageEntity> images = boardImageService.findAllImageByBoardId(
+            latestTipBoard.getId());
+        List<BoardImageDto> imageDtos = toImageDtos(images);
+
+        return convertToMainTipDto(latestTipBoard, imageDtos);
+    }
+
+    public BoardMainDto getLatestVoteBoard() {
+        BoardEntity latestVoteBoard = boardRepository.findFirstByCategoryOrderByCreatedAtDesc(
+            BoardCategory.VOTE).orElseThrow(() -> new BoardNotFoundException());
+
+        List<BoardImageEntity> images = boardImageService.findAllImageByBoardId(
+            latestVoteBoard.getId());
+        List<BoardImageDto> imageDtos = toImageDtos(images);
+
+        return convertToMainVoteDto(latestVoteBoard, imageDtos);
+    }
+
+
+
+    // 메인 조회 Dto
+    private BoardMainDto convertToMainTipDto(BoardEntity boardEntity,
+        List<BoardImageDto> imageDtos) {
+
+        return BoardMainDto.builder()
+            .id(boardEntity.getId())
+            .title(boardEntity.getTitle())
+            .contents(boardEntity.getContents())
+            .boardImageDtos(toImageDtos(boardEntity.getBoardImageEntities()))
+            .build();
+    }
+
+    private BoardMainDto convertToMainVoteDto(BoardEntity boardEntity,
+        List<BoardImageDto> imageDtos) {
+
+        return BoardMainDto.builder()
+            .id(boardEntity.getId())
+            .title(boardEntity.getTitle())
+            .contents(boardEntity.getContents())
+            .build();
+    }
+
     // BoardEntity를 BoardTypeTipReadResDto로 변환
     private BoardTypeTipReadResDto convertToTipReadResDto(BoardEntity boardEntity) {
-
 
         return BoardTypeTipReadResDto.builder()
             .id(boardEntity.getId())
@@ -337,7 +383,6 @@ public class BoardServiceImpl implements BoardService {
         PollEntity pollbyBoardEntityId = pollRepository.findByBoardEntityId(
             boardEntity.getId());
         PollResultDto pollResults = pollService.getPollResults(pollbyBoardEntityId.getId());
-
 
         return BoardTypeVoteReadResDto.builder()
             .id(boardEntity.getId())
@@ -380,8 +425,6 @@ public class BoardServiceImpl implements BoardService {
         List<ReplyCommentResDto> replyDtos = replies.stream()
             .map(this::toReplyCommentDto)
             .collect(Collectors.toList());
-
-
 
         return CommentResDto.builder()
             .commentId(comment.getId())

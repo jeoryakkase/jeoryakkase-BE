@@ -15,4 +15,8 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 
     Optional<BoardEntity> findByIdAndCategory(Long id, BoardCategory category);
 
+    // 가장 최신의 게시물 불러오기
+    Optional<BoardEntity> findFirstByCategoryOrderByCreatedAtDesc(BoardCategory category);
+
+
 }
