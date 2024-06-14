@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.board.service;
 
+import com.example.savingsalt.community.board.domain.dto.BoardMainDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -43,4 +44,8 @@ public interface BoardService {
     // 투표 게시글 삭제
     void deleteVoteBoard(Long id, MemberEntity member);
 
+    // 메인 페이지 게시글 조회
+
+    BoardMainDto getLatestTipBoard();
+    BoardMainDto getLatestVoteBoard();
 }
