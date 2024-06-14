@@ -35,7 +35,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -58,8 +60,9 @@ public class MemberController {
         @ApiResponse(responseCode = "409", description = "Member already exists"),
         @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<?> signup(@ModelAttribute SignupRequestDto dto) throws IOException {
-        MemberEntity memberEntity = memberService.signUp(dto);
+    public ResponseEntity<?> signup(@RequestPart("dto") SignupRequestDto dto,
+        @RequestPart("profileImage") MultipartFile profileImage) throws IOException {
+        MemberEntity memberEntity = memberService.signUp(dto, profileImage);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -92,7 +95,8 @@ public class MemberController {
     public ResponseEntity<?> login(HttpServletRequest request, @RequestBody LoginRequestDto dto) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Authorization header");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Invalid Authorization header");
         }
 
         String accessToken = authHeader.replace("Bearer ", "");
@@ -178,14 +182,15 @@ public class MemberController {
         @ApiResponse(responseCode = "500", description = "Server error")
     })
     public ResponseEntity<?> updateMember(HttpServletRequest request,
-        @ModelAttribute MemberUpdateRequestDto dto) throws IOException {
+        @RequestPart("dto") MemberUpdateRequestDto dto,
+        @RequestPart("profileImage") MultipartFile profileImage) throws IOException {
         String email = memberService.getEmailFromRequest(request);
         Long memberId = memberService.findMemberByEmail(email).getId();
 
         MemberEntity memberEntity = memberService.updateMember(memberId, dto.getEmail(),
             dto.getPassword(),
             dto.getNickname(), dto.getAge(),
-            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), dto.getProfileImage(),
+            dto.getGender(), dto.getIncome(), dto.getSavePurpose(), profileImage,
             dto.getInterests(), dto.getAbout());
 
         return ResponseEntity.status(HttpStatus.OK).body(memberEntity);

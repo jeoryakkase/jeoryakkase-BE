@@ -71,7 +71,7 @@ public class MemberService {
 
     // 회원가입
     @Transactional
-    public MemberEntity signUp(SignupRequestDto dto) throws IOException {
+    public MemberEntity signUp(SignupRequestDto dto, MultipartFile profileImage) throws IOException {
         checkEmail(dto.getEmail()); // 이메일 중복 검사
         checkNickname(dto.getNickname()); // 닉네임 중복 검사
 
@@ -94,9 +94,13 @@ public class MemberService {
         memberEntity.setAbout(dto.getAbout());
         memberEntity.setRole(Role.MEMBER);
 
-        if (dto.getProfileImage() != null && !dto.getProfileImage().isEmpty()) {
-            String profileImageUrl = s3Service.upload(dto.getProfileImage());
+        if (profileImage != null && !profileImage.isEmpty()) {
+            // 새로운 이미지를 업로드하고 기존 이미지 URL을 새로운 URL로 대체
+            String profileImageUrl = s3Service.upload(profileImage);
             memberEntity.setProfileImage(profileImageUrl);
+        } else {
+            // 새로운 이미지가 없으면 기존 이미지를 유지
+            memberEntity.setProfileImage(memberEntity.getProfileImage());
         }
 
         return memberRepository.save(memberEntity);
@@ -208,8 +212,12 @@ public class MemberService {
         memberEntity.setAbout(about);
 
         if (profileImage != null && !profileImage.isEmpty()) {
+            // 새로운 이미지를 업로드하고 기존 이미지 URL을 새로운 URL로 대체
             String profileImageUrl = s3Service.upload(profileImage);
             memberEntity.setProfileImage(profileImageUrl);
+        } else {
+            // 새로운 이미지가 없으면 기존 이미지를 유지
+            memberEntity.setProfileImage(memberEntity.getProfileImage());
         }
 
         return memberRepository.save(memberEntity);
