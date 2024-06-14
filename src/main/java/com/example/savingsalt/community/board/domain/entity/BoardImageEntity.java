@@ -1,37 +1,36 @@
-package com.example.savingsalt.community.poll.domain;
+package com.example.savingsalt.community.board.domain.entity;
 
-import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.global.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "polls")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "board_image")
+@Builder(toBuilder = true)
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Builder
-public class PollEntity extends BaseEntity {
+public class BoardImageEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "board_id", nullable = false)
+    private String imageUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
     private BoardEntity boardEntity;
 
-    private int yesCount;
-
-    private int noCount;
 
 }

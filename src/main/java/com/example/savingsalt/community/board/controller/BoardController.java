@@ -1,5 +1,6 @@
 package com.example.savingsalt.community.board.controller;
 
+import com.example.savingsalt.community.board.domain.dto.BoardMainDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeTipReadResDto;
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
@@ -7,6 +8,7 @@ import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteReadResDto
 import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteUpdateReqDto;
 import com.example.savingsalt.community.board.exception.BoardException.EmptyBoardException;
 import com.example.savingsalt.community.board.service.BoardService;
+import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.global.UnauthorizedException;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
 import com.example.savingsalt.member.mapper.MemberMainMapper.MemberMapper;
@@ -31,7 +33,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -50,17 +51,16 @@ public class BoardController {
 
     private final MemberMapper memberMapper;
 
-//    private final AmazonS3 amazonS3Client;
+    private final S3Service s3Service;
 
     @Operation(summary = "팁 게시글 작성", description = "로그인된 사용자가 팁 게시판에 새로운 게시글을 작성합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "게시글 작성 성공", content = @Content(schema = @Schema(implementation = BoardTypeTipReadResDto.class))),
-        @ApiResponse(responseCode = "401", description = "로그인 필요"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "401", description = "로그인 필요")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardTypeTipReadResDto> createTipBoard(
-        @RequestBody BoardTypeTipCreateReqDto requestDto,
+        @RequestPart("requestDto") BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestPart("uploadFiles") List<MultipartFile> multipartFiles) throws IOException {
 
@@ -71,37 +71,10 @@ public class BoardController {
         MemberEntity member = memberMapper.toEntity(
             memberService.findMemberByEmail(userDetails.getUsername()));
 
-//        // S3
-//        List<String> imageUrls = new ArrayList<>();
-//        String timestamp = String.valueOf(System.currentTimeMillis());
-//
-//        for (MultipartFile file : multipartFiles) {
-//            ObjectMetadata objectMetadata = new ObjectMetadata();
-//            objectMetadata.setContentType(file.getContentType());
-//            objectMetadata.setContentLength(file.getSize());
-//
-//            PutObjectRequest putObjectRequest;
-//
-//            String uploadFileName = file.getOriginalFilename() + "/" + timestamp;
-//
-//            putObjectRequest = new PutObjectRequest(
-//                "my.eliceproject.s3.bucket",
-//                uploadFileName,
-//                file.getInputStream(),
-//                objectMetadata
-//            );
-//
-//            amazonS3Client.putObject(putObjectRequest);
-//
-//            String imageUrl = String.format(
-//                "https://s3.ap-southeast-2.amazonaws.com/my.eliceproject.s3.bucket/"
-//                + uploadFileName);
-//
-//            imageUrls.add(imageUrl);
-//        }
+        List<String> imageUrls = s3Service.uploads(multipartFiles);
 
-
-        BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member);
+        BoardTypeTipReadResDto responseDto = boardService.createTipBoard(requestDto, member,
+            imageUrls);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
@@ -142,10 +115,11 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{id}")
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable("id") Long id,
-        @RequestBody BoardTypeTipCreateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @RequestPart("requestDto") BoardTypeTipCreateReqDto requestDto,
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles) throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
@@ -154,8 +128,10 @@ public class BoardController {
         MemberEntity member = memberMapper.toEntity(
             memberService.findMemberByEmail(userDetails.getUsername()));
 
+        List<String> imageUrls = s3Service.uploads(multipartFiles);
+
         BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
-            member);
+            member, imageUrls);
         return ResponseEntity.ok(responseDto);
 
     }
@@ -189,10 +165,12 @@ public class BoardController {
         @ApiResponse(responseCode = "401", description = "로그인 필요"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping("/votes")
+    @PostMapping(value = "/votes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardTypeVoteReadResDto> createVoteBoard(
-        @RequestBody BoardTypeVoteCreateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @RequestPart("requestDto") BoardTypeVoteCreateReqDto requestDto,
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
+        throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
@@ -201,7 +179,10 @@ public class BoardController {
         MemberEntity member = memberMapper.toEntity(
             memberService.findMemberByEmail(userDetails.getUsername()));
 
-        BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member);
+        List<String> imageUrls = s3Service.uploads(multipartFiles);
+
+        BoardTypeVoteReadResDto responseDto = boardService.createVoteBoard(requestDto, member,
+            imageUrls);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
@@ -244,10 +225,12 @@ public class BoardController {
         @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PatchMapping("/{id}/votes")
+    @PatchMapping(value = "/{id}/votes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateVoteBoard(@PathVariable("id") Long id,
-        @RequestBody BoardTypeVoteUpdateReqDto requestDto,
-        @AuthenticationPrincipal UserDetails userDetails) {
+        @RequestPart("requestDto") BoardTypeVoteUpdateReqDto requestDto,
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
+        throws IOException {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
@@ -256,8 +239,10 @@ public class BoardController {
         MemberEntity member = memberMapper.toEntity(
             memberService.findMemberByEmail(userDetails.getUsername()));
 
+        List<String> imageUrls = s3Service.uploads(multipartFiles);
+
         BoardTypeVoteReadResDto responseDto = boardService.updateVoteBoard(id,
-            requestDto, member);
+            requestDto, member, imageUrls);
 
         return ResponseEntity.ok(responseDto);
     }
@@ -284,6 +269,21 @@ public class BoardController {
 
         return new ResponseEntity<>("게시글이 삭제되었습니다.", HttpStatus.OK);
 
+    }
+
+    // 메인 페이지 게시글 조회
+
+    @GetMapping("/main-tip")
+    public ResponseEntity<BoardMainDto> getLatestTipBoard() {
+        BoardMainDto latestTipBoard = boardService.getLatestTipBoard();
+
+        return ResponseEntity.ok(latestTipBoard);
+    }
+
+    @GetMapping("/main-vote")
+    public ResponseEntity<BoardMainDto> getLatestVoteBoard() {
+        BoardMainDto latestVoteBoard = boardService.getLatestVoteBoard();
+        return ResponseEntity.ok(latestVoteBoard);
     }
 
 

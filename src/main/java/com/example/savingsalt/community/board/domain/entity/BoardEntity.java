@@ -1,8 +1,5 @@
 package com.example.savingsalt.community.board.domain.entity;
 
-import com.example.savingsalt.community.board.domain.dto.BoardTypeTipCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.BoardTypeVoteCreateReqDto;
-import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
 import com.example.savingsalt.community.board.domain.dto.MyPageBoardDto;
 import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.poll.domain.PollEntity;
@@ -19,9 +16,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,10 +60,11 @@ public class BoardEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BoardCategory category;
 
-    private String imageUrls;
-
     @OneToOne(mappedBy = "boardEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private PollEntity pollEntity;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "boardEntity", cascade = CascadeType.ALL)
+    private List<BoardImageEntity> boardImageEntities;
 
     public void incrementLikes() {
         this.totalLike++;
@@ -87,7 +87,7 @@ public class BoardEntity extends BaseEntity {
         dto.setTotalLike(this.totalLike);
         dto.setView(this.view);
         dto.setCategory(this.category);
-        dto.setImageUrls(this.imageUrls);
+        dto.setBoardImageEntities(this.boardImageEntities);
         return dto;
     }
 

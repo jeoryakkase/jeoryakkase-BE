@@ -1,6 +1,6 @@
 package com.example.savingsalt.community.comment.domain.dto;
 
-import java.time.LocalDateTime;
+import com.example.savingsalt.badge.domain.dto.BadgeDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,11 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class ReplyCommentResDto {
-    private Long id;
+    private Long replyId;
     private String content;
-    private Long parentCommentId;
+    private BadgeDto badgeDto;
     private String nickname;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
 
 }

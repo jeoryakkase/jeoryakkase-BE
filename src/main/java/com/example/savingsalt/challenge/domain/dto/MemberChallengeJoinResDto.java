@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MemberChallengeJoinResDto {
 
-    private String challengeTtile;
+    private Long id;
+
+    private String challengeTitle;
 
     private String challengeTerm;
 
@@ -25,6 +27,8 @@ public class MemberChallengeJoinResDto {
     private LocalDate endDate;
 
     private Long effectiveDate;
+
+    private Long parentsChallengeId;
 
     private List<CertificationChallengeDto> certificationChallengeDtos;
 }
