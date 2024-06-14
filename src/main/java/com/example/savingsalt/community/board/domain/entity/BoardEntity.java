@@ -42,6 +42,12 @@ public class BoardEntity extends BaseEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
+    @Column(name = "profile_images")
+    private String profileImage;
+
+    @Column(name = "representative_badge_id")
+    private Long representativeBadgeId;
+
     @NotNull
     private String title;
 
