@@ -118,8 +118,7 @@ public class BoardController {
     public ResponseEntity<BoardTypeTipReadResDto> updateTipBoard(@PathVariable("id") Long id,
         @RequestPart("requestDto") BoardTypeTipCreateReqDto requestDto,
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
-        @RequestPart(value = "deleteImageUrls", required = false) List<String> deleteImageUrls)
+        @RequestPart("uploadFiles") List<MultipartFile> multipartFiles)
         throws IOException {
 
         if (userDetails == null) {
@@ -132,7 +131,7 @@ public class BoardController {
         List<String> imageUrls = s3Service.uploads(multipartFiles);
 
         BoardTypeTipReadResDto responseDto = boardService.updateTipBoard(id, requestDto,
-            member, imageUrls, deleteImageUrls);
+            member, imageUrls);
         return ResponseEntity.ok(responseDto);
 
     }
