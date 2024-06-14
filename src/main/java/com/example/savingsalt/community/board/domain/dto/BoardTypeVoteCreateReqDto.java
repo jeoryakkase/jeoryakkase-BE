@@ -16,7 +16,7 @@ public class BoardTypeVoteCreateReqDto {
 
     private String title;
     private String contents;
-    private BoardCategory category;
+    private BoardCategory category = BoardCategory.VOTE;
 
     public BoardEntity toEntity(MemberEntity member) {
         return BoardEntity.builder()
@@ -25,7 +25,6 @@ public class BoardTypeVoteCreateReqDto {
             .representativeBadgeId(member.getRepresentativeBadgeId())
             .title(title)
             .contents(contents)
-            .category(BoardCategory.VOTE)
             .build();
     }
 }

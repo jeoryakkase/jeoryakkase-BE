@@ -16,7 +16,6 @@ import com.example.savingsalt.community.board.enums.BoardCategory;
 import com.example.savingsalt.community.board.exception.BoardException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardNotFoundException;
 import com.example.savingsalt.community.board.exception.BoardException.BoardServiceException;
-import com.example.savingsalt.community.board.exception.BoardException.ImageNotFoundException;
 import com.example.savingsalt.community.board.repository.BoardImageRepository;
 import com.example.savingsalt.community.board.repository.BoardRepository;
 import com.example.savingsalt.community.comment.domain.dto.CommentResDto;
@@ -32,7 +31,6 @@ import com.example.savingsalt.community.poll.repository.PollRepository;
 import com.example.savingsalt.community.poll.service.PollServiceImpl;
 import com.example.savingsalt.config.s3.S3Service;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +132,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto requestDto,
-        MemberEntity member, List<String> newImageUrls, List<String> deleteImageUrls) {
+        MemberEntity member, List<String> newImageUrls) {
 
         BoardEntity board = findBoard(id, requestDto.getCategory());
 
@@ -142,35 +140,14 @@ public class BoardServiceImpl implements BoardService {
             throw new BoardException.UnauthorizedPostUpdateException();
         }
 
-        // 이미지 삭제 처리
-        if (deleteImageUrls != null && !deleteImageUrls.isEmpty()) {
-            for (String imageUrl : deleteImageUrls) {
-                BoardImageEntity imageEntity = boardImageRepository.findByImageUrl(imageUrl)
-                    .orElseThrow(() -> new ImageNotFoundException());
-                boardImageRepository.delete(imageEntity);
-                try {
-                    s3Service.deleteFile(imageUrl);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            List<BoardImageDto> boardImage = boardImageService.createBoardImage(newImageUrls,
+                board.getId());
         }
 
-        // 새 이미지 추가 처리
-        List<BoardImageEntity> newBoardImages = new ArrayList<>();
-        if (newImageUrls != null && !newImageUrls.isEmpty()) {
-            for (String imageUrl : newImageUrls) {
-                BoardImageEntity imageEntity = BoardImageEntity.builder()
-                    .boardEntity(board)
-                    .imageUrl(imageUrl)
-                    .build();
-                newBoardImages.add(boardImageRepository.save(imageEntity));
-            }
-        }
         List<BoardImageEntity> allBoardImages = boardImageRepository.findAllByBoardEntityId(board.getId());
         List<BoardImageDto> imageDtos = toImageDtos(allBoardImages);
 
-        // 게시글 업데이트
         BoardEntity updateBoard = board.toBuilder()
             .title(Optional.ofNullable(requestDto.getTitle()).orElse(board.getTitle()))
             .contents(Optional.ofNullable(requestDto.getContents()).orElse(board.getContents()))
@@ -187,7 +164,7 @@ public class BoardServiceImpl implements BoardService {
             BoardEntity updatedBoard = boardRepository.save(updateBoard);
             return convertToTipReadResDto(updatedBoard, commentDtos, imageDtos);
         } catch (Exception e) {
-            throw new BoardServiceException("팁 게시글을 수정하는 중 오류가 발생했습니다.", e);
+            throw new BoardServiceException("투표 게시글을 수정하는 중 오류가 발생했습니다.", e);
         }
     }
 
