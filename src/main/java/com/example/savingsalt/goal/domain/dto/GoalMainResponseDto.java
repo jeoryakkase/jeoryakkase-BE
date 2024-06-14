@@ -35,4 +35,7 @@ public class GoalMainResponseDto {
 
     // 남은 일자
     private Long goalRemainingPeriod;
+
+    // 사진 URL
+    private String goalImage;
 }

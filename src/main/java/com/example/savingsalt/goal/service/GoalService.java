@@ -116,6 +116,7 @@ public class GoalService {
             .goalAchievementRate(achievementRate) // 계산된 목표 달성률을 설정
             .goalDateOfProgress(dateOfProgress) // 계산된 진행 일자를 설정
             .goalRemainingPeriod(remainingPeriod) // 계산된 남은 일자를 설정
+            .goalImage(goal.getGoalImage())
             .build();
     }
 
