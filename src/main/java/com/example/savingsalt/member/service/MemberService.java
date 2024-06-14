@@ -72,8 +72,12 @@ public class MemberService {
     // 회원가입
     @Transactional
     public MemberEntity signUp(SignupRequestDto dto, MultipartFile profileImage) throws IOException {
-        checkEmail(dto.getEmail()); // 이메일 중복 검사
-        checkNickname(dto.getNickname()); // 닉네임 중복 검사
+        if (!checkEmail(dto.getEmail())) { // 이메일 중복 검사
+            throw new MemberException.EmailAlreadyExistsException();
+        }
+        if (!checkNickname(dto.getNickname())) { // 닉네임 중복 검사
+            throw new MemberException.NicknameAlreadyExistsException();
+        }
 
         Gender gender;
         try {
@@ -185,11 +189,15 @@ public class MemberService {
             .orElseThrow(() -> new MemberException.MemberNotFoundException("id", id));
 
         if (!memberEntity.getEmail().equals(email)) { // 이메일을 수정하는 경우
-            checkEmail(email); // 이메일 중복 검사
+            if (!checkEmail(email)) { // 이메일 중복 검사
+                throw new MemberException.EmailAlreadyExistsException();
+            }
         }
 
         if (!memberEntity.getNickname().equals(nickname)) { // 닉네임을 수정하는 경우
-            checkNickname(nickname); // 닉네임 중복 검사
+            if (!checkNickname(nickname)) { // 닉네임 중복 검사
+                throw new MemberException.NicknameAlreadyExistsException();
+            }
         }
 
         if (password != null && !password.isEmpty()) { // 수정 폼에서 비밀번호 필드는 비어있고, 수정할 경우에만 입력
@@ -226,7 +234,7 @@ public class MemberService {
     // 이메일 중복 검사
     public boolean checkEmail(String email) {
         if (memberRepository.existsByEmail(email)) {
-            throw new MemberException.EmailAlreadyExistsException();
+            return false;
         }
         return true;
     }
@@ -234,7 +242,7 @@ public class MemberService {
     // 닉네임 중복 검사
     public boolean checkNickname(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
-            throw new MemberException.NicknameAlreadyExistsException();
+            return false;
         }
         return true;
     }
