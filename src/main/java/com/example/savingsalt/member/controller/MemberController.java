@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +51,7 @@ public class MemberController {
     private final MemberMapper memberMapper;
     private final MemberUpdateMapper memberUpdateMapper;
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "회원가입", description = "Signup new member")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Signup success",
@@ -173,7 +174,7 @@ public class MemberController {
     }
 
 
-    @PatchMapping("/members/update")
+    @PatchMapping(value = "/members/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "회원 정보 수정", description = "Update member info")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Update success"),
