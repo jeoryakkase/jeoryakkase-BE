@@ -4,6 +4,7 @@ import com.example.savingsalt.community.board.domain.entity.BoardEntity;
 import com.example.savingsalt.community.comment.domain.dto.CommentReqDto;
 import com.example.savingsalt.global.BaseEntity;
 import com.example.savingsalt.member.domain.entity.MemberEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +31,9 @@ public class CommentEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "representative_badge_id")
+    private Long representativeBadgeId;
+
     @NotNull
     private String content;
 
@@ -47,6 +51,7 @@ public class CommentEntity extends BaseEntity {
 
     public CommentEntity(CommentReqDto requestDto, BoardEntity saveBoard, MemberEntity member) {
         this.content = requestDto.getContent();
+        this.representativeBadgeId = member.getRepresentativeBadgeId();
         this.boardEntity = saveBoard;
         this.memberEntity = member;
     }
