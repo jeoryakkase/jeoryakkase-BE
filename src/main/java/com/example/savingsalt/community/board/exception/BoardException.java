@@ -46,6 +46,14 @@ public class BoardException extends RuntimeException {
         }
     }
 
+    public static class ImageNotFoundException extends BoardException{
+
+        public ImageNotFoundException() {
+            super("이미지를 찾을 수 없습니다.");
+        }
+
+    }
+
     public static class BoardServiceException extends BoardException {
 
         public BoardServiceException(String message) {
