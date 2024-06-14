@@ -16,7 +16,7 @@ public class MemberChallengeJoinResDto {
 
     private Long id;
 
-    private String challengeTtile;
+    private String challengeTitle;
 
     private String challengeTerm;
 
