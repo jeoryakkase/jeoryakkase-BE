@@ -23,7 +23,7 @@ public interface BoardService {
     // 절약팁 게시글 조회
     BoardTypeTipReadResDto findTipBoardById(Long id);
     // 절약팁 게시글 수정
-    BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto, MemberEntity member, List<String> newImageUrls, List<String> deleteImageUrls);
+    BoardTypeTipReadResDto updateTipBoard(Long id, BoardTypeTipCreateReqDto boardDto, MemberEntity member, List<String> newImageUrls);
     // 절약팁 게시글 삭제
     void deleteTipBoard(Long id, MemberEntity member);
 
