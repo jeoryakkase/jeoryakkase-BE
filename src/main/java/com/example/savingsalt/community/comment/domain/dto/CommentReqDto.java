@@ -14,4 +14,5 @@ public class CommentReqDto {
     private Long boardId;
     private String content;
 
+
 }
